@@ -11,7 +11,7 @@ uniquepath() {
       [ -n "${path}" ] && path="${path}:"
       path="${path}${REPLY}"
     fi
-  done < <(echo "${PATH}" | tr ":" "\\n")
+  done < <(echo "${PATH}" | tr ":" "\n")
 
   [ -n "${path}" ] && [[ ${PATH} =~ /bin ]] && [[ ${PATH} =~ /sbin ]] && export PATH="${path}"
 }
@@ -39,6 +39,24 @@ fi
 
 # make sure /etc/profile does not change our current directory
 cd "${NETDATA_SOURCE_DIR}" || exit 1
+
+# -----------------------------------------------------------------------------
+# set up handling for deferred error messages
+NETDATA_DEFERRED_ERRORS=""
+
+defer_error() {
+  NETDATA_DEFERRED_ERRORS="${NETDATA_DEFERRED_ERRORS}\n* ${1}"
+}
+
+print_deferred_errors() {
+  if [ -n "${NETDATA_DEFERRED_ERRORS}" ] ; then
+    echo >&2
+    echo >&2 "The following non-fatal errors were encountered during the installation process:"
+    # shellcheck disable=SC2059
+    printf >&2 "${NETDATA_DEFERRED_ERRORS}"
+    echo >&2
+  fi
+}
 
 # -----------------------------------------------------------------------------
 # load the required functions
@@ -100,16 +118,16 @@ ACLK="${ACLK}"
 
 # keep a log of this command
 # shellcheck disable=SC2129
-printf "\\n# " >> netdata-installer.log
+printf "\n# " >> netdata-installer.log
 date >> netdata-installer.log
 printf 'CFLAGS="%s" ' "${CFLAGS}" >> netdata-installer.log
 printf 'LDFLAGS="%s" ' "${LDFLAGS}" >> netdata-installer.log
 printf "%q " "${PROGRAM}" "${@}" >> netdata-installer.log
-printf "\\n" >> netdata-installer.log
+printf "\n" >> netdata-installer.log
 
 REINSTALL_OPTIONS="$(
   printf "%s" "${*}"
-  printf "\\n"
+  printf "\n"
 )"
 # remove options that shown not be inherited by netdata-updater.sh
 REINSTALL_OPTIONS="$(echo "${REINSTALL_OPTIONS}" | sed 's/--dont-wait//g' | sed 's/--dont-start-it//g')"
@@ -171,7 +189,7 @@ USAGE: ${PROGRAM} [options]
                              This results in more frequent updates.
   --disable-go               Disable installation of go.d.plugin.
   --enable-ebpf              Enable eBPF Kernel plugin (Default: disabled, feature preview)
-  --disable-cloud            Disable the agent-cloud link, required for Netdata Cloud functionality.
+  --disable-cloud            Disable all cloud functionality.
   --enable-plugin-freeipmi   Enable the FreeIPMI plugin. Default: enable it when libipmimonitoring is available.
   --disable-plugin-freeipmi
   --disable-https            Explicitly disable TLS support
@@ -259,7 +277,11 @@ while [ -n "${1}" ]; do
     "--enable-ebpf") NETDATA_ENABLE_EBPF=1 ;;
     "--disable-cloud")
       NETDATA_DISABLE_CLOUD=1
-      NETDATA_CONFIGURE_OPTIONS="${NETDATA_CONFIGURE_OPTIONS//--disable-aclk/} --disable-aclk"
+      NETDATA_CONFIGURE_OPTIONS="${NETDATA_CONFIGURE_OPTIONS//--disable-cloud/} --disable-cloud"
+      ;;
+    "--cloud-testing")          # Temporary, until we flip the feature flag. Internal use only
+      unset NETDATA_DISABLE_CLOUD
+      NETDATA_CONFIGURE_OPTIONS="${NETDATA_CONFIGURE_OPTIONS//--disable-cloud/} --enable-cloud"
       ;;
     "--install")
       NETDATA_PREFIX="${2}/netdata"
@@ -450,6 +472,7 @@ copy_libmosquitto() {
 
 bundle_libmosquitto() {
   if [ -n "${NETDATA_DISABLE_CLOUD}" ]; then
+    echo "Skipping cloud"
     return 0
   fi
 
@@ -480,9 +503,11 @@ bundle_libmosquitto() {
       run_ok "libmosquitto built and prepared."
     else
       run_failed "Failed to build libmosquitto. The install process will continue, but you will not be able to connect this node to Netdata Cloud."
+      defer_error "Failed to build libmosquitto. The install process will continue, but you will not be able to connect this node to Netdata Cloud."
     fi
   else
     run_failed "Unable to fetch sources for libmosquitto. The install process will continue, but you will not be able to connect this node to Netdata Cloud."
+    defer_error "Unable to fetch sources for libmosquitto. The install process will continue, but you will not be able to connect this node to Netdata Cloud."
   fi
 }
 
@@ -532,9 +557,11 @@ bundle_libwebsockets() {
       run_ok "libwebsockets built and prepared."
     else
       run_failed "Failed to build libwebsockets. The install process will continue, but you may not be able to connect this node to Netdata Cloud."
+      defer_error "Failed to build libwebsockets. The install process will continue, but you may not be able to connect this node to Netdata Cloud."
     fi
   else
     run_failed "Unable to fetch sources for libwebsockets. The install process will continue, but you may not be able to connect this node to Netdata Cloud."
+    defer_error "Unable to fetch sources for libwebsockets. The install process will continue, but you may not be able to connect this node to Netdata Cloud."
   fi
 }
 
@@ -1042,6 +1069,7 @@ install_go() {
 
   if [ ! -f "${tmp}/${GO_PACKAGE_BASENAME}" ] || [ ! -f "${tmp}/config.tar.gz" ] || [ ! -s "${tmp}/config.tar.gz" ] || [ ! -s "${tmp}/${GO_PACKAGE_BASENAME}" ]; then
     run_failed "go.d plugin download failed, go.d plugin will not be available"
+    defer_error "go.d plugin download failed, go.d plugin will not be available"
     echo >&2 "Either check the error or consider disabling it by issuing '--disable-go' in the installer"
     echo >&2
     return 0
@@ -1058,6 +1086,7 @@ install_go() {
     echo >&2
 
     run_failed "go.d.plugin package files checksum validation failed."
+    defer_error "go.d.plugin package files checksum validation failed, go.d.plugin will not be available"
     return 0
   fi
 
@@ -1486,6 +1515,8 @@ echo >&2 "Setting netdata.tarball.checksum to 'new_installation'"
 cat << EOF > "${NETDATA_LIB_DIR}/netdata.tarball.checksum"
 new_installation
 EOF
+
+print_deferred_errors
 
 # -----------------------------------------------------------------------------
 echo >&2

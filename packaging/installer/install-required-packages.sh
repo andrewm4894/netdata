@@ -417,7 +417,7 @@ detect_package_manager_from_distribution() {
       fi
       ;;
 
-    clear-linux* | clearlinux* )
+    clear-linux* | clearlinux*)
       package_installer="install_swupd"
       tree="clearlinux"
       if [ "${IGNORE_INSTALLED}" -eq 0 ] && [ -z "${swupd}" ]; then
@@ -752,6 +752,7 @@ declare -A pkg_netcat=(
   ['rhel']="nmap-ncat"
   ['suse']="netcat-openbsd"
   ['clearlinux']="sysadmin-basic"
+  ['arch']="gnu-netcat"
   ['default']="netcat"
 
   # exceptions
@@ -948,6 +949,7 @@ declare -A pkg_lz4=(
   ['suse']="liblz4-devel"
   ['gentoo']="app-arch/lz4"
   ['clearlinux']="devpkg-lz4"
+  ['arch']="lz4"
   ['default']="lz4-devel"
 )
 
@@ -967,6 +969,7 @@ declare -A pkg_openssl=(
   ['ubuntu']="libssl-dev"
   ['suse']="libopenssl-devel"
   ['clearlinux']="devpkg-openssl"
+  ['arch']="openssl"
   ['default']="openssl-devel"
 )
 
@@ -1029,6 +1032,7 @@ declare -A pkg_ulogd=(
   ['rhel']="WARNING|"
   ['clearlinux']="WARNING|"
   ['gentoo']="app-admin/ulogd"
+  ['arch']="ulogd"
   ['default']="ulogd2"
 )
 
@@ -1280,10 +1284,7 @@ install_apt_get() {
   read -r -a apt_opts <<< "$opts"
 
   # install the required packages
-  for pkg in "${@}"; do
-    [[ ${DRYRUN} -eq 0 ]] && echo >&2 "Adding package ${pkg}"
-    run ${sudo} apt-get "${apt_opts[@]}" install "${pkg}"
-  done
+  run ${sudo} apt-get "${apt_opts[@]}" install "${@}"
 }
 
 # -----------------------------------------------------------------------------
@@ -1322,7 +1323,7 @@ validate_tree_centos() {
     fi
   fi
 
-  if [ "$version" -eq 8 ]; then
+  if [[ "${version}" =~ ^8(\..*)?$ ]]; then
     echo >&2 " > Checking for config-manager ..."
     if ! run yum ${sudo} config-manager; then
       if prompt "config-manager not found, shall I install it?"; then
@@ -1337,12 +1338,16 @@ validate_tree_centos() {
       fi
     fi
 
-    echo >&2 " > Checking for getpagespeed-extras ..."
-    if ! run yum ${sudo} repolist | grep 'getpagespeed-extras'; then
-      if prompt "PowerTools not found, shall I install it?"; then
-        run ${sudo} yum ${opts} install https://extras.getpagespeed.com/release-el8-latest.rpm
+    echo >&2 " > Checking for Okay ..."
+    if ! rpm -qa | grep okay > /dev/null; then
+      if prompt "okay not found, shall I install it?"; then
+        run ${sudo} yum ${opts} install http://repo.okay.com.mx/centos/8/x86_64/release/okay-release-1-3.el8.noarch.rpm
       fi
     fi
+
+    echo >&2 " > Installing Judy-devel directly ..."
+    run ${sudo} yum ${opts} install http://mirror.centos.org/centos/8/PowerTools/x86_64/os/Packages/Judy-devel-1.0.5-18.module_el8.1.0+217+4d875839.x86_64.rpm
+
   elif [[ "${version}" =~ ^6\..*$ ]]; then
     echo >&2 " > Detected CentOS 6.x ..."
     echo >&2 " > Checking for Okay ..."
@@ -1351,6 +1356,7 @@ validate_tree_centos() {
         run ${sudo} yum ${opts} install http://repo.okay.com.mx/centos/6/x86_64/release/okay-release-1-3.el6.noarch.rpm
       fi
     fi
+
   fi
 }
 
@@ -1442,10 +1448,7 @@ install_emerge() {
   read -r -a emerge_opts <<< "$opts"
 
   # install the required packages
-  for pkg in "${@}"; do
-    [[ ${DRYRUN} -eq 0 ]] && echo >&2 "Adding package ${pkg}"
-    run ${sudo} emerge "${emerge_opts[@]}" -v --noreplace "${pkg}"
-  done
+  run ${sudo} emerge "${emerge_opts[@]}" -v --noreplace "${@}"
 }
 
 # -----------------------------------------------------------------------------
@@ -1503,10 +1506,7 @@ install_equo() {
   read -r -a equo_opts <<< "$opts"
 
   # install the required packages
-  for pkg in "${@}"; do
-    [[ ${DRYRUN} -eq 0 ]] && echo >&2 "Adding package ${pkg}"
-    run ${sudo} equo i "${equo_opts[@]}" "${pkg}"
-  done
+  run ${sudo} equo i "${equo_opts[@]}" "${@}"
 }
 
 # -----------------------------------------------------------------------------
@@ -1562,17 +1562,10 @@ install_pacman() {
   if [ "${NON_INTERACTIVE}" -eq 1 ]; then
     echo >&2 "Running in non-interactive mode"
     # http://unix.stackexchange.com/questions/52277/pacman-option-to-assume-yes-to-every-question/52278
-    for pkg in "${@}"; do
-      [[ ${DRYRUN} -eq 0 ]] && echo >&2 "Adding package ${pkg}"
-      # Try the noconfirm option, if that fails, go with the legacy way for non-interactive
-      run ${sudo} pacman --noconfirm --needed -S "${pkg}" || yes | run ${sudo} pacman --needed -S "${pkg}"
-    done
-
+    # Try the noconfirm option, if that fails, go with the legacy way for non-interactive
+    run ${sudo} pacman --noconfirm --needed -S "${@}" || yes | run ${sudo} pacman --needed -S "${@}"
   else
-    for pkg in "${@}"; do
-      [[ ${DRYRUN} -eq 0 ]] && echo >&2 "Adding package ${pkg}"
-      run ${sudo} pacman --needed -S "${pkg}"
-    done
+    run ${sudo} pacman --needed -S "${@}"
   fi
 }
 
@@ -1667,6 +1660,17 @@ if [ -z "${1}" ]; then
   exit 1
 fi
 
+pv=$(python --version 2>&1)
+if [[ "${pv}" =~ ^Python\ 2.* ]]; then
+  pv=2
+elif [[ "${pv}" =~ ^Python\ 3.* ]]; then
+  pv=3
+elif [[ "${tree}" == "centos" ]] && [ "${version}" -lt 8 ]; then
+  pv=2
+else
+  pv=3
+fi
+
 # parse command line arguments
 DONT_WAIT=0
 NON_INTERACTIVE=0
@@ -1708,17 +1712,24 @@ while [ -n "${1}" ]; do
     netdata-all)
       PACKAGES_NETDATA=1
       PACKAGES_NETDATA_NODEJS=1
-      PACKAGES_NETDATA_PYTHON=1
-      PACKAGES_NETDATA_PYTHON_MYSQL=1
-      PACKAGES_NETDATA_PYTHON_POSTGRES=1
-      PACKAGES_NETDATA_PYTHON_MONGO=1
+      if [ "${pv}" -eq 2 ] ; then
+        PACKAGES_NETDATA_PYTHON=1
+        PACKAGES_NETDATA_PYTHON_MYSQL=1
+        PACKAGES_NETDATA_PYTHON_POSTGRES=1
+        PACKAGES_NETDATA_PYTHON_MONGO=1
+      else
+        PACKAGES_NETDATA_PYTHON3=1
+        PACKAGES_NETDATA_PYTHON3_MYSQL=1
+        PACKAGES_NETDATA_PYTHON3_POSTGRES=1
+        PACKAGES_NETDATA_PYTHON3_MONGO=1
+      fi
       PACKAGES_NETDATA_SENSORS=1
       PACKAGES_NETDATA_DATABASE=1
       ;;
 
     netdata)
       PACKAGES_NETDATA=1
-      PACKAGES_NETDATA_PYTHON=1
+      PACKAGES_NETDATA_PYTHON3=1
       PACKAGES_NETDATA_DATABASE=1
       ;;
 
@@ -1731,18 +1742,33 @@ while [ -n "${1}" ]; do
       ;;
 
     python-mysql | mysql-python | mysqldb | netdata-mysql)
-      PACKAGES_NETDATA_PYTHON=1
-      PACKAGES_NETDATA_PYTHON_MYSQL=1
+      if [ "${pv}" -eq 2 ] ; then
+        PACKAGES_NETDATA_PYTHON=1
+        PACKAGES_NETDATA_PYTHON_MYSQL=1
+      else
+        PACKAGES_NETDATA_PYTHON3=1
+        PACKAGES_NETDATA_PYTHON3_MYSQL=1
+      fi
       ;;
 
     python-postgres | postgres-python | psycopg2 | netdata-postgres)
-      PACKAGES_NETDATA_PYTHON=1
-      PACKAGES_NETDATA_PYTHON_POSTGRES=1
+      if [ "${pv}" -eq 2 ] ; then
+        PACKAGES_NETDATA_PYTHON=1
+        PACKAGES_NETDATA_PYTHON_POSTGRES=1
+      else
+        PACKAGES_NETDATA_PYTHON3=1
+        PACKAGES_NETDATA_PYTHON3_POSTGRES=1
+      fi
       ;;
 
     python-pymongo)
-      PACKAGES_NETDATA_PYTHON=1
-      PACKAGES_NETDATA_PYTHON_MONGO=1
+      if [ "${pv}" -eq 2 ] ; then
+        PACKAGES_NETDATA_PYTHON=1
+        PACKAGES_NETDATA_PYTHON_MONGO=1
+      else
+        PACKAGES_NETDATA_PYTHON3=1
+        PACKAGES_NETDATA_PYTHON3_MONGO=1
+      fi
       ;;
 
     nodejs | netdata-nodejs)
@@ -1753,7 +1779,7 @@ while [ -n "${1}" ]; do
 
     sensors | netdata-sensors)
       PACKAGES_NETDATA=1
-      PACKAGES_NETDATA_PYTHON=1
+      PACKAGES_NETDATA_PYTHON3=1
       PACKAGES_NETDATA_SENSORS=1
       PACKAGES_NETDATA_DATABASE=1
       ;;
@@ -1769,11 +1795,17 @@ while [ -n "${1}" ]; do
     demo | all)
       PACKAGES_NETDATA=1
       PACKAGES_NETDATA_NODEJS=1
-      PACKAGES_NETDATA_PYTHON=1
-      PACKAGES_NETDATA_PYTHON3=1
-      PACKAGES_NETDATA_PYTHON_MYSQL=1
-      PACKAGES_NETDATA_PYTHON_POSTGRES=1
-      PACKAGES_NETDATA_PYTHON_MONGO=1
+      if [ "${pv}" -eq 2 ] ; then
+        PACKAGES_NETDATA_PYTHON=1
+        PACKAGES_NETDATA_PYTHON_MYSQL=1
+        PACKAGES_NETDATA_PYTHON_POSTGRES=1
+        PACKAGES_NETDATA_PYTHON_MONGO=1
+      else
+        PACKAGES_NETDATA_PYTHON3=1
+        PACKAGES_NETDATA_PYTHON3_MYSQL=1
+        PACKAGES_NETDATA_PYTHON3_POSTGRES=1
+        PACKAGES_NETDATA_PYTHON3_MONGO=1
+      fi
       PACKAGES_DEBUG=1
       PACKAGES_IPRANGE=1
       PACKAGES_FIREHOL=1
@@ -1820,16 +1852,6 @@ if [ -z "${package_installer}" ] || [ -z "${tree}" ]; then
 
   # Validate package manager trees
   validate_package_trees
-fi
-
-pv=$(python --version 2>&1)
-if [[ "${pv}" =~ ^Python\ 2.* ]]; then
-  pv=2
-elif [[ "${pv}" =~ ^Python\ 3.* ]]; then
-  pv=3
-  PACKAGES_NETDATA_PYTHON3=1
-else
-  pv=2
 fi
 
 [ "${detection}" = "/etc/os-release" ] && cat << EOF

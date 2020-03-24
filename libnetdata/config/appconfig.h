@@ -93,6 +93,7 @@
 #define CONFIG_SECTION_STREAM    "stream"
 #define CONFIG_SECTION_EXPORTING "exporting:global"
 #define CONFIG_SECTION_HOST_LABEL   "host labels"
+#define CONFIG_SECTION_ACLK        "agent_cloud_link"
 #define EXPORTING_CONF           "exporting.conf"
 
 // these are used to limit the configuration names and values lengths
@@ -140,7 +141,8 @@ struct section {
 };
 
 struct config {
-    struct section *sections;
+    struct section *first_section;
+    struct section *last_section; // optimize inserting at the end
     netdata_mutex_t mutex;
     avl_tree_lock index;
 };

@@ -612,11 +612,21 @@ set(CLAIM_PLUGIN_FILES
         )
 
 set(ACLK_PLUGIN_FILES
+        aclk/aclk_common.c
+        aclk/aclk_common.h
         aclk/agent_cloud_link.c
         aclk/agent_cloud_link.h
-        aclk/agent_cloud_link.c
+        aclk/aclk_lws_wss_client.c
+        aclk/aclk_lws_wss_client.h
+        aclk/aclk_lws_https_client.c
+        aclk/aclk_lws_https_client.h
         aclk/mqtt.c
         aclk/mqtt.h
+        )
+
+set(ACLK_STATIC_LIBS
+        ${CMAKE_SOURCE_DIR}/externaldeps/mosquitto/libmosquitto.a
+        ${CMAKE_SOURCE_DIR}/externaldeps/libwebsockets/libwebsockets.a
         )
 
 set(EXPORTING_ENGINE_FILES
@@ -628,12 +638,21 @@ set(EXPORTING_ENGINE_FILES
         exporting/json/json.h
         exporting/opentsdb/opentsdb.c
         exporting/opentsdb/opentsdb.h
+        exporting/prometheus/prometheus.c
+        exporting/prometheus/prometheus.h
         exporting/read_config.c
         exporting/init_connectors.c
         exporting/process_data.c
         exporting/check_filters.c
         exporting/send_data.c
         exporting/send_internal_metrics.c
+        )
+
+set(PROMETHEUS_REMOTE_WRITE_EXPORTING_FILES
+        exporting/prometheus/remote_write/remote_write.c
+        exporting/prometheus/remote_write/remote_write.h
+        exporting/prometheus/remote_write/remote_write_request.cc
+        exporting/prometheus/remote_write/remote_write_request.h
         )
 
 set(KINESIS_EXPORTING_FILES
@@ -693,8 +712,7 @@ set(NETDATA_FILES
         ${STREAMING_PLUGIN_FILES}
         ${WEB_PLUGIN_FILES}
         ${CLAIM_PLUGIN_FILES}
-        ${ACLK_PLUGIN_FILES}
-        )
+)
 
 set(NETDATACLI_FILES
         daemon/commands.h
@@ -748,9 +766,9 @@ IF(ENABLE_BACKEND_PROMETHEUS_REMOTE_WRITE)
     message(STATUS "prometheus remote write backend: enabled")
 
     find_package(Protobuf REQUIRED)
-    protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS backends/prometheus/remote_write/remote_write.proto)
+    protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS exporting/prometheus/remote_write/remote_write.proto)
 
-    list(APPEND NETDATA_FILES ${PROMETHEUS_REMOTE_WRITE_BACKEND_FILES} ${PROTO_SRCS} ${PROTO_HDRS})
+    list(APPEND NETDATA_FILES ${PROMETHEUS_REMOTE_WRITE_BACKEND_FILES} ${PROMETHEUS_REMOTE_WRITE_EXPORTING_FILES} ${PROTO_SRCS} ${PROTO_HDRS})
     list(APPEND NETDATA_COMMON_LIBRARIES ${PROTOBUF_LIBRARIES} ${SNAPPY_LIBRARIES})
     list(APPEND NETDATA_COMMON_INCLUDE_DIRS ${PROTOBUF_INCLUDE_DIRS} ${SNAPPY_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
     list(APPEND NETDATA_COMMON_CFLAGS ${PROTOBUF_CFLAGS_OTHER} ${SNAPPY_CFLAGS_OTHER})
@@ -771,10 +789,37 @@ ELSE()
     message(STATUS "mongodb backend: disabled (requires mongoc library)")
 ENDIF()
 
+set(NETDATA_COMMON_LIBRARIES ${NETDATA_COMMON_LIBRARIES} m ${CMAKE_THREAD_LIBS_INIT})
+
+IF("$ENV{ACLK}")
+    set(ACLK_CAN_BUILD 1)
+    if(NOT EXISTS "${CMAKE_SOURCE_DIR}/externaldeps/mosquitto/libmosquitto.a")
+        message(WARNING "Static build of mosquitto not found. Disabling ACLK")
+        set(ACLK_CAN_BUILD 0)
+    ENDIF()
+
+    if(NOT EXISTS "${CMAKE_SOURCE_DIR}/externaldeps/libwebsockets/libwebsockets.a")
+        message(WARNING "Static build of libwebsockets not found. Disabling ACLK")
+        set(ACLK_CAN_BUILD 0)
+    ENDIF()
+
+    IF(ACLK_CAN_BUILD)
+        message(STATUS "agent-cloud-link: enabled")
+        list(APPEND NETDATA_FILES ${ACLK_PLUGIN_FILES})
+        list(APPEND NETDATA_COMMON_LIBRARIES ${ACLK_STATIC_LIBS})
+        include_directories(BEFORE ${CMAKE_SOURCE_DIR}/externaldeps/libwebsockets/include)
+        IF(LINUX AND CAP_FOUND)
+            list(APPEND NETDATA_COMMON_LIBRARIES ${CAP_LIBRARIES})
+            list(APPEND NETDATA_COMMON_INCLUDE_DIRS ${CAP_INCLUDE_DIRS})
+            list(APPEND NETDATA_COMMON_CFLAGS ${CAP_CFLAGS_OTHER})
+        ENDIF()
+    ELSE()
+        message(STATUS "agent-cloud-link: disabled")
+    ENDIF()
+ENDIF()
+
 # -----------------------------------------------------------------------------
 # netdata
-
-set(NETDATA_COMMON_LIBRARIES ${NETDATA_COMMON_LIBRARIES} m ${CMAKE_THREAD_LIBS_INIT})
 
 IF(LINUX)
     add_executable(netdata config.h ${NETDATA_FILES}
@@ -989,6 +1034,17 @@ if(BUILD_TESTING)
         )
     set(TEST_NAME exporting_engine)
     set(KINESIS_LINK_OPTIONS)
+    set(PROMETHEUS_REMOTE_WRITE_LINK_OPTIONS)
+if(ENABLE_BACKEND_PROMETHEUS_REMOTE_WRITE)
+    list(APPEND EXPORTING_ENGINE_FILES ${PROMETHEUS_REMOTE_WRITE_EXPORTING_FILES} ${PROTO_SRCS} ${PROTO_HDRS})
+    list(
+        APPEND PROMETHEUS_REMOTE_WRITE_LINK_OPTIONS
+        -Wl,--wrap=init_write_request
+        -Wl,--wrap=add_host_info
+        -Wl,--wrap=add_label
+        -Wl,--wrap=add_metric
+    )
+endif()
 if(ENABLE_BACKEND_KINESIS)
     list(APPEND EXPORTING_ENGINE_FILES ${KINESIS_EXPORTING_FILES})
     list(
@@ -1005,6 +1061,7 @@ endif()
         PRIVATE
         -DUNIT_TESTING
     )
+    target_include_directories(${TEST_NAME}_testdriver PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
     target_link_options(
         ${TEST_NAME}_testdriver
         PRIVATE
@@ -1030,6 +1087,7 @@ endif()
         -Wl,--wrap=send
         -Wl,--wrap=connect_to_one_of
         ${KINESIS_LINK_OPTIONS}
+        ${PROMETHEUS_REMOTE_WRITE_LINK_OPTIONS}
     )
     target_link_libraries(${TEST_NAME}_testdriver libnetdata ${NETDATA_COMMON_LIBRARIES} ${CMOCKA_LIBRARIES})
     add_test(NAME test_${TEST_NAME} COMMAND ${TEST_NAME}_testdriver)

@@ -2,83 +2,27 @@
 
 #include "libnetdata/libnetdata.h"
 #include "agent_cloud_link.h"
+#include "aclk_lws_https_client.h"
+#include "aclk_common.h"
 
-// Read from the config file -- new section [agent_cloud_link]
-// Defaults are supplied
+int aclk_shutting_down = 0;
+// State-machine for the on-connect metadata transmission.
+// TODO: The AGENT_STATE should be centralized as it would be useful to control error-logging during the initial
+//       agent startup phase.
+static ACLK_METADATA_STATE aclk_metadata_submitted = ACLK_METADATA_REQUIRED;
+static AGENT_STATE agent_state = AGENT_INITIALIZING;
 
-int aclk_port = ACLK_DEFAULT_PORT;
-char *aclk_hostname = ACLK_DEFAULT_HOST;
-int aclk_subscribed = 0;
-int aclk_disable_single_updates = 0;
+// Other global state
+static int aclk_subscribed = 0;
+static int aclk_disable_single_updates = 0;
+static time_t last_init_sequence = 0;
+static int waiting_init = 1;
+static char *aclk_username = NULL;
+static char *aclk_password = NULL;
 
-int aclk_metadata_submitted = 0;
-int agent_state = 0;
-time_t last_init_sequence = 0;
-int waiting_init = 1;
-
-char *global_base_topic = NULL;
-int aclk_connecting = 0;
-
-char *create_uuid()
-{
-    uuid_t uuid;
-    char *uuid_str = mallocz(36 + 1);
-
-    uuid_generate(uuid);
-    uuid_unparse(uuid, uuid_str);
-
-    return uuid_str;
-}
-
-int cloud_to_agent_parse(JSON_ENTRY *e)
-{
-    struct aclk_request *data = e->callback_data;
-
-    switch(e->type) {
-        case JSON_OBJECT:
-        case JSON_ARRAY:
-                break;
-        case JSON_STRING:
-            if (!strcmp(e->name, ACLK_JSON_IN_MSGID)) {
-                data->msg_id = strdupz(e->data.string);
-                break;
-            }
-            if (!strcmp(e->name, ACLK_JSON_IN_TYPE)) {
-                data->type_id = strdupz(e->data.string);
-                break;
-            }
-            if (!strcmp(e->name, ACLK_JSON_IN_TOPIC)) {
-                data->callback_topic = strdupz(e->data.string);
-                break;
-            }
-            if (!strcmp(e->name, ACLK_JSON_IN_URL)) {
-                data->payload = strdupz(e->data.string);
-                break;
-            }
-            break;
-        case JSON_NUMBER:
-            if (!strcmp(e->name, ACLK_JSON_IN_VERSION)) {
-                data->version = atoi(e->original_string);
-                break;
-            }
-            break;
-
-        case JSON_BOOLEAN:
-            break;
-
-        case JSON_NULL:
-            break;
-    }
-    return 0;
-}
-
-
-// Set when we have connection up and running from the connection callback
-int aclk_connection_initialized = 0;
-// TODO modify previous comment if this stays this way
-// con_initialized means library is initialized and ready to be used
-// acklk_connected means there is actually an established connection
-int aclk_mqtt_connected = 0;
+static char *global_base_topic = NULL;
+static int aclk_connecting = 0;
+static int aclk_connected = 0;
 
 static netdata_mutex_t aclk_mutex = NETDATA_MUTEX_INITIALIZER;
 static netdata_mutex_t query_mutex = NETDATA_MUTEX_INITIALIZER;
@@ -93,13 +37,14 @@ static netdata_mutex_t collector_mutex = NETDATA_MUTEX_INITIALIZER;
 #define QUERY_LOCK netdata_mutex_lock(&query_mutex)
 #define QUERY_UNLOCK netdata_mutex_unlock(&query_mutex)
 
-pthread_cond_t  query_cond_wait = PTHREAD_COND_INITIALIZER;
+pthread_cond_t query_cond_wait = PTHREAD_COND_INITIALIZER;
 pthread_mutex_t query_lock_wait = PTHREAD_MUTEX_INITIALIZER;
 
 #define QUERY_THREAD_LOCK pthread_mutex_lock(&query_lock_wait);
 #define QUERY_THREAD_UNLOCK pthread_mutex_unlock(&query_lock_wait)
 #define QUERY_THREAD_WAKEUP pthread_cond_signal(&query_cond_wait)
 
+void lws_wss_check_queues(size_t *write_len, size_t *write_len_bytes, size_t *read_len);
 
 /*
  * Maintain a list of collectors and chart count
@@ -109,10 +54,10 @@ pthread_mutex_t query_lock_wait = PTHREAD_MUTEX_INITIALIZER;
  */
 struct _collector {
     time_t created;
-    u_int32_t count;       //chart count
-    u_int32_t hostname_hash;
-    u_int32_t plugin_hash;
-    u_int32_t module_hash;
+    uint32_t count; //chart count
+    uint32_t hostname_hash;
+    uint32_t plugin_hash;
+    uint32_t module_hash;
     char *hostname;
     char *plugin_name;
     char *module_name;
@@ -136,8 +81,111 @@ struct aclk_query {
 struct aclk_query_queue {
     struct aclk_query *aclk_query_head;
     struct aclk_query *aclk_query_tail;
-    u_int64_t count;
+    uint64_t count;
 } aclk_queue = { .aclk_query_head = NULL, .aclk_query_tail = NULL, .count = 0 };
+
+char *create_uuid()
+{
+    uuid_t uuid;
+    char *uuid_str = mallocz(36 + 1);
+
+    uuid_generate(uuid);
+    uuid_unparse(uuid, uuid_str);
+
+    return uuid_str;
+}
+
+int cloud_to_agent_parse(JSON_ENTRY *e)
+{
+    struct aclk_request *data = e->callback_data;
+
+    switch (e->type) {
+        case JSON_OBJECT:
+        case JSON_ARRAY:
+            break;
+        case JSON_STRING:
+            if (!strcmp(e->name, "msg-id")) {
+                data->msg_id = strdupz(e->data.string);
+                break;
+            }
+            if (!strcmp(e->name, "type")) {
+                data->type_id = strdupz(e->data.string);
+                break;
+            }
+            if (!strcmp(e->name, "callback-topic")) {
+                data->callback_topic = strdupz(e->data.string);
+                break;
+            }
+            if (!strcmp(e->name, "payload")) {
+                data->payload = strdupz(e->data.string);
+                break;
+            }
+            break;
+        case JSON_NUMBER:
+            if (!strcmp(e->name, "version")) {
+                data->version = atoi(e->original_string);
+                break;
+            }
+            break;
+
+        case JSON_BOOLEAN:
+            break;
+
+        case JSON_NULL:
+            break;
+    }
+    return 0;
+}
+
+
+static RSA *aclk_private_key = NULL;
+static int create_private_key()
+{
+    char filename[FILENAME_MAX + 1];    struct stat statbuf;
+    snprintfz(filename, FILENAME_MAX, "%s/claim.d/private.pem", netdata_configured_user_config_dir);
+
+    if (lstat(filename, &statbuf) != 0) {
+        error("Claimed agent cannot establish ACLK - private key not found '%s' failed.", filename);
+        return 1;
+    }
+    if (unlikely(statbuf.st_size == 0)) {
+        info("Claimed agent cannot establish ACLK - private key '%s' is empty.", filename);
+        return 1;
+    }
+
+    FILE *f = fopen(filename, "rt");
+    if (unlikely(f == NULL)) {
+        error("Claimed agent cannot establish ACLK - unable to open private key '%s'.", filename);
+        return 1;
+    }
+
+    char *private_key = callocz(1, statbuf.st_size + 1);
+    size_t bytes_read = fread(private_key, 1, statbuf.st_size, f);
+    private_key[bytes_read] = 0;
+    debug(D_ACLK, "Claimed agent loaded private key len=%zu bytes", bytes_read);
+    fclose(f);
+
+    BIO *key_bio = BIO_new_mem_buf(private_key, -1);
+    if (key_bio==NULL) {
+        error("Claimed agent cannot establish ACLK - failed to create BIO for key");
+        goto biofailed;
+    }
+
+    aclk_private_key = PEM_read_bio_RSAPrivateKey(key_bio, NULL, NULL, NULL);
+    BIO_free(key_bio);
+    if (aclk_private_key!=NULL)
+    {
+        freez(private_key);
+        return 0;
+    }
+    char err[512];
+    ERR_error_string_n(ERR_get_error(), err, sizeof(err));
+    error("Claimed agent cannot establish ACLK - cannot create private key: %s", err);
+
+biofailed:
+    freez(private_key);
+    return 1;
+}
 
 /*
  * After a connection failure -- delay in milliseconds
@@ -150,12 +198,12 @@ struct aclk_query_queue {
  */
 unsigned long int aclk_reconnect_delay(int mode)
 {
-    static  int fail = -1;
+    static int fail = -1;
     unsigned long int delay;
 
     if (!mode || fail == -1) {
         srandom(time(NULL));
-        fail = mode-1;
+        fail = mode - 1;
         return 0;
     }
 
@@ -163,13 +211,12 @@ unsigned long int aclk_reconnect_delay(int mode)
 
     if (delay >= ACLK_MAX_BACKOFF_DELAY) {
         delay = ACLK_MAX_BACKOFF_DELAY * 1000;
-    }
-    else {
+    } else {
         fail++;
         delay = (delay * 1000) + (random() % 1000);
     }
 
-//    sleep_usec(USEC_PER_MS * delay);
+    //    sleep_usec(USEC_PER_MS * delay);
 
     return delay;
 }
@@ -220,7 +267,8 @@ struct aclk_query *aclk_query_find_position(time_t time_to_run)
 }
 
 // Need to have a QUERY lock before calling this
-struct aclk_query *aclk_query_find(char *topic, char *data, char *msg_id, char *query, ACLK_CMD cmd, struct aclk_query **last_query)
+struct aclk_query *
+aclk_query_find(char *topic, char *data, char *msg_id, char *query, ACLK_CMD cmd, struct aclk_query **last_query)
 {
     struct aclk_query *tmp_query, *prev_query;
     UNUSED(cmd);
@@ -232,7 +280,6 @@ struct aclk_query *aclk_query_find(char *topic, char *data, char *msg_id, char *
             if (strcmp(tmp_query->topic, topic) == 0 && (!query || strcmp(tmp_query->query, query) == 0)) {
                 if ((!data || (data && strcmp(data, tmp_query->data) == 0)) &&
                     (!msg_id || (msg_id && strcmp(msg_id, tmp_query->msg_id) == 0))) {
-
                     if (likely(last_query))
                         *last_query = prev_query;
                     return tmp_query;
@@ -256,12 +303,6 @@ int aclk_queue_query(char *topic, char *data, char *msg_id, char *query, int run
     // Ignore all commands while we wait for the agent to initialize
     if (unlikely(waiting_init))
         return 0;
-
-    // Ignore all commands if agent not stable and reset the last_init_sequence mark
-    if (agent_state == 0) {
-        last_init_sequence = now_realtime_sec();
-        return 0;
-    }
 
     run_after = now_realtime_sec() + run_after;
 
@@ -306,7 +347,7 @@ int aclk_queue_query(char *topic, char *data, char *msg_id, char *query, int run
     new_query->created = now_realtime_sec();
     new_query->run_after = run_after;
 
-    debug(D_ACLK, "Added query (%s) (%s)", topic, query?query:"");
+    debug(D_ACLK, "Added query (%s) (%s)", topic, query ? query : "");
 
     tmp_query = aclk_query_find_position(run_after);
 
@@ -401,7 +442,6 @@ struct aclk_query *aclk_queue_pop()
 // Need to check if additional logic should be added to make sure that there
 // is enough information to determine the base topic at init time
 
-
 char *create_publish_base_topic()
 {
     if (unlikely(!is_agent_claimed()))
@@ -446,14 +486,12 @@ char *get_topic(char *sub_topic, char *final_topic, int max_size)
     return final_topic;
 }
 
-
 /*
  * Free a collector structure
  */
 
 static void _free_collector(struct _collector *collector)
 {
-
     if (likely(collector->plugin_name))
         freez(collector->plugin_name);
 
@@ -473,8 +511,7 @@ static void _free_collector(struct _collector *collector)
 #ifdef ACLK_DEBUG
 static void _dump_connector_list()
 {
-
-    struct _collector  *tmp_collector;
+    struct _collector *tmp_collector;
 
     COLLECTOR_LOCK;
 
@@ -496,7 +533,6 @@ static void _dump_connector_list()
             tmp_collector->module_name ? tmp_collector->module_name : "", tmp_collector->count);
 
         tmp_collector = tmp_collector->next;
-
     }
     info("DUMPING ALL COLLECTORS DONE");
     COLLECTOR_UNLOCK;
@@ -509,7 +545,7 @@ static void _dump_connector_list()
  */
 static void _reset_connector_list()
 {
-    struct _collector  *tmp_collector, *next_collector;
+    struct _collector *tmp_collector, *next_collector;
 
     COLLECTOR_LOCK;
 
@@ -519,9 +555,9 @@ static void _reset_connector_list()
     }
 
     // Note that the first entry is "dummy"
-    tmp_collector  = collector_list->next;
+    tmp_collector = collector_list->next;
     collector_list->count = 0;
-    collector_list->next  = NULL;
+    collector_list->next = NULL;
 
     // We broke the link; we can unlock
     COLLECTOR_UNLOCK;
@@ -533,14 +569,14 @@ static void _reset_connector_list()
     }
 }
 
-
 /*
  * Find a collector (if it exists)
  * Must lock before calling this
  * If last_collector is not null, it will return the previous collector in the linked
  * list (used in collector delete)
  */
-static struct _collector *_find_collector(const char *hostname, const char *plugin_name, const char *module_name, struct _collector **last_collector)
+static struct _collector *_find_collector(
+    const char *hostname, const char *plugin_name, const char *module_name, struct _collector **last_collector)
 {
     struct _collector *tmp_collector, *prev_collector;
     uint32_t plugin_hash;
@@ -555,21 +591,18 @@ static struct _collector *_find_collector(const char *hostname, const char *plug
     if (unlikely(!collector_list->next))
         return NULL;
 
-    plugin_hash = plugin_name?simple_hash(plugin_name):1;
-    module_hash = module_name?simple_hash(module_name):1;
+    plugin_hash = plugin_name ? simple_hash(plugin_name) : 1;
+    module_hash = module_name ? simple_hash(module_name) : 1;
     hostname_hash = simple_hash(hostname);
 
     // Note that the first entry is "dummy"
-    tmp_collector  = collector_list->next;
+    tmp_collector = collector_list->next;
     prev_collector = collector_list;
     while (tmp_collector) {
-        if (plugin_hash == tmp_collector->plugin_hash &&
-            module_hash == tmp_collector->module_hash &&
-            hostname_hash == tmp_collector->hostname_hash &&
-            (!strcmp(hostname, tmp_collector->hostname)) &&
+        if (plugin_hash == tmp_collector->plugin_hash && module_hash == tmp_collector->module_hash &&
+            hostname_hash == tmp_collector->hostname_hash && (!strcmp(hostname, tmp_collector->hostname)) &&
             (!plugin_name || !tmp_collector->plugin_name || !strcmp(plugin_name, tmp_collector->plugin_name)) &&
             (!module_name || !tmp_collector->module_name || !strcmp(module_name, tmp_collector->module_name))) {
-
             if (unlikely(last_collector))
                 *last_collector = prev_collector;
 
@@ -593,7 +626,7 @@ static struct _collector *_find_collector(const char *hostname, const char *plug
  */
 static struct _collector *_del_collector(const char *hostname, const char *plugin_name, const char *module_name)
 {
-    struct _collector  *tmp_collector, *prev_collector = NULL;
+    struct _collector *tmp_collector, *prev_collector = NULL;
 
     tmp_collector = _find_collector(hostname, plugin_name, module_name, &prev_collector);
 
@@ -605,35 +638,35 @@ static struct _collector *_del_collector(const char *hostname, const char *plugi
     return tmp_collector;
 }
 
-
 /*
  * Add a new collector (plugin / module) to the list
  * If it already exists just update the chart count
  *
  * Lock before calling
  */
-static struct _collector  *_add_collector(const char *hostname, const char *plugin_name, const char *module_name)
+static struct _collector *_add_collector(const char *hostname, const char *plugin_name, const char *module_name)
 {
-    struct _collector  *tmp_collector;
+    struct _collector *tmp_collector;
 
     tmp_collector = _find_collector(hostname, plugin_name, module_name, NULL);
 
     if (unlikely(!tmp_collector)) {
-
         tmp_collector = callocz(1, sizeof(struct _collector));
         tmp_collector->hostname_hash = simple_hash(hostname);
-        tmp_collector->plugin_hash = plugin_name?simple_hash(plugin_name):1;
-        tmp_collector->module_hash = module_name?simple_hash(module_name):1;
+        tmp_collector->plugin_hash = plugin_name ? simple_hash(plugin_name) : 1;
+        tmp_collector->module_hash = module_name ? simple_hash(module_name) : 1;
 
         tmp_collector->hostname = strdupz(hostname);
-        tmp_collector->plugin_name = plugin_name?strdupz(plugin_name):NULL;
-        tmp_collector->module_name = module_name?strdupz(module_name):NULL;
+        tmp_collector->plugin_name = plugin_name ? strdupz(plugin_name) : NULL;
+        tmp_collector->module_name = module_name ? strdupz(module_name) : NULL;
 
         tmp_collector->next = collector_list->next;
         collector_list->next = tmp_collector;
     }
     tmp_collector->count++;
-    debug(D_ACLK, "ADD COLLECTOR %s [%s:%s] -- chart %u", hostname, plugin_name?plugin_name:"*", module_name?module_name:"*", tmp_collector->count);
+    debug(
+        D_ACLK, "ADD COLLECTOR %s [%s:%s] -- chart %u", hostname, plugin_name ? plugin_name : "*",
+        module_name ? module_name : "*", tmp_collector->count);
     return tmp_collector;
 }
 
@@ -643,7 +676,7 @@ static struct _collector  *_add_collector(const char *hostname, const char *plug
  */
 void aclk_add_collector(const char *hostname, const char *plugin_name, const char *module_name)
 {
-    struct _collector  *tmp_collector;
+    struct _collector *tmp_collector;
 
     COLLECTOR_LOCK;
 
@@ -654,7 +687,10 @@ void aclk_add_collector(const char *hostname, const char *plugin_name, const cha
         return;
     }
 
-    aclk_queue_query("connector", NULL, NULL, NULL, 0, 1, ACLK_CMD_ONCONNECT);
+    if (unlikely(agent_state == AGENT_INITIALIZING))
+        last_init_sequence = now_realtime_sec();
+    else
+        aclk_queue_query("connector", NULL, NULL, NULL, 0, 1, ACLK_CMD_ONCONNECT);
 
     COLLECTOR_UNLOCK;
 }
@@ -669,7 +705,7 @@ void aclk_add_collector(const char *hostname, const char *plugin_name, const cha
  */
 void aclk_del_collector(const char *hostname, const char *plugin_name, const char *module_name)
 {
-    struct _collector  *tmp_collector;
+    struct _collector *tmp_collector;
 
     COLLECTOR_LOCK;
 
@@ -680,36 +716,18 @@ void aclk_del_collector(const char *hostname, const char *plugin_name, const cha
         return;
     }
 
-    debug(D_ACLK, "DEL COLLECTOR [%s:%s] -- charts %u", plugin_name?plugin_name:"*", module_name?module_name:"*", tmp_collector->count);
+    debug(
+        D_ACLK, "DEL COLLECTOR [%s:%s] -- charts %u", plugin_name ? plugin_name : "*", module_name ? module_name : "*",
+        tmp_collector->count);
 
     COLLECTOR_UNLOCK;
 
-    aclk_queue_query("on_connect", NULL, NULL, NULL, 0, 1, ACLK_CMD_ONCONNECT);
+    if (unlikely(agent_state == AGENT_INITIALIZING))
+        last_init_sequence = now_realtime_sec();
+    else
+        aclk_queue_query("on_connect", NULL, NULL, NULL, 0, 1, ACLK_CMD_ONCONNECT);
 
     _free_collector(tmp_collector);
-}
-
-
-// Wait for ACLK connection to be established
-int aclk_wait_for_initialization()
-{
-    if (unlikely(!aclk_connection_initialized)) {
-        time_t now = now_realtime_sec();
-
-        while (!aclk_connection_initialized && (now_realtime_sec() - now) < ACLK_INITIALIZATION_WAIT) {
-            sleep_usec(USEC_PER_SEC * ACLK_INITIALIZATION_SLEEP_WAIT);
-            _link_event_loop(0);
-
-            if (unlikely(!netdata_exit))
-                return 1;
-        }
-
-        if (unlikely(!aclk_connection_initialized)) {
-            error("ACLK connection cannot be established");
-            return 1;
-        }
-    }
-    return 0;
 }
 
 int aclk_execute_query(struct aclk_query *this_query)
@@ -733,18 +751,20 @@ int aclk_execute_query(struct aclk_query *this_query)
 
         // TODO: handle bad response perhaps in a different way. For now it does to the payload
         int rc = web_client_api_request_v1(localhost, w, mysep ? mysep + 1 : "noop");
-        BUFFER  *local_buffer = buffer_create(NETDATA_WEB_RESPONSE_INITIAL_SIZE);
+        BUFFER *local_buffer = buffer_create(NETDATA_WEB_RESPONSE_INITIAL_SIZE);
         buffer_flush(local_buffer);
         local_buffer->contenttype = CT_APPLICATION_JSON;
 
         aclk_create_header(local_buffer, "http", this_query->msg_id);
 
-        if (rc != HTTP_RESP_OK || strcmp(mysep?mysep+1:"noop", "badge.svg") == 0)
-            buffer_sprintf(local_buffer, "\"%s\"", aclk_encode_response(w->response.data)->buffer);
-        else
-            buffer_sprintf(local_buffer, "%s", aclk_encode_response(w->response.data)->buffer);
+        //if (rc != HTTP_RESP_OK || strcmp(mysep ? mysep + 1 : "noop", "badge.svg") == 0)
+        buffer_sprintf(
+            local_buffer, "{\n\"code\": %d,\n\"body\": \"%s\"\n}", rc, aclk_encode_response(w->response.data)->buffer);
+        //else
+        //    buffer_sprintf(local_buffer, "{\n\"code\": %d,\n\"body\": %s\n}", rc,
+        //      aclk_encode_response(w->response.data)->buffer);
 
-        buffer_sprintf(local_buffer,"\n}");
+        buffer_sprintf(local_buffer, "\n}");
 
         aclk_send_message(this_query->topic, local_buffer->buffer, this_query->msg_id);
 
@@ -765,7 +785,7 @@ int aclk_process_query()
     struct aclk_query *this_query;
     static long int query_count = 0;
 
-    if (!aclk_connection_initialized)
+    if (!aclk_connected)
         return 0;
 
     this_query = aclk_queue_pop();
@@ -781,15 +801,14 @@ int aclk_process_query()
     query_count++;
 
     debug(
-        D_ACLK, "Query #%ld (%s) size=%ld in queue %d seconds", query_count, this_query->topic, this_query->query?strlen(this_query->query):0,
-        (int)(now_realtime_sec() - this_query->created));
+        D_ACLK, "Query #%ld (%s) size=%zu in queue %d seconds", query_count, this_query->topic,
+        this_query->query ? strlen(this_query->query) : 0, (int)(now_realtime_sec() - this_query->created));
 
     switch (this_query->cmd) {
-
         case ACLK_CMD_ONCONNECT:
             debug(D_ACLK, "EXECUTING on connect metadata command");
             aclk_send_metadata();
-            aclk_metadata_submitted = 2;
+            aclk_metadata_submitted = ACLK_METADATA_SENT;
             break;
 
         case ACLK_CMD_CHART:
@@ -821,8 +840,7 @@ int aclk_process_query()
         default:
             break;
     }
-    debug(
-        D_ACLK, "Query #%ld (%s) done", query_count, this_query->topic);
+    debug(D_ACLK, "Query #%ld (%s) done", query_count, this_query->topic);
 
     aclk_query_free(this_query);
 
@@ -837,13 +855,13 @@ int aclk_process_query()
 
 int aclk_process_queries()
 {
-    if (unlikely(netdata_exit || !aclk_connection_initialized))
+    if (unlikely(netdata_exit || !aclk_connected))
         return 0;
 
     if (likely(!aclk_queue.count))
         return 0;
 
-    debug(D_ACLK, "Processing %d queries", (int ) aclk_queue.count);
+    debug(D_ACLK, "Processing %d queries", (int)aclk_queue.count);
 
     //TODO: may consider possible throttling here
     while (aclk_process_query()) {
@@ -876,31 +894,31 @@ static void aclk_query_thread_cleanup(void *ptr)
  * On startup wait for the agent collectors to initialize
  * Expect at least a time of ACLK_STABLE_TIMEOUT seconds
  * of no new collectors coming in in order to mark the agent
- * as stable (set agent_state = 1)
+ * as stable (set agent_state = AGENT_STABLE)
  */
 void *aclk_query_main_thread(void *ptr)
 {
     netdata_thread_cleanup_push(aclk_query_thread_cleanup, ptr);
 
-    while (!agent_state && !netdata_exit) {
-        time_t  checkpoint;
+    while (agent_state == AGENT_INITIALIZING && !netdata_exit) {
+        time_t checkpoint;
 
-        checkpoint =  now_realtime_sec() - last_init_sequence;
-        info("Waiting for agent collectors to initialize");
-        sleep_usec(USEC_PER_SEC * ACLK_STABLE_TIMEOUT);
+        checkpoint = now_realtime_sec() - last_init_sequence;
         if (checkpoint > ACLK_STABLE_TIMEOUT) {
-            agent_state = 1;
+            agent_state = AGENT_STABLE;
             info("AGENT stable, last collector initialization activity was %ld seconds ago", checkpoint);
 #ifdef ACLK_DEBUG
             _dump_connector_list();
 #endif
+            break;
         }
+        info("Waiting for agent collectors to initialize. Last activity was %ld seconds ago" , checkpoint);
+        sleep_usec(USEC_PER_SEC * 1);
     }
 
     while (!netdata_exit) {
-
         if (unlikely(!aclk_metadata_submitted)) {
-            aclk_metadata_submitted = 1;
+            aclk_metadata_submitted = ACLK_METADATA_CMD_QUEUED;
             aclk_queue_query("on_connect", NULL, NULL, NULL, 0, 1, ACLK_CMD_ONCONNECT);
         }
 
@@ -923,16 +941,343 @@ void *aclk_query_main_thread(void *ptr)
 // Thread cleanup
 static void aclk_main_cleanup(void *ptr)
 {
+    char payload[512];
     struct netdata_static_thread *static_thread = (struct netdata_static_thread *)ptr;
     static_thread->enabled = NETDATA_MAIN_THREAD_EXITING;
 
     info("cleaning up...");
 
-    // Wakeup thread to cleanup
-    QUERY_THREAD_WAKEUP;
+    if (is_agent_claimed() && aclk_connected) {
+        size_t write_q, write_q_bytes, read_q;
+        time_t event_loop_timeout;
+
+        // Wakeup thread to cleanup
+        QUERY_THREAD_WAKEUP;
+        // Send a graceful disconnect message
+        time_t time_created = now_realtime_sec();
+        char *msg_id = create_uuid();
+
+        snprintfz(
+            payload, 511,
+            "{ \"type\": \"disconnect\","
+            " \"msg-id\": \"%s\","
+            " \"timestamp\": %ld,"
+            " \"version\": %d,"
+            " \"payload\": \"graceful\" }",
+            msg_id, time_created, ACLK_VERSION);
+
+        aclk_send_message(ACLK_METADATA_TOPIC, payload, msg_id);
+        freez(msg_id);
+
+        event_loop_timeout = now_realtime_sec() + 5;
+        write_q = 1;
+        while (write_q && event_loop_timeout > now_realtime_sec()) {
+            _link_event_loop();
+            lws_wss_check_queues(&write_q, &write_q_bytes, &read_q);
+        }
+
+        aclk_shutting_down = 1;
+        _link_shutdown();
+        aclk_lws_wss_mqtt_layer_disconect_notif();
+
+        write_q = 1;
+        event_loop_timeout = now_realtime_sec() + 5;
+        while (write_q && event_loop_timeout > now_realtime_sec()) {
+            _link_event_loop();
+            lws_wss_check_queues(&write_q, &write_q_bytes, &read_q);
+        }
+    }
+
+    info("Disconnected");
 
     static_thread->enabled = NETDATA_MAIN_THREAD_EXITED;
 }
+
+struct dictionary_singleton {
+    char *key;
+    char *result;
+};
+
+int json_extract_singleton(JSON_ENTRY *e)
+{
+    struct dictionary_singleton *data = e->callback_data;
+
+    switch (e->type) {
+        case JSON_OBJECT:
+        case JSON_ARRAY:
+            break;
+        case JSON_STRING:
+            if (!strcmp(e->name, data->key)) {
+                data->result = strdupz(e->data.string);
+                break;
+            }
+            break;
+        case JSON_NUMBER:
+        case JSON_BOOLEAN:
+        case JSON_NULL:
+            break;
+    }
+    return 0;
+}
+
+// Base-64 decoder.
+// Note: This is non-validating, invalid input will be decoded without an error.
+//       Challenges are packed into json strings so we don't skip newlines.
+//       Size errors (i.e. invalid input size or insufficient output space) are caught.
+size_t base64_decode(unsigned char *input, size_t input_size, unsigned char *output, size_t output_size)
+{
+    static char lookup[256];
+    static int first_time=1;
+    if (first_time)
+    {
+        first_time = 0;
+        for(int i=0; i<256; i++)
+            lookup[i] = -1;
+        for(int i='A'; i<='Z'; i++)
+            lookup[i] = i-'A';
+        for(int i='a'; i<='z'; i++)
+            lookup[i] = i-'a' + 26;
+        for(int i='0'; i<='9'; i++)
+            lookup[i] = i-'0' + 52;
+        lookup['+'] = 62;
+        lookup['/'] = 63;
+    }
+    if ((input_size & 3) != 0)
+    {
+        error("Can't decode base-64 input length %zu", input_size);
+        return 0;
+    }
+    size_t unpadded_size = (input_size/4) * 3;
+    if ( unpadded_size > output_size )
+    {
+        error("Output buffer size %zu is too small to decode %zu into", output_size, input_size);
+        return 0;
+    }
+    // Don't check padding within full quantums
+    for (size_t i = 0 ; i < input_size-4 ; i+=4 )
+    {
+        uint32_t value = (lookup[input[0]] << 18) + (lookup[input[1]] << 12) + (lookup[input[2]] << 6) + lookup[input[3]];
+        output[0] = value >> 16;
+        output[1] = value >> 8;
+        output[2] = value;
+        //error("Decoded %c %c %c %c -> %02x %02x %02x", input[0], input[1], input[2], input[3], output[0], output[1], output[2]);
+        output += 3;
+        input += 4;
+    }
+    // Handle padding only in last quantum
+    if (input[2] == '=') {
+        uint32_t value = (lookup[input[0]] << 6) + lookup[input[1]];
+        output[0] = value >> 4;
+        //error("Decoded %c %c %c %c -> %02x", input[0], input[1], input[2], input[3], output[0]);
+        return unpadded_size-2;
+    }
+    else if (input[3] == '=') {
+        uint32_t value = (lookup[input[0]] << 12) + (lookup[input[1]] << 6) + lookup[input[2]];
+        output[0] = value >> 10;
+        output[1] = value >> 2;
+        //error("Decoded %c %c %c %c -> %02x %02x", input[0], input[1], input[2], input[3], output[0], output[1]);
+        return unpadded_size-1;
+    }
+    else
+    {
+        uint32_t value = (input[0] << 18) + (input[1] << 12) + (input[2]<<6) + input[3];
+        output[0] = value >> 16;
+        output[1] = value >> 8;
+        output[2] = value;
+        //error("Decoded %c %c %c %c -> %02x %02x %02x", input[0], input[1], input[2], input[3], output[0], output[1], output[2]);
+        return unpadded_size;
+    }
+}
+
+size_t base64_encode(unsigned char *input, size_t input_size, char *output, size_t output_size)
+{
+    uint32_t value;
+    static char lookup[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                           "abcdefghijklmnopqrstuvwxyz"
+                           "0123456789+/";
+    if ((input_size/3+1)*4 >= output_size)
+    {
+        error("Output buffer for encoding size=%zu is not large enough for %zu-bytes input", output_size, input_size);
+        return 0;
+    }
+    size_t count = 0;
+    while (input_size>3)
+    {
+        value = ((input[0] << 16) + (input[1] << 8) + input[2]) & 0xffffff;
+        output[0] = lookup[value >> 18];
+        output[1] = lookup[(value >> 12) & 0x3f];
+        output[2] = lookup[(value >> 6) & 0x3f];
+        output[3] = lookup[value & 0x3f];
+        //error("Base-64 encode (%04x) -> %c %c %c %c\n", value, output[0], output[1], output[2], output[3]);
+        output += 4;
+        input += 3;
+        input_size -= 3;
+        count += 4;
+    }
+    switch (input_size)
+    {
+        case 2:
+            value = (input[0] << 10) + (input[1] << 2);
+            output[0] = lookup[(value >> 12) & 0x3f];
+            output[1] = lookup[(value >> 6) & 0x3f];
+            output[2] = lookup[value & 0x3f];
+            output[3] = '=';
+            //error("Base-64 encode (%06x) -> %c %c %c %c\n", (value>>2)&0xffff, output[0], output[1], output[2], output[3]); 
+            count += 4;
+            break;
+        case 1:
+            value = input[0] << 4;
+            output[0] = lookup[(value >> 6) & 0x3f];
+            output[1] = lookup[value & 0x3f];
+            output[2] = '=';
+            output[3] = '=';
+            //error("Base-64 encode (%06x) -> %c %c %c %c\n", value, output[0], output[1], output[2], output[3]); 
+            count += 4;
+            break;
+        case 0:
+            break;
+    }
+    return count;
+}
+
+
+
+int private_decrypt(unsigned char * enc_data, int data_len, unsigned char *decrypted)
+{
+    int  result = RSA_private_decrypt( data_len, enc_data, decrypted, aclk_private_key, RSA_PKCS1_OAEP_PADDING);
+    if (result == -1) {
+        char err[512];
+        ERR_error_string_n(ERR_get_error(), err, sizeof(err));
+        error("Decryption of the challenge failed: %s", err);
+    }
+    return result;
+}
+
+char *extract_payload(BUFFER *b)
+{
+char *s = b->buffer;
+unsigned int line_len=0;
+    for (size_t i=0; i<b->len; i++)
+    {
+        if (*s == 0 )
+            return NULL;
+        if (*s == '\n' ) {
+            if (line_len==0)
+              return s+1;
+            line_len = 0;
+        }
+        else if (*s == '\r') {
+            /* don't count */
+        }
+        else
+            line_len ++;
+        s++;
+    }
+    return NULL;
+}
+
+void aclk_get_challenge(char *aclk_hostname, char *aclk_port)
+{
+    char *data_buffer = mallocz(NETDATA_WEB_RESPONSE_INITIAL_SIZE);
+    debug(D_ACLK, "Performing challenge-response sequence");
+    if (aclk_password != NULL)
+    {
+        freez(aclk_password);
+        aclk_password = NULL;
+    }
+    // curl http://cloud-iam-agent-service:8080/api/v1/auth/node/00000000-0000-0000-0000-000000000000/challenge
+    // TODO - target host?
+    char *agent_id = is_agent_claimed();
+    if (agent_id == NULL)
+    {
+        error("Agent was not claimed - cannot perform challenge/response");
+        goto CLEANUP;
+    }
+    char url[1024];
+    sprintf(url, "/api/v1/auth/node/%s/challenge", agent_id);
+    info("Retrieving challenge from cloud: %s %s %s", aclk_hostname, aclk_port, url);
+    if(aclk_send_https_request("GET", aclk_hostname, aclk_port, url, data_buffer, NETDATA_WEB_RESPONSE_INITIAL_SIZE, NULL))
+    {
+        error("Challenge failed");
+        goto CLEANUP;
+    }
+    struct dictionary_singleton challenge = { .key = "challenge", .result = NULL };
+
+    debug(D_ACLK, "Challenge response from cloud: %s", data_buffer);
+    if ( json_parse(data_buffer, &challenge, json_extract_singleton) != JSON_OK)
+    {
+        freez(challenge.result);
+        error("Could not parse the json response with the challenge: %s", data_buffer);
+        goto CLEANUP;
+    }
+    if (challenge.result == NULL ) {
+        error("Could not retrieve challenge from auth response: %s", data_buffer);
+        goto CLEANUP;
+    }
+
+
+    size_t challenge_len = strlen(challenge.result);
+    unsigned char decoded[512];
+    size_t decoded_len = base64_decode((unsigned char*)challenge.result, challenge_len, decoded, sizeof(decoded));
+
+    unsigned char plaintext[4096]={};
+    int decrypted_length = private_decrypt(decoded, decoded_len, plaintext);
+    freez(challenge.result);
+    char encoded[512];
+    size_t encoded_len = base64_encode(plaintext, decrypted_length, encoded, sizeof(encoded));
+    encoded[encoded_len] = 0;
+    debug(D_ACLK, "Encoded len=%zu Decryption len=%d: '%s'", encoded_len, decrypted_length, encoded);
+
+    char response_json[4096]={};
+    sprintf(response_json, "{\"response\":\"%s\"}", encoded);
+    debug(D_ACLK, "Password phase: %s",response_json);
+    // TODO - host
+    sprintf(url, "/api/v1/auth/node/%s/password", agent_id);
+    if(aclk_send_https_request("POST", aclk_hostname, aclk_port, url, data_buffer, NETDATA_WEB_RESPONSE_INITIAL_SIZE, response_json))
+    {
+        error("Challenge-response failed");
+        goto CLEANUP;
+    }
+
+    debug(D_ACLK, "Password response from cloud: %s", data_buffer);
+
+    struct dictionary_singleton password = { .key = "password", .result = NULL };
+    if ( json_parse(data_buffer, &password, json_extract_singleton) != JSON_OK)
+    {
+        freez(password.result);
+        error("Could not parse the json response with the password: %s", data_buffer);
+        goto CLEANUP;
+    }
+
+    if (password.result == NULL ) {
+        error("Could not retrieve password from auth response");
+        goto CLEANUP;
+    }
+    if (aclk_password != NULL )
+        freez(aclk_password);
+    if (aclk_username == NULL)
+        aclk_username = strdupz(agent_id);
+    aclk_password = password.result;
+
+CLEANUP:
+    freez(data_buffer);
+    return;
+}
+
+static void aclk_try_to_connect(char *hostname, char *port, int port_num)
+{
+    info("Attempting to establish the agent cloud link");
+    aclk_get_challenge(hostname, port);
+    if (aclk_password == NULL)
+        return;
+    int rc;
+    rc = mqtt_attempt_connection(hostname, port_num, aclk_username, aclk_password);
+    if (unlikely(rc)) {
+        error("Failed to initialize the agent cloud link library");
+    }
+    aclk_connecting = 1;
+}
+
 
 /**
  * Main agent cloud link thread
@@ -958,29 +1303,47 @@ void *aclk_main(void *ptr)
     last_init_sequence = now_realtime_sec();
     query_thread = NULL;
 
-    aclk_hostname = config_get(CONFIG_SECTION_ACLK, "agent cloud link hostname", ACLK_DEFAULT_HOST);
-    aclk_port = config_get_number(CONFIG_SECTION_ACLK, "agent cloud link port", ACLK_DEFAULT_PORT);
 
+    char *aclk_hostname = NULL; // Initializers are over-written but prevent gcc complaining about clobbering.
+    char *aclk_port = NULL;
+    uint32_t port_num = 0;
+    char *cloud_base_url = config_get(CONFIG_SECTION_CLOUD, "cloud base url", "https://netdata.cloud");
+    if( aclk_decode_base_url(cloud_base_url, &aclk_hostname, &aclk_port))
+    {
+        error("Configuration error - cannot use agent cloud link");
+        return NULL;
+    }
+    port_num = atoi(aclk_port);     // SSL library uses the string, MQTT uses the numeric value
 
-     // TODO: This may change when we have enough info from the claiming itself to avoid wasting 60 seconds
-     // TODO: Handle the unclaim command as well -- we may need to shutdown the connection
-    while(likely(!is_agent_claimed())) {
-        sleep_usec(USEC_PER_SEC * 5);
-        if(netdata_exit)
+    info("Waiting for netdata to be claimed");
+    while(1) {
+        while (likely(!is_agent_claimed())) {
+            sleep_usec(USEC_PER_SEC * 5);
+            if (netdata_exit)
+                goto exited;
+        }
+        if (!create_private_key() && !_mqtt_lib_init())
+            break;
+
+        if (netdata_exit)
             goto exited;
+
+        sleep_usec(USEC_PER_SEC * 60);
     }
     create_publish_base_topic();
+    create_private_key();
 
     usec_t reconnect_expiry = 0; // In usecs
 
     while (!netdata_exit) {
         static int first_init = 0;
-        _link_event_loop(ACLK_LOOP_TIMEOUT * 1000);
-        debug(D_ACLK,"LINK event loop called");
-
-        if (unlikely(!aclk_connection_initialized)) {
-            if (unlikely(first_init)) {
-                aclk_try_to_connect();
+        size_t write_q, write_q_bytes, read_q;
+        lws_wss_check_queues(&write_q, &write_q_bytes, &read_q);
+        //info("loop state first_init_%d connected=%d connecting=%d wq=%zu (%zu-bytes) rq=%zu",
+        //   first_init, aclk_connected, aclk_connecting, write_q, write_q_bytes, read_q);
+        if (unlikely(!netdata_exit && !aclk_connected)) {
+            if (unlikely(!first_init)) {
+                aclk_try_to_connect(aclk_hostname, aclk_port, port_num);
                 first_init = 1;
             } else {
                 if (aclk_connecting == 0) {
@@ -991,32 +1354,48 @@ void *aclk_main(void *ptr)
                     }
                     if (now_realtime_usec() >= reconnect_expiry) {
                         reconnect_expiry = 0;
-                        aclk_connecting = 1;
-                        aclk_try_to_connect();
+                        aclk_try_to_connect(aclk_hostname, aclk_port, port_num);
                     }
                     sleep_usec(USEC_PER_MS * 100);
                 }
             }
+            if (aclk_connecting) {
+                _link_event_loop();
+                sleep_usec(USEC_PER_MS * 100);
+            }
             continue;
         }
 
-        if (likely(aclk_mqtt_connected)) {
+        _link_event_loop();
+        /*static int stress_counter = 0;
+        if (write_q_bytes==0 && stress_counter ++ >5)
+        {
+            aclk_send_stress_test(8000000);
+            stress_counter = 0;
+        }*/
 
-            if (unlikely(!aclk_subscribed)) {
-                aclk_subscribed = !aclk_subscribe(ACLK_COMMAND_TOPIC, 2);
-            }
+        // TODO: Move to on-connect
+        if (unlikely(!aclk_subscribed)) {
+            aclk_subscribed = !aclk_subscribe(ACLK_COMMAND_TOPIC, 2);
+        }
 
-            if (unlikely(!query_thread)) {
-                query_thread = callocz(1, sizeof(struct netdata_static_thread));
-                query_thread->thread = mallocz(sizeof(netdata_thread_t));
-                netdata_thread_create(
-                    query_thread->thread, ACLK_THREAD_NAME, NETDATA_THREAD_OPTION_DEFAULT, aclk_query_main_thread,
-                    query_thread);
-            }
+        if (unlikely(!query_thread)) {
+            query_thread = callocz(1, sizeof(struct netdata_static_thread));
+            query_thread->thread = mallocz(sizeof(netdata_thread_t));
+            netdata_thread_create(
+                query_thread->thread, ACLK_THREAD_NAME, NETDATA_THREAD_OPTION_DEFAULT, aclk_query_main_thread,
+                query_thread);
         }
     } // forever
 exited:
     aclk_shutdown();
+
+    freez(aclk_username);
+    freez(aclk_password);
+    freez(aclk_hostname);
+    freez(aclk_port);
+    if (aclk_private_key != NULL)
+        RSA_free(aclk_private_key);
 
     netdata_thread_cleanup_pop(1);
     return NULL;
@@ -1037,8 +1416,8 @@ int aclk_send_message(char *sub_topic, char *message, char *msg_id)
 
     UNUSED(msg_id);
 
-    if (unlikely(aclk_wait_for_initialization()))
-        return 1;
+    if(!aclk_connected)
+        return 0;
 
     if (unlikely(!message))
         return 0;
@@ -1052,10 +1431,9 @@ int aclk_send_message(char *sub_topic, char *message, char *msg_id)
     }
 
     ACLK_LOCK;
-    rc = _link_send_message(final_topic, message, &mid);
+    rc = _link_send_message(final_topic, (unsigned char *)message, &mid);
     // TODO: link the msg_id with the mid so we can trace it
     ACLK_UNLOCK;
-
 
     if (unlikely(rc)) {
         errno = 0;
@@ -1076,13 +1454,15 @@ int aclk_subscribe(char *sub_topic, int qos)
     char topic[ACLK_MAX_TOPIC + 1];
     char *final_topic;
 
-    if (unlikely(aclk_wait_for_initialization()))
-        return 1;
-
     final_topic = get_topic(sub_topic, topic, ACLK_MAX_TOPIC);
     if (unlikely(!final_topic)) {
         errno = 0;
         error("Unable to build outgoing topic; truncated?");
+        return 1;
+    }
+
+    if (!aclk_connected) {
+        error("Cannot subscribe to %s - not connected!", topic);
         return 1;
     }
 
@@ -1099,13 +1479,11 @@ int aclk_subscribe(char *sub_topic, int qos)
     return rc;
 }
 
-
 // This is called from a callback when the link goes up
-void aclk_connect(void *ptr)
+void aclk_connect()
 {
-    UNUSED(ptr);
-    info("Connection detected");
-    aclk_connection_initialized = 1;
+    info("Connection detected (%"PRIu64" queued queries)", aclk_queue.count);
+    aclk_connected = 1;
     waiting_init = 0;
     aclk_reconnect_delay(0);
     QUERY_THREAD_WAKEUP;
@@ -1113,36 +1491,24 @@ void aclk_connect(void *ptr)
 }
 
 // This is called from a callback when the link goes down
-void aclk_disconnect(void *ptr)
+void aclk_disconnect()
 {
-    UNUSED(ptr);
-
-    if (likely(aclk_connection_initialized))
-        info("Disconnect detected");
+    if (likely(aclk_connected))
+        info("Disconnect detected (%"PRIu64" queued queries)", aclk_queue.count);
     aclk_subscribed = 0;
-    aclk_metadata_submitted = 0;
+    aclk_metadata_submitted = ACLK_METADATA_REQUIRED;
     waiting_init = 1;
-    aclk_connection_initialized = 0;
+    aclk_connected = 0;
     aclk_connecting = 0;
 }
 
 void aclk_shutdown()
 {
     info("Shutdown initiated");
-    aclk_connection_initialized = 0;
+    aclk_connected = 0;
     _link_shutdown();
     info("Shutdown complete");
 }
-
-void aclk_try_to_connect()
-{
-    int rc;
-    rc = _link_lib_init(aclk_hostname, aclk_port, aclk_connect, aclk_disconnect);
-    if (unlikely(rc)) {
-        error("Failed to initialize the agent cloud link library");
-    }
-}
-
 
 inline void aclk_create_header(BUFFER *dest, char *type, char *msg_id)
 {
@@ -1170,8 +1536,6 @@ inline void aclk_create_header(BUFFER *dest, char *type, char *msg_id)
     debug(D_ACLK, "Sending v%d msgid [%s] type [%s] time [%ld]", ACLK_VERSION, msg_id, type, time_created);
 }
 
-//#define EYE_FRIENDLY
-
 /*
  * Take a buffer, encode it and rewrite it
  *
@@ -1179,10 +1543,6 @@ inline void aclk_create_header(BUFFER *dest, char *type, char *msg_id)
 
 BUFFER *aclk_encode_response(BUFFER *contents)
 {
-#ifdef EYE_FRIENDLY
-
-    return contents;
-#else
     char *tmp_buffer = mallocz(contents->len * 2);
     char *src, *dst;
 
@@ -1219,7 +1579,6 @@ BUFFER *aclk_encode_response(BUFFER *contents)
 
     freez(tmp_buffer);
     return contents;
-#endif
 }
 
 /*
@@ -1234,26 +1593,25 @@ void aclk_send_alarm_metadata()
     buffer_flush(local_buffer);
     local_buffer->contenttype = CT_APPLICATION_JSON;
 
-    debug(D_ACLK,"Metadata alarms start");
+    debug(D_ACLK, "Metadata alarms start");
 
     aclk_create_header(local_buffer, "connect_alarms", msg_id);
 
-    buffer_sprintf(local_buffer,"{\n\t \"configured-alarms\" : ");
+    buffer_sprintf(local_buffer, "{\n\t \"configured-alarms\" : ");
     health_alarms2json(localhost, local_buffer, 1);
-    debug(D_ACLK,"Metadata %s with configured alarms has %ld bytes", msg_id, local_buffer->len);
+    debug(D_ACLK, "Metadata %s with configured alarms has %zu bytes", msg_id, local_buffer->len);
 
-    buffer_sprintf(local_buffer,",\n\t \"alarm-log\" : ");
+    buffer_sprintf(local_buffer, ",\n\t \"alarm-log\" : ");
     health_alarm_log2json(localhost, local_buffer, 0);
-    debug(D_ACLK,"Metadata %s with alarm_log has %ld bytes", msg_id, local_buffer->len);
+    debug(D_ACLK, "Metadata %s with alarm_log has %zu bytes", msg_id, local_buffer->len);
 
-    buffer_sprintf(local_buffer,",\n\t \"alarms-active\" : ");
+    buffer_sprintf(local_buffer, ",\n\t \"alarms-active\" : ");
     health_alarms_values2json(localhost, local_buffer, 0);
-    debug(D_ACLK,"Metadata %s with alarms_active has %ld bytes", msg_id, local_buffer->len);
+    debug(D_ACLK, "Metadata %s with alarms_active has %zu bytes", msg_id, local_buffer->len);
 
-
-    buffer_sprintf(local_buffer,"\n}\n}");
-    aclk_send_message(ACLK_ALARMS_TOPIC, aclk_encode_response(local_buffer)->buffer, msg_id);
-    debug(D_ACLK,"Metadata %s encoded has %ld bytes", msg_id, local_buffer->len);
+    buffer_sprintf(local_buffer, "\n}\n}");
+    aclk_send_message(ACLK_ALARMS_TOPIC, local_buffer->buffer, msg_id);
+    debug(D_ACLK, "Metadata %s encoded has %zu bytes", msg_id, local_buffer->len);
 
     freez(msg_id);
     buffer_free(local_buffer);
@@ -1263,28 +1621,47 @@ int aclk_send_info_metadata()
 {
     BUFFER *local_buffer = buffer_create(NETDATA_WEB_RESPONSE_INITIAL_SIZE);
 
-    debug(D_ACLK,"Metadata /info start");
+    debug(D_ACLK, "Metadata /info start");
 
     char *msg_id = create_uuid();
     buffer_flush(local_buffer);
     local_buffer->contenttype = CT_APPLICATION_JSON;
 
     aclk_create_header(local_buffer, "connect", msg_id);
-    buffer_sprintf(local_buffer,"{\n\t \"info\" : ");
+    buffer_sprintf(local_buffer, "{\n\t \"info\" : ");
     web_client_api_request_v1_info_fill_buffer(localhost, local_buffer);
-    debug(D_ACLK,"Metadata %s with info has %ld bytes", msg_id, local_buffer->len);
+    debug(D_ACLK, "Metadata %s with info has %zu bytes", msg_id, local_buffer->len);
 
-    buffer_sprintf(local_buffer,", \n\t \"charts\" : ");
+    buffer_sprintf(local_buffer, ", \n\t \"charts\" : ");
     charts2json(localhost, local_buffer, 1);
-    buffer_sprintf(local_buffer,"\n}\n}");
-    debug(D_ACLK,"Metadata %s with chart has %ld bytes", msg_id, local_buffer->len);
+    buffer_sprintf(local_buffer, "\n}\n}");
+    debug(D_ACLK, "Metadata %s with chart has %zu bytes", msg_id, local_buffer->len);
 
-    aclk_send_message(ACLK_METADATA_TOPIC, aclk_encode_response(local_buffer)->buffer, msg_id);
-    debug(D_ACLK,"Metadata %s encoded has %ld bytes", msg_id, local_buffer->len);
+    aclk_send_message(ACLK_METADATA_TOPIC, local_buffer->buffer, msg_id);
+    debug(D_ACLK, "Metadata %s encoded has %zu bytes", msg_id, local_buffer->len);
     freez(msg_id);
 
     buffer_free(local_buffer);
     return 0;
+}
+
+void aclk_send_stress_test(size_t size)
+{
+    char *buffer = mallocz(size);
+    if (buffer != NULL)
+    {
+        for(size_t i=0; i<size; i++)
+            buffer[i] = 'x';
+        buffer[size-1] = 0;
+        time_t time_created = now_realtime_sec();
+        sprintf(buffer,"{\"type\":\"stress\", \"timestamp\":%ld,\"payload\":", time_created);
+        buffer[strlen(buffer)] = '"';
+        buffer[size-2] = '}';
+        buffer[size-3] = '"';
+        aclk_send_message(ACLK_METADATA_TOPIC, buffer, NULL);
+        error("Sending stress of size %zu at time %ld", size, time_created);
+    }
+    free(buffer);
 }
 
 // Send info metadata message to the cloud if the link is established
@@ -1311,7 +1688,7 @@ void aclk_single_update_enable()
 // Trigged by a health reload, sends the alarm metadata
 void aclk_alarm_reload()
 {
-    if (unlikely(!agent_state))
+    if (unlikely(agent_state == AGENT_INITIALIZING))
         return;
 
     aclk_queue_query("on_connect", NULL, NULL, NULL, 0, 1, ACLK_CMD_ONCONNECT);
@@ -1341,16 +1718,16 @@ int aclk_send_single_chart(char *hostname, char *chart)
 
     aclk_create_header(local_buffer, "chart", msg_id);
     rrdset2json(st, local_buffer, NULL, NULL, 1);
-    buffer_sprintf(local_buffer,"\t\n}");
+    buffer_sprintf(local_buffer, "\t\n}");
 
-    aclk_send_message(ACLK_CHART_TOPIC, aclk_encode_response(local_buffer)->buffer, msg_id);
+    aclk_send_message(ACLK_CHART_TOPIC, local_buffer->buffer, msg_id);
 
     freez(msg_id);
     buffer_free(local_buffer);
     return 0;
 }
 
-int    aclk_update_chart(RRDHOST *host, char *chart_name, ACLK_CMD aclk_cmd)
+int aclk_update_chart(RRDHOST *host, char *chart_name, ACLK_CMD aclk_cmd)
 {
 #ifndef ENABLE_ACLK
     UNUSED(host);
@@ -1363,20 +1740,22 @@ int    aclk_update_chart(RRDHOST *host, char *chart_name, ACLK_CMD aclk_cmd)
     if (unlikely(aclk_disable_single_updates))
         return 0;
 
-    aclk_queue_query("_chart", host->hostname, NULL, chart_name, 0, 1, aclk_cmd);
+    if (unlikely(agent_state == AGENT_INITIALIZING))
+        last_init_sequence = now_realtime_sec();
+    else
+        aclk_queue_query("_chart", host->hostname, NULL, chart_name, 0, 1, aclk_cmd);
     return 0;
 #endif
 }
 
-
-int    aclk_update_alarm(RRDHOST *host, ALARM_ENTRY *ae)
+int aclk_update_alarm(RRDHOST *host, ALARM_ENTRY *ae)
 {
     BUFFER *local_buffer = NULL;
 
     if (host != localhost)
         return 0;
 
-    if (agent_state == 0)
+    if (unlikely(agent_state == AGENT_INITIALIZING))
         return 0;
 
     /*
@@ -1393,14 +1772,14 @@ int    aclk_update_alarm(RRDHOST *host, ALARM_ENTRY *ae)
     char *msg_id = create_uuid();
 
     buffer_flush(local_buffer);
-    aclk_create_header(local_buffer, "alarms", msg_id);
+    aclk_create_header(local_buffer, "status-change", msg_id);
 
     netdata_rwlock_rdlock(&host->health_log.alarm_log_rwlock);
     health_alarm_entry2json_nolock(local_buffer, ae, host);
     netdata_rwlock_unlock(&host->health_log.alarm_log_rwlock);
 
-    buffer_sprintf(local_buffer,"\n}");
-    aclk_queue_query(ACLK_ALARMS_TOPIC, NULL, msg_id, aclk_encode_response(local_buffer)->buffer , 0, 1, ACLK_CMD_ALARM);
+    buffer_sprintf(local_buffer, "\n}");
+    aclk_queue_query(ACLK_ALARMS_TOPIC, NULL, msg_id, local_buffer->buffer, 0, 1, ACLK_CMD_ALARM);
 
     freez(msg_id);
     buffer_free(local_buffer);
@@ -1413,7 +1792,14 @@ int    aclk_update_alarm(RRDHOST *host, ALARM_ENTRY *ae)
  */
 int aclk_handle_cloud_request(char *payload)
 {
-    struct aclk_request cloud_to_agent = { .type_id = NULL, .msg_id = NULL, .callback_topic = NULL, .payload = NULL, .version = 0};
+    struct aclk_request cloud_to_agent = {
+        .type_id = NULL, .msg_id = NULL, .callback_topic = NULL, .payload = NULL, .version = 0
+    };
+
+    if (unlikely(agent_state == AGENT_INITIALIZING)) {
+        debug(D_ACLK, "Ignoring cloud request; agent not in stable state");
+        return 0;
+    }
 
     if (unlikely(!payload)) {
         debug(D_ACLK, "ACLK incoming message is empty");
@@ -1428,7 +1814,6 @@ int aclk_handle_cloud_request(char *payload)
             JSON_OK != rc || !cloud_to_agent.payload || !cloud_to_agent.callback_topic || !cloud_to_agent.msg_id ||
             !cloud_to_agent.type_id || cloud_to_agent.version > ACLK_VERSION ||
             strcmp(cloud_to_agent.type_id, "http"))) {
-
         if (JSON_OK != rc)
             error("Malformed json request (%s)", payload);
 
