@@ -190,6 +190,11 @@ netdataDashboard.menu = {
         info: 'Performance metrics for the operation of netdata itself and its plugins.'
     },
 
+    'anomaly_scores': {
+        title: 'Anomaly Scores',
+        info: 'Anomaly Scores.'
+    },
+
     'example': {
         title: 'Example Charts',
         info: 'Example charts, demonstrating the external plugin architecture.'
