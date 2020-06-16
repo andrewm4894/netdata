@@ -125,7 +125,7 @@ class Service(SimpleService):
 
     def get_allmetrics(self) -> list:
         """
-        Hits the allmetrics endpoint on and saves data into a list
+        Hits the allmetrics endpoint on and saves data into a list.
         :return: list of lists where each element is a metric from allmetrics e.g. [[time, chart, name, value]] <list>
         """
         if self.charts_in_scope is None:
