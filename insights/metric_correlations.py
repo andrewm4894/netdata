@@ -24,6 +24,9 @@ parser.add_argument(
 parser.add_argument(
     '--highlight_before', type=str, nargs='?', help='highlight_before', default='0'
 )
+parser.add_argument(
+    '--model', type=str, nargs='?', help='model', default='ks'
+)
 args = parser.parse_args()
 
 # parse args
@@ -33,5 +36,6 @@ baseline_after = args.baseline_after
 baseline_before = args.baseline_before
 highlight_after = args.highlight_after
 highlight_before = args.highlight_before
+model = args.model
 
 log.info(f"args={args}")
