@@ -42,7 +42,7 @@ baseline_before = int(args.baseline_before)
 highlight_after = int(args.highlight_after)
 highlight_before = int(args.highlight_before)
 model = args.model
-n_lags = args.n_lags
+n_lags = int(args.n_lags)
 log_level = args.log_level
 
 # handle 'after' and 'before' values if passed in as relative
@@ -91,13 +91,14 @@ charts = list(set([col.split('|')[0] for col in colnames]))
 log.debug(f'... arr_baseline.shape = {arr_baseline.shape}')
 log.debug(f'... arr_highlight.shape = {arr_highlight.shape}')
 
-# log times
 time_got_data = time.time()
-
 log.info(f'... {round(time_got_data - time_start,2)} seconds to get data.')
 
 # get scores
 results = run_model(model, colnames, arr_baseline, arr_highlight, n_lags)
+
+time_got_scores = time.time()
+log.info(f'... {round(time_got_scores - time_got_data,2)} seconds to get scores.')
 
 print(results)
 

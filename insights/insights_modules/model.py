@@ -1,33 +1,7 @@
 import logging
-from contextlib import redirect_stderr
-import os
 
 import numpy as np
 from scipy.stats import ks_2samp
-
-# imports for tf and keras that might log or print stuff we dont want
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-with redirect_stderr(open(os.devnull, "w")):
-    import keras
-    import tensorflow as tf
-    tf.get_logger().setLevel('ERROR')
-
-from pyod.models.abod import ABOD
-from pyod.models.auto_encoder import AutoEncoder
-from pyod.models.cblof import CBLOF
-from pyod.models.hbos import HBOS
-from pyod.models.iforest import IForest
-from pyod.models.knn import KNN
-from pyod.models.lmdd import LMDD
-from pyod.models.loci import LOCI
-from pyod.models.loda import LODA
-from pyod.models.lof import LOF
-from pyod.models.mcd import MCD
-from pyod.models.ocsvm import OCSVM
-from pyod.models.pca import PCA
-from pyod.models.sod import SOD
-from pyod.models.vae import VAE
-from pyod.models.xgbod import XGBOD
 
 log = logging.getLogger(__name__)
 
@@ -35,6 +9,16 @@ supported_pyod_models = [
     'abod', 'auto_encoder', 'cblof', 'hbos', 'iforest', 'knn', 'lmdd', 'loci', 'loda', 'lof', 'mcd', 'ocsvm',
     'pca', 'sod', 'vae', 'xgbod'
 ]
+
+
+def run_model(model, colnames, arr_baseline, arr_highlight, n_lags):
+
+    if model in supported_pyod_models:
+        results = do_pyod(model, colnames, arr_baseline, arr_highlight, n_lags)
+    else:
+        results = do_ks(colnames, arr_baseline, arr_highlight)
+
+    return results
 
 
 def do_ks(colnames, arr_baseline, arr_highlight):
@@ -56,9 +40,9 @@ def do_ks(colnames, arr_baseline, arr_highlight):
         log.debug(f'... arr_highlight_dim = {arr_highlight_dim}')
         score, _ = ks_2samp(arr_baseline_dim, arr_highlight_dim, mode='asymp')
         if chart in results:
-            results[chart].append({dimension: {'score': score}})
+            results[chart]['dimensions'].append({dimension: {'score': score}})
         else:
-            results[chart] = [{dimension: {'score': score}}]
+            results[chart] = {"dimensions": [{dimension: {'score': score}}]}
     return results
 
 
@@ -67,41 +51,8 @@ def do_pyod(model, colnames, arr_baseline, arr_highlight, n_lags):
     # dict to collect results into
     results = {}
 
-    # initial model set up
-    if model == 'knn':
-        clf = KNN(**model['params'])
-    elif model == 'abod':
-        clf = ABOD(**model['params'])
-    elif model == 'auto_encoder':
-        clf = AutoEncoder(**model['params'])
-    elif model == 'cblof':
-        clf = CBLOF(**model['params'])
-    elif model == 'hbos':
-        clf = HBOS(**model['params'])
-    elif model == 'iforest':
-        clf = IForest(**model['params'])
-    elif model == 'lmdd':
-        clf = LMDD(**model['params'])
-    elif model == 'loci':
-        clf = LOCI(**model['params'])
-    elif model == 'loda':
-        clf = LODA(**model['params'])
-    elif model == 'lof':
-        clf = LOF(**model['params'])
-    elif model == 'mcd':
-        clf = MCD(**model['params'])
-    elif model == 'ocsvm':
-        clf = OCSVM(**model['params'])
-    elif model == 'pca':
-        clf = PCA(**model['params'])
-    elif model == 'sod':
-        clf = SOD(**model['params'])
-    elif model == 'vae':
-        clf = VAE(**model['params'])
-    elif model == 'xgbod':
-        clf = XGBOD(**model['params'])
-    else:
-        raise ValueError(f"unknown model {model}")
+    # initialise a pyod model
+    clf = pyod_init(model)
 
     # fit model for each dimension and then use model to score highlighted area
     for colname, n in zip(colnames, range(arr_baseline.shape[1])):
@@ -148,19 +99,74 @@ def do_pyod(model, colnames, arr_baseline, arr_highlight, n_lags):
         # save results
         score = (np.mean(probs) + np.mean(preds))/2
         if chart in results:
-            results[chart].append({dimension: {'score': score}})
+            results[chart]['dimensions'].append({dimension: {'score': score}})
         else:
-            results[chart] = [{dimension: {'score': score}}]
+            results[chart] = {"dimensions": [{dimension: {'score': score}}]}
 
     return results
 
 
-def run_model(model, colnames, arr_baseline, arr_highlight, n_lags):
+def add_lags(arr, n_lags=1):
+    arr_orig = np.copy(arr)
+    for n_lag in range(1, n_lags + 1):
+        arr = np.concatenate((arr, np.roll(arr_orig, n_lag, axis=0)), axis=1)
+    arr = arr[n_lags:]
+    log.debug(f'... n_lags = {n_lags} arr_orig.shape = {arr_orig.shape}  arr.shape = {arr.shape}')
+    return arr
 
-    if model in supported_pyod_models:
-        results = do_pyod(model, colnames, arr_baseline, arr_highlight, n_lags)
+
+
+def pyod_init(model):
+    # initial model set up
+    if model == 'abod':
+        from pyod.models.abod import ABOD
+        clf = ABOD()
+    elif model == 'auto_encoder':
+        from pyod.models.auto_encoder import AutoEncoder
+        clf = AutoEncoder()
+    elif model == 'cblof':
+        from pyod.models.cblof import CBLOF
+        clf = CBLOF()
+    elif model == 'hbos':
+        from pyod.models.hbos import HBOS
+        clf = HBOS()
+    elif model == 'iforest':
+        from pyod.models.iforest import IForest
+        clf = IForest()
+    elif model == 'knn':
+        from pyod.models.knn import KNN
+        clf = KNN()
+    elif model == 'lmdd':
+        from pyod.models.lmdd import LMDD
+        clf = LMDD()
+    elif model == 'loci':
+        from pyod.models.loci import LOCI
+        clf = LOCI()
+    elif model == 'loda':
+        from pyod.models.loda import LODA
+        clf = LODA()
+    elif model == 'lof':
+        from pyod.models.lof import LOF
+        clf = LOF()
+    elif model == 'mcd':
+        from pyod.models.mcd import MCD
+        clf = MCD()
+    elif model == 'ocsvm':
+        from pyod.models.ocsvm import OCSVM
+        clf = OCSVM()
+    elif model == 'pca':
+        from pyod.models.pca import PCA
+        clf = PCA()
+    elif model == 'sod':
+        from pyod.models.sod import SOD
+        clf = SOD()
+    elif model == 'vae':
+        from pyod.models.vae import VAE
+        clf = VAE()
+    elif model == 'xgbod':
+        from pyod.models.xgbod import XGBOD
+        clf = XGBOD()
     else:
-        results = do_ks(colnames, arr_baseline, arr_highlight)
-
-    return results
+        raise ValueError(f"unknown model {model}")
+    return clf
 
