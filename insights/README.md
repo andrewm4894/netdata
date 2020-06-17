@@ -7,6 +7,7 @@ Statistics and machine learning based "Insights" features.
 Example usage:
 
 ```
+# showing main params:
 python metric_correlations.py \
   --host='127.0.0.1:19999' \
   --baseline_after='-480' \
@@ -15,6 +16,9 @@ python metric_correlations.py \
   --highlight_before='0' \
   --model='ks' \
   --n_lags='2'
+
+# typical usage:
+python metric_correlations.py --baseline_after='-480' --baseline_before='-240' --highlight_after='-240' --highlight_before='0' --model='ks'
 ```
 
 Results format:
