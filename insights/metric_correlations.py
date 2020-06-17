@@ -37,13 +37,24 @@ args = parser.parse_args()
 
 # parse args
 host = args.host
-baseline_after = args.baseline_after
-baseline_before = args.baseline_before
-highlight_after = args.highlight_after
-highlight_before = args.highlight_before
+baseline_after = int(args.baseline_after)
+baseline_before = int(args.baseline_before)
+highlight_after = int(args.highlight_after)
+highlight_before = int(args.highlight_before)
 model = args.model
 n_lags = args.n_lags
 log_level = args.log_level
+
+# handle 'after' and 'before' values if passed in as relative
+now = time.time()
+if baseline_after <= 0:
+    baseline_after = int(now - baseline_after)
+if baseline_before <= 0:
+    baseline_before = int(now - baseline_before)
+if highlight_after <= 0:
+    highlight_after = int(now - highlight_after)
+if highlight_before <= 0:
+    highlight_before = int(now - highlight_before)
 
 # set up logging
 if log_level == 'info':
@@ -52,9 +63,15 @@ elif log_level == 'debug':
     logging.basicConfig(level=logging.DEBUG)
 else:
     logging.basicConfig(level=logging.WARN)
+
 log = logging.getLogger(__name__)
 
-log.info(f"args={args}")
+log.info(f"... args={args}")
+
+log.info(f"... baseline_after={baseline_after}")
+log.info(f"... baseline_before={baseline_before}")
+log.info(f"... highlight_after={highlight_after}")
+log.info(f"... highlight_before={highlight_before}")
 
 # get charts
 charts = get_chart_list(host)
@@ -62,7 +79,8 @@ charts = get_chart_list(host)
 # get data
 df = get_data(host, charts, after=baseline_after, before=highlight_before, diff=True,
               ffill=True, numeric_only=True, nunique_thold=0.05, col_sep='|')
-log.info(f"df.shape={df.shape}")
+
+log.info(f"... df.shape={df.shape}")
 
 # get numpy arrays
 colnames = list(df.columns)
@@ -70,9 +88,13 @@ arr_baseline = df.query(f'{baseline_after} <= time_idx <= {baseline_before}').va
 arr_highlight = df.query(f'{highlight_after} <= time_idx <= {highlight_before}').values
 charts = list(set([col.split('|')[0] for col in colnames]))
 
+log.debug(f'... arr_baseline.shape = {arr_baseline.shape}')
+log.debug(f'... arr_highlight.shape = {arr_highlight.shape}')
+
 # log times
 time_got_data = time.time()
-log.info(f'{round(time_got_data - time_start,2)} seconds to get data.')
+
+log.info(f'... {round(time_got_data - time_start,2)} seconds to get data.')
 
 # get scores
 results = run_model(model, colnames, arr_baseline, arr_highlight, n_lags)

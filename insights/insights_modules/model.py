@@ -34,8 +34,8 @@ def do_ks(colnames, arr_baseline, arr_highlight):
     for colname, n in zip(colnames, range(arr_baseline.shape[1])):
         chart = colname.split('|')[0]
         dimension = colname.split('|')[1]
-        arr_baseline_dim = arr_baseline[:, n]
-        arr_highlight_dim = arr_highlight[:, n]
+        arr_baseline_dim = arr_baseline[:, [n]]
+        arr_highlight_dim = arr_highlight[:, [n]]
         log.debug(f'... chart = {chart}')
         log.debug(f'... dimension = {dimension}')
         log.debug(f'... arr_baseline_dim.shape = {arr_baseline_dim.shape}')
