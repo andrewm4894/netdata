@@ -28,21 +28,26 @@ def do_ks(colnames, arr_baseline, arr_highlight):
 
     # loop over each col and do the ks test
     for colname, n in zip(colnames, range(arr_baseline.shape[1])):
+
+        # extract chart and dim from colname
         chart = colname.split('|')[0]
         dimension = colname.split('|')[1]
+
+        # just get dim of interest
         arr_baseline_dim = arr_baseline[:, n]
         arr_highlight_dim = arr_highlight[:, n]
+
         log.debug(f'... chart = {chart}')
         log.debug(f'... dimension = {dimension}')
         log.debug(f'... arr_baseline_dim.shape = {arr_baseline_dim.shape}')
         log.debug(f'... arr_highlight_dim.shape = {arr_highlight_dim.shape}')
         log.debug(f'... arr_baseline_dim = {arr_baseline_dim}')
         log.debug(f'... arr_highlight_dim = {arr_highlight_dim}')
+
+        # save results
         score, _ = ks_2samp(arr_baseline_dim, arr_highlight_dim, mode='asymp')
-        if chart in results:
-            results[chart]['dimensions'].append({dimension: {'score': score}})
-        else:
-            results[chart] = {"dimensions": [{dimension: {'score': score}}]}
+        results = save_results(results, chart, dimension, score)
+
     return results
 
 
@@ -98,11 +103,16 @@ def do_pyod(model, colnames, arr_baseline, arr_highlight, n_lags):
 
         # save results
         score = (np.mean(probs) + np.mean(preds))/2
-        if chart in results:
-            results[chart]['dimensions'].append({dimension: {'score': score}})
-        else:
-            results[chart] = {"dimensions": [{dimension: {'score': score}}]}
+        results = save_results(results, chart, dimension, score)
 
+    return results
+
+
+def save_results(results, chart, dimension, score):
+    if chart in results:
+        results[chart]['dimensions'].append({dimension: {'score': score}})
+    else:
+        results[chart] = {"dimensions": [{dimension: {'score': score}}]}
     return results
 
 
