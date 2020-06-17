@@ -58,8 +58,9 @@ def main():
     if highlight_before <= 0:
         highlight_before = int(time_start + highlight_before)
 
+    # limit the number of points we ask the rest api for
     points_expected = highlight_before - baseline_after
-    if points_expected >= max_points:
+    if points_expected > max_points:
         points = max_points
     else:
         points = 0
