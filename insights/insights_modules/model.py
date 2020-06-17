@@ -1,3 +1,7 @@
+import logging
+
+import numpy as np
+from scipy.stats import ks_2samp
 from pyod.models.abod import ABOD
 from pyod.models.auto_encoder import AutoEncoder
 from pyod.models.cblof import CBLOF
@@ -14,7 +18,8 @@ from pyod.models.pca import PCA
 from pyod.models.sod import SOD
 from pyod.models.vae import VAE
 from pyod.models.xgbod import XGBOD
-from scipy.stats import ks_2samp
+
+log = logging.getLogger(__name__)
 
 supported_pyod_models = [
     'abod', 'auto_encoder', 'cblof', 'hbos', 'iforest', 'knn', 'lmdd', 'loci', 'loda', 'lof', 'mcd', 'ocsvm',

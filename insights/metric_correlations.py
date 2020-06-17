@@ -3,7 +3,8 @@ import logging
 import time
 
 from netdata_pandas.data import get_data, get_chart_list
-from insights_modules.utils import hello
+from insights_modules.model import run_model
+
 
 time_start = time.time()
 
@@ -29,6 +30,9 @@ parser.add_argument(
 parser.add_argument(
     '--model', type=str, nargs='?', help='model', default='ks'
 )
+parser.add_argument(
+    '--n_lags', type=str, nargs='?', help='n_lags', default='2'
+)
 args = parser.parse_args()
 
 # parse args
@@ -38,6 +42,7 @@ baseline_before = args.baseline_before
 highlight_after = args.highlight_after
 highlight_before = args.highlight_before
 model = args.model
+n_lags = args.n_lags
 
 log.info(f"args={args}")
 
@@ -59,9 +64,7 @@ charts = list(set([col.split('|')[0] for col in colnames]))
 time_got_data = time.time()
 log.info(f'{round(time_got_data - time_start,2)} seconds to get data.')
 
-print(hello())
-
 # get scores
-#results_dict = run_model(model, colnames, arr_baseline, arr_highlight)
+results = run_model(model, colnames, arr_baseline, arr_highlight, n_lags)
 
 
