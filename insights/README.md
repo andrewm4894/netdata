@@ -8,9 +8,10 @@ Example usage:
 
 ```
 python metric_correlations.py \
-  --baseline_after='-120' \
-  --baseline_before='-60' \
-  --highlight_after='-60' \
+  --host='127.0.0.1:19999' \
+  --baseline_after='-480' \
+  --baseline_before='-240' \
+  --highlight_after='-240' \
   --highlight_before='0' \
   --model='ks' \
   --n_lags='2'
