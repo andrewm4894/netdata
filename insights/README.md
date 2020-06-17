@@ -6,7 +6,7 @@ Statistics and machine learning based "Insights" features.
 
 `metric_correlations.py` is a script to take in some comand line args, pull data from netdata api, calculate scores per dimension and return a json result.
 
-Example usage:
+#### Example usage:
 
 ```
 # showing main params:
@@ -23,7 +23,7 @@ python metric_correlations.py \
 python metric_correlations.py --baseline_after='-480' --baseline_before='-240' --highlight_after='-240' --highlight_before='0' --model='ks'
 ```
 
-Results format:
+#### Results format:
 
 ```
 {
