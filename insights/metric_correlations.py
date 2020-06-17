@@ -26,6 +26,7 @@ def main():
     parser.add_argument('--n_lags', type=str, nargs='?', help='n_lags', default='2')
     parser.add_argument('--log_level', type=str, nargs='?', help='log_level', default='info')
     parser.add_argument('--results_file', type=str, nargs='?', help='results_file', default=None)
+    parser.add_argument('--max_points', type=str, nargs='?', help='max_points', default='5000')
     args = parser.parse_args()
     host = args.host
     baseline_after = int(args.baseline_after)
@@ -36,6 +37,7 @@ def main():
     n_lags = int(args.n_lags)
     log_level = args.log_level
     results_file = args.results_file
+    max_points = int(args.max_points)
 
     # set up logging
     if log_level == 'info':
@@ -56,6 +58,12 @@ def main():
     if highlight_before <= 0:
         highlight_before = int(time_start + highlight_before)
 
+    points_expected = highlight_before - baseline_after
+    if points_expected >= max_points:
+        points = max_points
+    else:
+        points = 0
+
     log.info(f"... args={args}")
 
     log.debug(f"... baseline_after={baseline_after}")
@@ -67,7 +75,7 @@ def main():
     charts = get_chart_list(host)
 
     # get data
-    df = get_data(host, charts, after=baseline_after, before=highlight_before, diff=True,
+    df = get_data(host, charts, after=baseline_after, before=highlight_before, diff=True, points=points,
                   ffill=True, numeric_only=True, nunique_thold=0.05, col_sep='|')
 
     log.info(f"... df.shape={df.shape}")
