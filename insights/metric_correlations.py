@@ -25,7 +25,7 @@ def main():
     parser.add_argument('--model', type=str, nargs='?', help='model', default='ks')
     parser.add_argument('--n_lags', type=str, nargs='?', help='n_lags', default='2')
     parser.add_argument('--log_level', type=str, nargs='?', help='log_level', default='info')
-    parser.add_argument('--results_file', type=str, nargs='?', help='results_file', default='results.json')
+    parser.add_argument('--results_file', type=str, nargs='?', help='results_file', default=None)
     args = parser.parse_args()
     host = args.host
     baseline_after = int(args.baseline_after)
