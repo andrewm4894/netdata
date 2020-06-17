@@ -8,9 +8,6 @@ from insights_modules.model import run_model
 
 time_start = time.time()
 
-logging.basicConfig(level=logging.INFO)
-log = logging.getLogger(__name__)
-
 parser = argparse.ArgumentParser()
 parser.add_argument(
     '--host', type=str, nargs='?', help='host', default='127.0.0.1:19999'
@@ -33,6 +30,9 @@ parser.add_argument(
 parser.add_argument(
     '--n_lags', type=str, nargs='?', help='n_lags', default='2'
 )
+parser.add_argument(
+    '--log_level', type=str, nargs='?', help='log_level', default='info'
+)
 args = parser.parse_args()
 
 # parse args
@@ -43,6 +43,16 @@ highlight_after = args.highlight_after
 highlight_before = args.highlight_before
 model = args.model
 n_lags = args.n_lags
+log_level = args.log_level
+
+# set up logging
+if log_level == 'info':
+    logging.basicConfig(level=logging.INFO)
+elif log_level == 'debug':
+    logging.basicConfig(level=logging.DEBUG)
+else:
+    logging.basicConfig(level=logging.WARN)
+log = logging.getLogger(__name__)
 
 log.info(f"args={args}")
 
@@ -66,5 +76,7 @@ log.info(f'{round(time_got_data - time_start,2)} seconds to get data.')
 
 # get scores
 results = run_model(model, colnames, arr_baseline, arr_highlight, n_lags)
+
+print(results)
 
 
