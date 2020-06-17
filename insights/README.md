@@ -4,6 +4,8 @@ Statistics and machine learning based "Insights" features.
 
 ### metric_correlations
 
+`metric_correlations.py` is a script to take in some comand line args, pull data from netdata api, calculate scores per dimension and return a json result.
+
 Example usage:
 
 ```
