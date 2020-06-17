@@ -203,3 +203,5 @@ netdata.cbp
 
 # External dependencies
 externaldeps/
+
+/insights/results.json

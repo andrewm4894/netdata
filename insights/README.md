@@ -16,3 +16,9 @@ python metric_correlations.py \
   --model='ks' \
   --n_lags='2'
 ```
+
+Example response:
+
+```
+
+```
