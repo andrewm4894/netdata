@@ -48,13 +48,13 @@ log_level = args.log_level
 # handle 'after' and 'before' values if passed in as relative
 now = time.time()
 if baseline_after <= 0:
-    baseline_after = int(now - baseline_after)
+    baseline_after = int(now + baseline_after)
 if baseline_before <= 0:
-    baseline_before = int(now - baseline_before)
+    baseline_before = int(now + baseline_before)
 if highlight_after <= 0:
-    highlight_after = int(now - highlight_after)
+    highlight_after = int(now + highlight_after)
 if highlight_before <= 0:
-    highlight_before = int(now - highlight_before)
+    highlight_before = int(now + highlight_before)
 
 # set up logging
 if log_level == 'info':
@@ -68,10 +68,10 @@ log = logging.getLogger(__name__)
 
 log.info(f"... args={args}")
 
-log.info(f"... baseline_after={baseline_after}")
-log.info(f"... baseline_before={baseline_before}")
-log.info(f"... highlight_after={highlight_after}")
-log.info(f"... highlight_before={highlight_before}")
+log.debug(f"... baseline_after={baseline_after}")
+log.debug(f"... baseline_before={baseline_before}")
+log.debug(f"... highlight_after={highlight_after}")
+log.debug(f"... highlight_before={highlight_before}")
 
 # get charts
 charts = get_chart_list(host)

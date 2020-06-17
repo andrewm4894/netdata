@@ -1,7 +1,17 @@
 import logging
+from contextlib import redirect_stderr
+import os
 
 import numpy as np
 from scipy.stats import ks_2samp
+
+# imports for tf and keras that might log or print stuff we dont want
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+with redirect_stderr(open(os.devnull, "w")):
+    import keras
+    import tensorflow as tf
+    tf.get_logger().setLevel('ERROR')
+
 from pyod.models.abod import ABOD
 from pyod.models.auto_encoder import AutoEncoder
 from pyod.models.cblof import CBLOF
@@ -28,14 +38,16 @@ supported_pyod_models = [
 
 
 def do_ks(colnames, arr_baseline, arr_highlight):
+
     # dict to collect results into
     results = {}
+
     # loop over each col and do the ks test
     for colname, n in zip(colnames, range(arr_baseline.shape[1])):
         chart = colname.split('|')[0]
         dimension = colname.split('|')[1]
-        arr_baseline_dim = arr_baseline[:, [n]]
-        arr_highlight_dim = arr_highlight[:, [n]]
+        arr_baseline_dim = arr_baseline[:, n]
+        arr_highlight_dim = arr_highlight[:, n]
         log.debug(f'... chart = {chart}')
         log.debug(f'... dimension = {dimension}')
         log.debug(f'... arr_baseline_dim.shape = {arr_baseline_dim.shape}')
@@ -51,8 +63,10 @@ def do_ks(colnames, arr_baseline, arr_highlight):
 
 
 def do_pyod(model, colnames, arr_baseline, arr_highlight, n_lags):
+
     # dict to collect results into
     results = {}
+
     # initial model set up
     if model == 'knn':
         clf = KNN(**model['params'])
@@ -88,52 +102,65 @@ def do_pyod(model, colnames, arr_baseline, arr_highlight, n_lags):
         clf = XGBOD(**model['params'])
     else:
         raise ValueError(f"unknown model {model}")
+
     # fit model for each dimension and then use model to score highlighted area
     for colname, n in zip(colnames, range(arr_baseline.shape[1])):
+
+        # extract chart and dim from colname
         chart = colname.split('|')[0]
         dimension = colname.split('|')[1]
+
+        # just get dim of interest
         arr_baseline_dim = arr_baseline[:, [n]]
         arr_highlight_dim = arr_highlight[:, [n]]
+
+        # add lags if needed
         if n_lags > 0:
             arr_baseline_dim = add_lags(arr_baseline_dim, n_lags=n_lags)
             arr_highlight_dim = add_lags(arr_highlight_dim, n_lags=n_lags)
+
         # remove any nan rows
         arr_baseline_dim = arr_baseline_dim[~np.isnan(arr_baseline_dim).any(axis=1)]
         arr_highlight_dim = arr_highlight_dim[~np.isnan(arr_highlight_dim).any(axis=1)]
-        #log.info(f'... chart = {chart}')
-        #log.info(f'... dimension = {dimension}')
-        #log.info(f'... arr_baseline_dim.shape = {arr_baseline_dim.shape}')
-        #log.info(f'... arr_highlight_dim.shape = {arr_highlight_dim.shape}')
-        #log.info(f'... arr_baseline_dim = {arr_baseline_dim}')
-        #log.info(f'... arr_highlight_dim = {arr_highlight_dim}')
-        # try fit and if fails fallback to default model
+
+        log.debug(f'... chart = {chart}')
+        log.debug(f'... dimension = {dimension}')
+        log.debug(f'... arr_baseline_dim.shape = {arr_baseline_dim.shape}')
+        log.debug(f'... arr_highlight_dim.shape = {arr_highlight_dim.shape}')
+        log.debug(f'... arr_baseline_dim = {arr_baseline_dim}')
+        log.debug(f'... arr_highlight_dim = {arr_highlight_dim}')
+
+        # fit model
         clf.fit(arr_baseline_dim)
-        #try:
-        #    clf.fit(arr_baseline_dim)
-        #except:
-        #    clf = DefaultPyODModel()
-        #    clf.fit(arr_baseline_dim)
+
         # 0/1 anomaly predictions
         preds = clf.predict(arr_highlight_dim)
-        #log.info(f'... preds.shape = {preds.shape}')
-        #log.info(f'... preds = {preds}')
+
+        log.debug(f'... preds.shape = {preds.shape}')
+        log.debug(f'... preds = {preds}')
+
         # anomaly probability scores
         probs = clf.predict_proba(arr_highlight_dim)[:, 1]
-        #log.info(f'... probs.shape = {probs.shape}')
-        #log.info(f'... probs = {probs}')
+
+        log.debug(f'... probs.shape = {probs.shape}')
+        log.debug(f'... probs = {probs}')
+
         # save results
         score = (np.mean(probs) + np.mean(preds))/2
         if chart in results:
             results[chart].append({dimension: {'score': score}})
         else:
             results[chart] = [{dimension: {'score': score}}]
+
     return results
 
 
 def run_model(model, colnames, arr_baseline, arr_highlight, n_lags):
+
     if model in supported_pyod_models:
         results = do_pyod(model, colnames, arr_baseline, arr_highlight, n_lags)
     else:
         results = do_ks(colnames, arr_baseline, arr_highlight)
+
     return results
 
