@@ -1,16 +1,18 @@
-#!/usr/bin/python3
 import argparse
 import logging
+import time
+
+from netdata_pandas.data import get_data, get_chart_list
+from insights_modules.utils import hello
+
+time_start = time.time()
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    '--host', type=str, nargs='?', help='host', default='127.0.0.1'
-)
-parser.add_argument(
-    '--port', type=str, nargs='?', help='port', default='19999'
+    '--host', type=str, nargs='?', help='host', default='127.0.0.1:19999'
 )
 parser.add_argument(
     '--baseline_after', type=str, nargs='?', help='baseline_after', default='-120'
@@ -31,7 +33,6 @@ args = parser.parse_args()
 
 # parse args
 host = args.host
-port = args.port
 baseline_after = args.baseline_after
 baseline_before = args.baseline_before
 highlight_after = args.highlight_after
@@ -39,3 +40,28 @@ highlight_before = args.highlight_before
 model = args.model
 
 log.info(f"args={args}")
+
+# get charts
+charts = get_chart_list(host)
+
+# get data
+df = get_data(host, charts, after=baseline_after, before=highlight_before, diff=True,
+              ffill=True, numeric_only=True, nunique_thold=0.05, col_sep='|')
+log.info(f"df.shape={df.shape}")
+
+# get numpy arrays
+colnames = list(df.columns)
+arr_baseline = df.query(f'{baseline_after} <= time_idx <= {baseline_before}').values
+arr_highlight = df.query(f'{highlight_after} <= time_idx <= {highlight_before}').values
+charts = list(set([col.split('|')[0] for col in colnames]))
+
+# log times
+time_got_data = time.time()
+log.info(f'{round(time_got_data - time_start,2)} seconds to get data.')
+
+print(hello())
+
+# get scores
+#results_dict = run_model(model, colnames, arr_baseline, arr_highlight)
+
+
