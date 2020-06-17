@@ -1,6 +1,6 @@
 ## Insights
 
-Location for some Machine Learning and Statistical based features.
+Statistics and machine learning based "Insights" features.
 
 ### metric_correlations
 
