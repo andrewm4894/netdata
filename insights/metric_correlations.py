@@ -1,3 +1,6 @@
+"""
+Python script to calculate metric correlations.
+"""
 import argparse
 import json
 import logging
