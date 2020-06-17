@@ -110,9 +110,9 @@ def do_pyod(model, colnames, arr_baseline, arr_highlight, n_lags):
 
 def save_results(results, chart, dimension, score):
     if chart in results:
-        results[chart]['dimensions'].append({dimension: {'score': score}})
+        results[chart].update({dimension: {"score": round(score, 4)}})
     else:
-        results[chart] = {"dimensions": [{dimension: {'score': score}}]}
+        results[chart] = {dimension: {"score": round(score, 4)}}
     return results
 
 

@@ -1,2674 +1,1910 @@
 {
-    "netdata.apps_sizes": {
-        "dimensions": [
-            {
-                "calls": {
-                    "score": 0.1494678581371418
-                }
-            },
-            {
-                "files": {
-                    "score": 0.06968420520066627
-                }
-            },
-            {
-                "filenames": {
-                    "score": 0.12662216756377953
-                }
-            },
-            {
-                "inode_changes": {
-                    "score": 0.037445378529246655
-                }
-            },
-            {
-                "link_changes": {
-                    "score": 0.17924103277149778
-                }
-            },
-            {
-                "fds": {
-                    "score": 0.22412517080167826
-                }
-            },
-            {
-                "new pids": {
-                    "score": 0.20660231215354408
-                }
-            }
-        ]
-    },
-    "tc.eth0_packets": {
-        "dimensions": [
-            {
-                "web_server": {
-                    "score": 0.09268933297330104
-                }
-            },
-            {
-                "default": {
-                    "score": 0.17439369540426533
-                }
-            },
-            {
-                "ntp": {
-                    "score": 0.1633823838729348
-                }
-            },
-            {
-                "icmp": {
-                    "score": 0.07168820849802811
-                }
-            },
-            {
-                "vpn": {
-                    "score": 0.1530958302927764
-                }
-            },
-            {
-                "client": {
-                    "score": 0.11785953530577103
-                }
-            }
-        ]
-    },
-    "example.random2": {
-        "dimensions": [
-            {
-                "random": {
-                    "score": 0.10255372013732372
-                }
-            }
-        ]
-    },
-    "netdata.runtime_mysql_local": {
-        "dimensions": [
-            {
-                "run time": {
-                    "score": 0.11464771187716158
-                }
-            }
-        ]
-    },
-    "netdata.plugin_cgroups_cpu": {
-        "dimensions": [
-            {
-                "user": {
-                    "score": 0.06897926874997443
-                }
-            },
-            {
-                "system": {
-                    "score": 0.16002437585390067
-                }
-            }
-        ]
-    },
-    "netdata.web_thread1_cpu": {
-        "dimensions": [
-            {
-                "user": {
-                    "score": 0.4597112794564262
-                }
-            }
-        ]
-    },
-    "system.cpu": {
-        "dimensions": [
-            {
-                "steal": {
-                    "score": 0.008612573234568944
-                }
-            },
-            {
-                "softirq": {
-                    "score": 0.07526010414638416
-                }
-            },
-            {
-                "user": {
-                    "score": 0.10574471111139586
-                }
-            },
-            {
-                "system": {
-                    "score": 0.26070845663937237
-                }
-            }
-        ]
-    },
     "tc.eth0": {
-        "dimensions": [
-            {
-                "web_server": {
-                    "score": 0.09295808396920253
-                }
-            },
-            {
-                "default": {
-                    "score": 0.2053786883774717
-                }
-            },
-            {
-                "ntp": {
-                    "score": 0.16338060274155558
-                }
-            },
-            {
-                "icmp": {
-                    "score": 0.07168881447707551
-                }
-            },
-            {
-                "vpn": {
-                    "score": 0.11480440574800618
-                }
-            },
-            {
-                "client": {
-                    "score": 0.08686894588340004
-                }
-            }
-        ]
-    },
-    "netdata.web_thread3_cpu": {
-        "dimensions": [
-            {
-                "user": {
-                    "score": 0.22871101537439342
-                }
-            },
-            {
-                "system": {
-                    "score": 0.2238186048108522
-                }
-            }
-        ]
-    },
-    "netdata.web_thread2_cpu": {
-        "dimensions": [
-            {
-                "user": {
-                    "score": 0.14099068621895827
-                }
-            },
-            {
-                "system": {
-                    "score": 0.027729225787782932
-                }
-            }
-        ]
-    },
-    "netdata.web_thread4_cpu": {
-        "dimensions": [
-            {
-                "user": {
-                    "score": 0.10335792176785907
-                }
-            },
-            {
-                "system": {
-                    "score": 0.11669942052547033
-                }
-            }
-        ]
-    },
-    "web_log_nginx.requests_per_url": {
-        "dimensions": [
-            {
-                "other": {
-                    "score": 0.2313869076890906
-                }
-            },
-            {
-                "badges": {
-                    "score": 0.23527496066161285
-                }
-            },
-            {
-                "charts": {
-                    "score": 0.09799313686874177
-                }
-            },
-            {
-                "registry": {
-                    "score": 0.12059082233706937
-                }
-            },
-            {
-                "allmetrics": {
-                    "score": 0.1049532225813265
-                }
-            },
-            {
-                "kickstart": {
-                    "score": 0.16043538702859828
-                }
-            },
-            {
-                "kickstart64": {
-                    "score": 0.04883665692997835
-                }
-            },
-            {
-                "pack_inst": {
-                    "score": 0.1363322842120912
-                }
-            }
-        ]
-    },
-    "mysql_local.join_issues": {
-        "dimensions": [
-            {
-                "scan": {
-                    "score": 0.04442752385886441
-                }
-            }
-        ]
-    },
-    "nginx_local.requests": {
-        "dimensions": [
-            {
-                "requests": {
-                    "score": 0.09989094711244711
-                }
-            }
-        ]
-    },
-    "web_log_nginx.response_time": {
-        "dimensions": [
-            {
-                "min": {
-                    "score": 0.29015976511152314
-                }
-            },
-            {
-                "max": {
-                    "score": 0.1401445384675818
-                }
-            },
-            {
-                "avg": {
-                    "score": 0.2998945749082368
-                }
-            }
-        ]
-    },
-    "web_log_nginx.bandwidth": {
-        "dimensions": [
-            {
-                "received": {
-                    "score": 0.105648384443941
-                }
-            },
-            {
-                "sent": {
-                    "score": 0.10166583173503291
-                }
-            }
-        ]
-    },
-    "web_log_nginx.http_method": {
-        "dimensions": [
-            {
-                "GET": {
-                    "score": 0.0908505407197813
-                }
-            },
-            {
-                "OPTIONS": {
-                    "score": 0.1516145894189878
-                }
-            }
-        ]
-    },
-    "web_log_nginx.clients": {
-        "dimensions": [
-            {
-                "ipv4": {
-                    "score": 0.2759740689667021
-                }
-            },
-            {
-                "ipv6": {
-                    "score": 0.041985982460873594
-                }
-            }
-        ]
-    },
-    "nginx_local.connection_status": {
-        "dimensions": [
-            {
-                "idle": {
-                    "score": 0.17902223718046434
-                }
-            }
-        ]
-    },
-    "netdata.runtime_nginx_local": {
-        "dimensions": [
-            {
-                "run time": {
-                    "score": 0.0965226893306192
-                }
-            }
-        ]
-    },
-    "netdata.apps_cpu": {
-        "dimensions": [
-            {
-                "user": {
-                    "score": 0.10786361200616712
-                }
-            },
-            {
-                "system": {
-                    "score": 0.20248868509389842
-                }
-            }
-        ]
-    },
-    "netdata.runtime_ntpd_local": {
-        "dimensions": [
-            {
-                "run time": {
-                    "score": 0.1320050362287326
-                }
-            }
-        ]
-    },
-    "netdata.runtime_dockerhub": {
-        "dimensions": [
-            {
-                "run time": {
-                    "score": 0.19221499920723006
-                }
-            }
-        ]
-    },
-    "nginx_local.connections": {
-        "dimensions": [
-            {
-                "active": {
-                    "score": 0.19783477675357547
-                }
-            }
-        ]
-    },
-    "example.random": {
-        "dimensions": [
-            {
-                "random1": {
-                    "score": 0.1642043498386525
-                }
-            },
-            {
-                "random2": {
-                    "score": 0.2094483045720431
-                }
-            },
-            {
-                "random3": {
-                    "score": 0.13571679976685497
-                }
-            }
-        ]
-    },
-    "web_log_nginx.requests_per_ipproto": {
-        "dimensions": [
-            {
-                "ipv4": {
-                    "score": 0.09888086215463299
-                }
-            },
-            {
-                "ipv6": {
-                    "score": 0.019174531172639436
-                }
-            }
-        ]
-    },
-    "netdata.runtime_postfix_local": {
-        "dimensions": [
-            {
-                "run time": {
-                    "score": 0.1796218487394958
-                }
-            }
-        ]
+        "web_server": {
+            "score": 0.0698,
+            "score_norm": 0.2827
+        },
+        "default": {
+            "score": 0.0931,
+            "score_norm": 0.3933
+        },
+        "ntp": {
+            "score": 0.0273,
+            "score_norm": 0.0808
+        },
+        "vpn": {
+            "score": 0.0778,
+            "score_norm": 0.3207
+        },
+        "client": {
+            "score": 0.0853,
+            "score_norm": 0.3563
+        }
     },
     "system.idlejitter": {
-        "dimensions": [
-            {
-                "min": {
-                    "score": 0.29775645533308115
-                }
-            },
-            {
-                "max": {
-                    "score": 0.05464829108482949
-                }
-            },
-            {
-                "average": {
-                    "score": 0.050473440669324576
-                }
-            }
-        ]
+        "min": {
+            "score": 0.0994,
+            "score_norm": 0.4233
+        },
+        "max": {
+            "score": 0.1027,
+            "score_norm": 0.439
+        },
+        "average": {
+            "score": 0.1051,
+            "score_norm": 0.4504
+        }
     },
-    "web_log_nginx.response_codes": {
-        "dimensions": [
-            {
-                "2xx": {
-                    "score": 0.09996425515179669
-                }
-            },
-            {
-                "3xx": {
-                    "score": 0.1427299111728805
-                }
-            },
-            {
-                "4xx": {
-                    "score": 0.1363322842120912
-                }
-            }
-        ]
+    "example.random": {
+        "random1": {
+            "score": 0.0821,
+            "score_norm": 0.3411
+        },
+        "random2": {
+            "score": 0.0544,
+            "score_norm": 0.2095
+        },
+        "random3": {
+            "score": 0.1301,
+            "score_norm": 0.5691
+        }
     },
-    "web_log_nginx.response_statuses": {
-        "dimensions": [
-            {
-                "success": {
-                    "score": 0.09996425515179669
-                }
-            },
-            {
-                "redirect": {
-                    "score": 0.1427299111728805
-                }
-            },
-            {
-                "bad": {
-                    "score": 0.1363322842120912
-                }
-            }
-        ]
+    "netdata.apps_cpu": {
+        "user": {
+            "score": 0.0884,
+            "score_norm": 0.371
+        },
+        "system": {
+            "score": 0.0807,
+            "score_norm": 0.3344
+        }
     },
-    "netdata.runtime_web_log_nginx": {
-        "dimensions": [
-            {
-                "run time": {
-                    "score": 0.12159684549799853
-                }
-            }
-        ]
+    "nginx_local.connections": {
+        "active": {
+            "score": 0.07,
+            "score_norm": 0.2836
+        }
     },
-    "netdata.apps_fix": {
-        "dimensions": [
-            {
-                "utime": {
-                    "score": 0.2457048870272753
-                }
-            },
-            {
-                "stime": {
-                    "score": 0.2457048870272753
-                }
-            },
-            {
-                "gtime": {
-                    "score": 0.2457048870272753
-                }
-            },
-            {
-                "minflt": {
-                    "score": 0.2457048870272753
-                }
-            },
-            {
-                "majflt": {
-                    "score": 0.2457048870272753
-                }
-            }
-        ]
-    },
-    "mysql_local.tmp": {
-        "dimensions": [
-            {
-                "tables": {
-                    "score": 0.04442752385886441
-                }
-            }
-        ]
-    },
-    "nginx_local.connect_rate": {
-        "dimensions": [
-            {
-                "accepted": {
-                    "score": 0.1814548498153527
-                }
-            },
-            {
-                "handled": {
-                    "score": 0.1814548498153527
-                }
-            }
-        ]
-    },
-    "mysql_local.net": {
-        "dimensions": [
-            {
-                "in": {
-                    "score": 0.044466983422006896
-                }
-            },
-            {
-                "out": {
-                    "score": 0.044466566094405725
-                }
-            }
-        ]
-    },
-    "mysql_local.queries": {
-        "dimensions": [
-            {
-                "queries": {
-                    "score": 0.04451255644295515
-                }
-            },
-            {
-                "questions": {
-                    "score": 0.04451255644295515
-                }
-            }
-        ]
-    },
-    "services.throttle_io_ops_write": {
-        "dimensions": [
-            {
-                "netdata": {
-                    "score": 0.03657891439312993
-                }
-            }
-        ]
-    },
-    "services.throttle_io_write": {
-        "dimensions": [
-            {
-                "netdata": {
-                    "score": 0.036595060251458505
-                }
-            }
-        ]
-    },
-    "mysql_local.handlers": {
-        "dimensions": [
-            {
-                "read_rnd_next": {
-                    "score": 0.04445726371251227
-                }
-            }
-        ]
-    },
-    "apps.mem": {
-        "dimensions": [
-            {
-                "python.d.plugin": {
-                    "score": 0.03176489208690454
-                }
-            },
-            {
-                "sql": {
-                    "score": 0.290953557429793
-                }
-            }
-        ]
-    },
-    "services.mem_usage": {
-        "dimensions": [
-            {
-                "nginx": {
-                    "score": 0.06775762090348877
-                }
-            },
-            {
-                "unscd": {
-                    "score": 0.06878901016063321
-                }
-            },
-            {
-                "netdata": {
-                    "score": 0.061908297427771236
-                }
-            },
-            {
-                "mariadb": {
-                    "score": 0.1568752349769427
-                }
-            }
-        ]
-    },
-    "tc.eth0-ifb": {
-        "dimensions": [
-            {
-                "web_server": {
-                    "score": 0.10490457043233017
-                }
-            },
-            {
-                "default": {
-                    "score": 0.18982574931739382
-                }
-            },
-            {
-                "ntp": {
-                    "score": 0.1634365000442585
-                }
-            },
-            {
-                "icmp": {
-                    "score": 0.07167867862104646
-                }
-            },
-            {
-                "vpn": {
-                    "score": 0.11271839083440549
-                }
-            },
-            {
-                "client": {
-                    "score": 0.15376234112775922
-                }
-            }
-        ]
-    },
-    "apps.cpu": {
-        "dimensions": [
-            {
-                "netdata": {
-                    "score": 0.12419472397334541
-                }
-            },
-            {
-                "apps.plugin": {
-                    "score": 0.19888676549711515
-                }
-            },
-            {
-                "charts.d.plugin": {
-                    "score": 0.12933628186808802
-                }
-            },
-            {
-                "python.d.plugin": {
-                    "score": 0.1274416681624069
-                }
-            },
-            {
-                "tc-qos-helper": {
-                    "score": 0.07591105448533872
-                }
-            },
-            {
-                "httpd": {
-                    "score": 0.10458693047287794
-                }
-            },
-            {
-                "sql": {
-                    "score": 0.163662294191651
-                }
-            },
-            {
-                "vpn": {
-                    "score": 0.0920169952108473
-                }
-            },
-            {
-                "ksmd": {
-                    "score": 0.23368487370607882
-                }
-            },
-            {
-                "kernel": {
-                    "score": 0.16330211137404485
-                }
-            }
-        ]
-    },
-    "netdata.plugin_tc_cpu": {
-        "dimensions": [
-            {
-                "user": {
-                    "score": 0.04787894961580191
-                }
-            },
-            {
-                "system": {
-                    "score": 0.21747011848578557
-                }
-            }
-        ]
-    },
-    "cpu.cpu0_softirqs": {
-        "dimensions": [
-            {
-                "TIMER": {
-                    "score": 0.17318311255163948
-                }
-            },
-            {
-                "NET_TX": {
-                    "score": 0.09335604014123945
-                }
-            },
-            {
-                "NET_RX": {
-                    "score": 0.14022951520974658
-                }
-            },
-            {
-                "TASKLET": {
-                    "score": 0.1668720508547274
-                }
-            },
-            {
-                "SCHED": {
-                    "score": 0.15112672801559743
-                }
-            },
-            {
-                "RCU": {
-                    "score": 0.17817794239079143
-                }
-            }
-        ]
-    },
-    "system.softirqs": {
-        "dimensions": [
-            {
-                "TIMER": {
-                    "score": 0.12834518420904137
-                }
-            },
-            {
-                "NET_TX": {
-                    "score": 0.09733222065362404
-                }
-            },
-            {
-                "NET_RX": {
-                    "score": 0.09893040513236506
-                }
-            },
-            {
-                "TASKLET": {
-                    "score": 0.10024428129358064
-                }
-            },
-            {
-                "SCHED": {
-                    "score": 0.1207897362902989
-                }
-            },
-            {
-                "RCU": {
-                    "score": 0.11082177776353763
-                }
-            }
-        ]
-    },
-    "cpu.cpu2_softirqs": {
-        "dimensions": [
-            {
-                "TIMER": {
-                    "score": 0.14404742453918318
-                }
-            },
-            {
-                "NET_TX": {
-                    "score": 0.13916753764668516
-                }
-            },
-            {
-                "NET_RX": {
-                    "score": 0.08768646201115093
-                }
-            },
-            {
-                "TASKLET": {
-                    "score": 0.3799805720769004
-                }
-            },
-            {
-                "SCHED": {
-                    "score": 0.11808920226801346
-                }
-            },
-            {
-                "RCU": {
-                    "score": 0.0912910841367425
-                }
-            }
-        ]
-    },
-    "cpu.cpu1_softirqs": {
-        "dimensions": [
-            {
-                "TIMER": {
-                    "score": 0.17434422693011087
-                }
-            },
-            {
-                "NET_TX": {
-                    "score": 0.07065416421352094
-                }
-            },
-            {
-                "NET_RX": {
-                    "score": 0.0757885975211543
-                }
-            },
-            {
-                "TASKLET": {
-                    "score": 0.11019691901090733
-                }
-            },
-            {
-                "SCHED": {
-                    "score": 0.22191993781060537
-                }
-            },
-            {
-                "RCU": {
-                    "score": 0.052352482541797446
-                }
-            }
-        ]
-    },
-    "cpu.cpu1_interrupts": {
-        "dimensions": [
-            {
-                "virtio2-req.0_32": {
-                    "score": 0.1332303806620313
-                }
-            },
-            {
-                "LOC": {
-                    "score": 0.14828511217682158
-                }
-            },
-            {
-                "RES": {
-                    "score": 0.09432350821944949
-                }
-            },
-            {
-                "CAL": {
-                    "score": 0.26131282764374514
-                }
-            },
-            {
-                "TLB": {
-                    "score": 0.05938536282650864
-                }
-            }
-        ]
-    },
-    "cpu.cpu2_interrupts": {
-        "dimensions": [
-            {
-                "qxl_11": {
-                    "score": 0.48572902138521923
-                }
-            },
-            {
-                "LOC": {
-                    "score": 0.2650037466584785
-                }
-            },
-            {
-                "RES": {
-                    "score": 0.32843309339827387
-                }
-            },
-            {
-                "CAL": {
-                    "score": 0.1279293367998888
-                }
-            },
-            {
-                "TLB": {
-                    "score": 0.15233749379804004
-                }
-            }
-        ]
-    },
-    "cpu.cpu3_interrupts": {
-        "dimensions": [
-            {
-                "virtio0-input.0_25": {
-                    "score": 0.09960813348060218
-                }
-            },
-            {
-                "LOC": {
-                    "score": 0.13643549586072642
-                }
-            },
-            {
-                "RES": {
-                    "score": 0.1607074353566208
-                }
-            },
-            {
-                "CAL": {
-                    "score": 0.28443297144724605
-                }
-            },
-            {
-                "TLB": {
-                    "score": 0.2019680934149971
-                }
-            }
-        ]
-    },
-    "cpu.cpu0_interrupts": {
-        "dimensions": [
-            {
-                "LOC": {
-                    "score": 0.19838346057311645
-                }
-            },
-            {
-                "RES": {
-                    "score": 0.18902754686194942
-                }
-            },
-            {
-                "CAL": {
-                    "score": 0.1510971467855743
-                }
-            },
-            {
-                "TLB": {
-                    "score": 0.09965937878477577
-                }
-            }
-        ]
-    },
-    "system.load": {
-        "dimensions": [
-            {
-                "load1": {
-                    "score": 0.012693560924369752
-                }
-            }
-        ]
-    },
-    "system.forks": {
-        "dimensions": [
-            {
-                "started": {
-                    "score": 0.04819243797626939
-                }
-            }
-        ]
-    },
-    "system.processes": {
-        "dimensions": [
-            {
-                "running": {
-                    "score": 0.1996861487394037
-                }
-            }
-        ]
-    },
-    "system.interrupts": {
-        "dimensions": [
-            {
-                "qxl_11": {
-                    "score": 0.4020614348459623
-                }
-            },
-            {
-                "virtio0-input.0_25": {
-                    "score": 0.09961151200487334
-                }
-            },
-            {
-                "virtio2-req.0_32": {
-                    "score": 0.13322729332053068
-                }
-            },
-            {
-                "LOC": {
-                    "score": 0.1108373365601516
-                }
-            },
-            {
-                "RES": {
-                    "score": 0.12091513460121985
-                }
-            },
-            {
-                "CAL": {
-                    "score": 0.17746607697165045
-                }
-            },
-            {
-                "TLB": {
-                    "score": 0.18387298004644256
-                }
-            }
-        ]
-    },
-    "apps.minor_faults": {
-        "dimensions": [
-            {
-                "netdata": {
-                    "score": 0.30535704707239264
-                }
-            },
-            {
-                "charts.d.plugin": {
-                    "score": 0.2195866819293601
-                }
-            },
-            {
-                "python.d.plugin": {
-                    "score": 0.14124631395351514
-                }
-            },
-            {
-                "tc-qos-helper": {
-                    "score": 0.12323971891898468
-                }
-            },
-            {
-                "sql": {
-                    "score": 0.18777820597112194
-                }
-            },
-            {
-                "vpn": {
-                    "score": 0.0
-                }
-            }
-        ]
-    },
-    "cpu.cpu3": {
-        "dimensions": [
-            {
-                "softirq": {
-                    "score": 0.09734181487502672
-                }
-            },
-            {
-                "user": {
-                    "score": 0.2152041569978407
-                }
-            },
-            {
-                "system": {
-                    "score": 0.24954152222007772
-                }
-            }
-        ]
-    },
-    "apps.cpu_user": {
-        "dimensions": [
-            {
-                "netdata": {
-                    "score": 0.1475600534591433
-                }
-            },
-            {
-                "apps.plugin": {
-                    "score": 0.06412660886054278
-                }
-            },
-            {
-                "charts.d.plugin": {
-                    "score": 0.19068417547566074
-                }
-            },
-            {
-                "python.d.plugin": {
-                    "score": 0.12225816887497112
-                }
-            },
-            {
-                "tc-qos-helper": {
-                    "score": 0.1647567567511024
-                }
-            },
-            {
-                "httpd": {
-                    "score": 0.07256709789579369
-                }
-            },
-            {
-                "sql": {
-                    "score": 0.11844832514198897
-                }
-            },
-            {
-                "vpn": {
-                    "score": 0.05465916745297969
-                }
-            }
-        ]
-    },
-    "system.intr": {
-        "dimensions": [
-            {
-                "interrupts": {
-                    "score": 0.11103718219087613
-                }
-            }
-        ]
-    },
-    "system.ctxt": {
-        "dimensions": [
-            {
-                "switches": {
-                    "score": 0.10894197718339729
-                }
-            }
-        ]
-    },
-    "apps.pwrites": {
-        "dimensions": [
-            {
-                "netdata": {
-                    "score": 0.06586659160331887
-                }
-            },
-            {
-                "charts.d.plugin": {
-                    "score": 0.04245790620102655
-                }
-            },
-            {
-                "httpd": {
-                    "score": 0.11247010444888744
-                }
-            },
-            {
-                "kernel": {
-                    "score": 0.09739142278047441
-                }
-            }
-        ]
-    },
-    "cpu.cpu2": {
-        "dimensions": [
-            {
-                "user": {
-                    "score": 0.13314968234781255
-                }
-            },
-            {
-                "system": {
-                    "score": 0.2713341884099129
-                }
-            }
-        ]
-    },
-    "apps.cpu_system": {
-        "dimensions": [
-            {
-                "netdata": {
-                    "score": 0.14042545361416567
-                }
-            },
-            {
-                "apps.plugin": {
-                    "score": 0.19004647813766243
-                }
-            },
-            {
-                "charts.d.plugin": {
-                    "score": 0.13987176675272195
-                }
-            },
-            {
-                "python.d.plugin": {
-                    "score": 0.12772869430489536
-                }
-            },
-            {
-                "tc-qos-helper": {
-                    "score": 0.09967163541135135
-                }
-            },
-            {
-                "httpd": {
-                    "score": 0.09835880024083574
-                }
-            },
-            {
-                "sql": {
-                    "score": 0.29899638563305414
-                }
-            },
-            {
-                "vpn": {
-                    "score": 0.20802568031874083
-                }
-            },
-            {
-                "ksmd": {
-                    "score": 0.23368487370607882
-                }
-            },
-            {
-                "kernel": {
-                    "score": 0.16330211137404485
-                }
-            }
-        ]
-    },
-    "dockerhub.pulls_rate": {
-        "dimensions": [
-            {
-                "netdata_netdata": {
-                    "score": 0.21771705166142538
-                }
-            },
-            {
-                "titpetric_netdata": {
-                    "score": 0.19551190103930322
-                }
-            },
-            {
-                "firehol_netdata": {
-                    "score": 0.14494159764282666
-                }
-            }
-        ]
-    },
-    "web_log_nginx.detailed_response_codes": {
-        "dimensions": [
-            {
-                "200": {
-                    "score": 0.09337272008229873
-                }
-            },
-            {
-                "404": {
-                    "score": 0.1431160708648822
-                }
-            },
-            {
-                "301": {
-                    "score": 0.15080361101906853
-                }
-            }
-        ]
-    },
-    "cpu.cpu0": {
-        "dimensions": [
-            {
-                "user": {
-                    "score": 0.36587950346401954
-                }
-            },
-            {
-                "system": {
-                    "score": 0.13176938484793826
-                }
-            }
-        ]
-    },
-    "tc.eth0-ifb_packets": {
-        "dimensions": [
-            {
-                "web_server": {
-                    "score": 0.09073717784639235
-                }
-            },
-            {
-                "default": {
-                    "score": 0.1890368278938045
-                }
-            },
-            {
-                "ntp": {
-                    "score": 0.1634386198440281
-                }
-            },
-            {
-                "icmp": {
-                    "score": 0.07167880694562034
-                }
-            },
-            {
-                "vpn": {
-                    "score": 0.1450003804886387
-                }
-            },
-            {
-                "client": {
-                    "score": 0.17778413325156742
-                }
-            }
-        ]
+    "mysql_local.join_issues": {
+        "scan": {
+            "score": 0.1313,
+            "score_norm": 0.5748
+        }
     },
     "netdata.plugin_diskspace": {
-        "dimensions": [
-            {
-                "user": {
-                    "score": 0.0005781398813534992
-                }
-            },
-            {
-                "system": {
-                    "score": 0.13722550017973492
-                }
-            }
-        ]
+        "user": {
+            "score": 0.051,
+            "score_norm": 0.1933
+        },
+        "system": {
+            "score": 0.024,
+            "score_norm": 0.0651
+        }
     },
-    "web_log_nginx.http_version": {
-        "dimensions": [
-            {
-                "1.1": {
-                    "score": 0.08691056315745985
-                }
-            }
-        ]
+    "nginx_local.requests": {
+        "requests": {
+            "score": 0.1058,
+            "score_norm": 0.4537
+        }
     },
-    "services.cpu": {
-        "dimensions": [
-            {
-                "nginx": {
-                    "score": 0.10116965791882782
-                }
-            },
-            {
-                "gvpe": {
-                    "score": 0.035556365129894324
-                }
-            },
-            {
-                "netdata": {
-                    "score": 0.13193428017099076
-                }
-            },
-            {
-                "mariadb": {
-                    "score": 0.2634344346073526
-                }
-            }
-        ]
+    "web_log_nginx.requests_per_url": {
+        "other": {
+            "score": 0.0669,
+            "score_norm": 0.2689
+        },
+        "badges": {
+            "score": 0.0324,
+            "score_norm": 0.105
+        },
+        "charts": {
+            "score": 0.1017,
+            "score_norm": 0.4342
+        },
+        "registry": {
+            "score": 0.0756,
+            "score_norm": 0.3102
+        },
+        "allmetrics": {
+            "score": 0.0252,
+            "score_norm": 0.0708
+        },
+        "kickstart": {
+            "score": 0.0803,
+            "score_norm": 0.3325
+        },
+        "kickstart64": {
+            "score": 0.0821,
+            "score_norm": 0.3411
+        },
+        "pack_inst": {
+            "score": 0.0255,
+            "score_norm": 0.0722
+        }
     },
-    "cpu.cpu1": {
-        "dimensions": [
-            {
-                "user": {
-                    "score": 0.14529244840182265
-                }
-            },
-            {
-                "system": {
-                    "score": 0.16687768371191009
-                }
-            }
-        ]
+    "web_log_nginx.response_statuses": {
+        "success": {
+            "score": 0.0738,
+            "score_norm": 0.3017
+        },
+        "redirect": {
+            "score": 0.0494,
+            "score_norm": 0.1857
+        },
+        "bad": {
+            "score": 0.0255,
+            "score_norm": 0.0722
+        }
+    },
+    "nginx_local.connect_rate": {
+        "accepted": {
+            "score": 0.0565,
+            "score_norm": 0.2195
+        },
+        "handled": {
+            "score": 0.0565,
+            "score_norm": 0.2195
+        }
+    },
+    "netdata.runtime_mysql_local": {
+        "run time": {
+            "score": 0.0413,
+            "score_norm": 0.1473
+        }
+    },
+    "mysql_local.tmp": {
+        "tables": {
+            "score": 0.1313,
+            "score_norm": 0.5748
+        }
+    },
+    "web_log_nginx.clients": {
+        "ipv4": {
+            "score": 0.1078,
+            "score_norm": 0.4632
+        },
+        "ipv6": {
+            "score": 0.0552,
+            "score_norm": 0.2133
+        }
+    },
+    "web_log_nginx.bandwidth": {
+        "received": {
+            "score": 0.074,
+            "score_norm": 0.3026
+        },
+        "sent": {
+            "score": 0.1012,
+            "score_norm": 0.4318
+        }
+    },
+    "web_log_nginx.response_time": {
+        "min": {
+            "score": 0.0331,
+            "score_norm": 0.1083
+        },
+        "max": {
+            "score": 0.0687,
+            "score_norm": 0.2774
+        },
+        "avg": {
+            "score": 0.1104,
+            "score_norm": 0.4755
+        }
+    },
+    "web_log_nginx.http_method": {
+        "GET": {
+            "score": 0.1008,
+            "score_norm": 0.4299
+        },
+        "OPTIONS": {
+            "score": 0.0787,
+            "score_norm": 0.3249
+        }
+    },
+    "nginx_local.connection_status": {
+        "idle": {
+            "score": 0.0645,
+            "score_norm": 0.2575
+        }
+    },
+    "netdata.apps_fix": {
+        "utime": {
+            "score": 0.0642,
+            "score_norm": 0.2561
+        },
+        "stime": {
+            "score": 0.0642,
+            "score_norm": 0.2561
+        },
+        "gtime": {
+            "score": 0.0642,
+            "score_norm": 0.2561
+        },
+        "minflt": {
+            "score": 0.0642,
+            "score_norm": 0.2561
+        },
+        "majflt": {
+            "score": 0.0642,
+            "score_norm": 0.2561
+        }
+    },
+    "web_log_nginx.requests_per_ipproto": {
+        "ipv4": {
+            "score": 0.084,
+            "score_norm": 0.3501
+        },
+        "ipv6": {
+            "score": 0.0547,
+            "score_norm": 0.2109
+        }
+    },
+    "netdata.runtime_web_log_nginx": {
+        "run time": {
+            "score": 0.0444,
+            "score_norm": 0.162
+        }
+    },
+    "web_log_nginx.response_codes": {
+        "2xx": {
+            "score": 0.0738,
+            "score_norm": 0.3017
+        },
+        "3xx": {
+            "score": 0.0494,
+            "score_norm": 0.1857
+        },
+        "4xx": {
+            "score": 0.0255,
+            "score_norm": 0.0722
+        }
+    },
+    "netdata.runtime_ntpd_local": {
+        "run time": {
+            "score": 0.0641,
+            "score_norm": 0.2556
+        }
+    },
+    "netdata.runtime_postfix_local": {
+        "run time": {
+            "score": 0.1008,
+            "score_norm": 0.4299
+        }
+    },
+    "netdata.runtime_nginx_local": {
+        "run time": {
+            "score": 0.0722,
+            "score_norm": 0.2941
+        }
+    },
+    "netdata.web_thread1_cpu": {
+        "user": {
+            "score": 0.2208,
+            "score_norm": 1.0
+        },
+        "system": {
+            "score": 0.0336,
+            "score_norm": 0.1107
+        }
+    },
+    "netdata.web_thread4_cpu": {
+        "user": {
+            "score": 0.0865,
+            "score_norm": 0.362
+        },
+        "system": {
+            "score": 0.0489,
+            "score_norm": 0.1834
+        }
+    },
+    "netdata.apps_sizes": {
+        "calls": {
+            "score": 0.176,
+            "score_norm": 0.7872
+        },
+        "files": {
+            "score": 0.0612,
+            "score_norm": 0.2418
+        },
+        "filenames": {
+            "score": 0.0608,
+            "score_norm": 0.2399
+        },
+        "inode_changes": {
+            "score": 0.0412,
+            "score_norm": 0.1468
+        },
+        "link_changes": {
+            "score": 0.1804,
+            "score_norm": 0.8081
+        },
+        "fds": {
+            "score": 0.0652,
+            "score_norm": 0.2608
+        },
+        "new pids": {
+            "score": 0.0609,
+            "score_norm": 0.2404
+        }
+    },
+    "tc.eth0_packets": {
+        "web_server": {
+            "score": 0.0879,
+            "score_norm": 0.3686
+        },
+        "default": {
+            "score": 0.0959,
+            "score_norm": 0.4067
+        },
+        "ntp": {
+            "score": 0.0273,
+            "score_norm": 0.0808
+        },
+        "vpn": {
+            "score": 0.1226,
+            "score_norm": 0.5335
+        },
+        "client": {
+            "score": 0.0689,
+            "score_norm": 0.2784
+        }
+    },
+    "netdata.web_thread3_cpu": {
+        "user": {
+            "score": 0.1119,
+            "score_norm": 0.4827
+        },
+        "system": {
+            "score": 0.0412,
+            "score_norm": 0.1468
+        }
+    },
+    "example.random2": {
+        "random": {
+            "score": 0.0801,
+            "score_norm": 0.3316
+        }
+    },
+    "netdata.web_thread2_cpu": {
+        "user": {
+            "score": 0.1201,
+            "score_norm": 0.5216
+        },
+        "system": {
+            "score": 0.0686,
+            "score_norm": 0.277
+        }
+    },
+    "netdata.runtime_dockerhub": {
+        "run time": {
+            "score": 0.0435,
+            "score_norm": 0.1577
+        }
+    },
+    "system.cpu": {
+        "softirq": {
+            "score": 0.0626,
+            "score_norm": 0.2485
+        },
+        "user": {
+            "score": 0.0718,
+            "score_norm": 0.2922
+        },
+        "system": {
+            "score": 0.1179,
+            "score_norm": 0.5112
+        }
+    },
+    "netdata.plugin_cgroups_cpu": {
+        "user": {
+            "score": 0.1291,
+            "score_norm": 0.5644
+        },
+        "system": {
+            "score": 0.1368,
+            "score_norm": 0.601
+        }
+    },
+    "cpu.cpu0": {
+        "user": {
+            "score": 0.0811,
+            "score_norm": 0.3363
+        },
+        "system": {
+            "score": 0.0895,
+            "score_norm": 0.3762
+        }
+    },
+    "services.throttle_io_ops_write": {
+        "netdata": {
+            "score": 0.0423,
+            "score_norm": 0.152
+        }
+    },
+    "mysql_local.queries": {
+        "queries": {
+            "score": 0.1313,
+            "score_norm": 0.5748
+        },
+        "questions": {
+            "score": 0.1313,
+            "score_norm": 0.5748
+        }
+    },
+    "mysql_local.net": {
+        "in": {
+            "score": 0.1313,
+            "score_norm": 0.5748
+        },
+        "out": {
+            "score": 0.1313,
+            "score_norm": 0.5748
+        }
+    },
+    "apps.cpu_user": {
+        "netdata": {
+            "score": 0.0935,
+            "score_norm": 0.3952
+        },
+        "apps.plugin": {
+            "score": 0.0481,
+            "score_norm": 0.1796
+        },
+        "charts.d.plugin": {
+            "score": 0.0351,
+            "score_norm": 0.1178
+        },
+        "python.d.plugin": {
+            "score": 0.0403,
+            "score_norm": 0.1425
+        },
+        "tc-qos-helper": {
+            "score": 0.0262,
+            "score_norm": 0.0755
+        },
+        "httpd": {
+            "score": 0.0597,
+            "score_norm": 0.2347
+        },
+        "sql": {
+            "score": 0.062,
+            "score_norm": 0.2456
+        },
+        "vpn": {
+            "score": 0.0657,
+            "score_norm": 0.2632
+        }
+    },
+    "netdata.plugin_tc_cpu": {
+        "user": {
+            "score": 0.0429,
+            "score_norm": 0.1549
+        },
+        "system": {
+            "score": 0.0329,
+            "score_norm": 0.1074
+        }
+    },
+    "tc.eth0-ifb_packets": {
+        "web_server": {
+            "score": 0.0713,
+            "score_norm": 0.2898
+        },
+        "default": {
+            "score": 0.0925,
+            "score_norm": 0.3905
+        },
+        "ntp": {
+            "score": 0.0356,
+            "score_norm": 0.1202
+        },
+        "ssh": {
+            "score": 0.0169,
+            "score_norm": 0.0314
+        },
+        "vpn": {
+            "score": 0.1305,
+            "score_norm": 0.571
+        },
+        "client": {
+            "score": 0.0602,
+            "score_norm": 0.2371
+        }
     },
     "apps.uptime_avg": {
-        "dimensions": [
-            {
-                "python.d.plugin": {
-                    "score": 0.39954272615354264
-                }
-            }
-        ]
+        "python.d.plugin": {
+            "score": 0.0909,
+            "score_norm": 0.3829
+        }
+    },
+    "apps.cpu": {
+        "netdata": {
+            "score": 0.079,
+            "score_norm": 0.3264
+        },
+        "apps.plugin": {
+            "score": 0.1159,
+            "score_norm": 0.5017
+        },
+        "charts.d.plugin": {
+            "score": 0.036,
+            "score_norm": 0.1221
+        },
+        "python.d.plugin": {
+            "score": 0.0465,
+            "score_norm": 0.172
+        },
+        "tc-qos-helper": {
+            "score": 0.0354,
+            "score_norm": 0.1192
+        },
+        "httpd": {
+            "score": 0.0779,
+            "score_norm": 0.3211
+        },
+        "sql": {
+            "score": 0.0609,
+            "score_norm": 0.2404
+        },
+        "vpn": {
+            "score": 0.0308,
+            "score_norm": 0.0974
+        },
+        "ksmd": {
+            "score": 0.0685,
+            "score_norm": 0.2765
+        },
+        "kernel": {
+            "score": 0.0306,
+            "score_norm": 0.0964
+        }
     },
     "apps.vmem": {
-        "dimensions": [
-            {
-                "python.d.plugin": {
-                    "score": 0.05939019387788935
-                }
-            }
-        ]
+        "python.d.plugin": {
+            "score": 0.0179,
+            "score_norm": 0.0361
+        }
+    },
+    "cpu.cpu1": {
+        "user": {
+            "score": 0.0379,
+            "score_norm": 0.1311
+        },
+        "system": {
+            "score": 0.093,
+            "score_norm": 0.3929
+        }
+    },
+    "dockerhub.pulls_rate": {
+        "netdata_netdata": {
+            "score": 0.042,
+            "score_norm": 0.1506
+        },
+        "titpetric_netdata": {
+            "score": 0.0519,
+            "score_norm": 0.1976
+        },
+        "firehol_netdata": {
+            "score": 0.0592,
+            "score_norm": 0.2323
+        }
+    },
+    "web_log_nginx.http_version": {
+        "1.1": {
+            "score": 0.0987,
+            "score_norm": 0.42
+        }
+    },
+    "tc.eth0-ifb": {
+        "web_server": {
+            "score": 0.0754,
+            "score_norm": 0.3093
+        },
+        "default": {
+            "score": 0.0926,
+            "score_norm": 0.391
+        },
+        "ntp": {
+            "score": 0.0356,
+            "score_norm": 0.1202
+        },
+        "ssh": {
+            "score": 0.0169,
+            "score_norm": 0.0314
+        },
+        "vpn": {
+            "score": 0.0881,
+            "score_norm": 0.3696
+        },
+        "client": {
+            "score": 0.0688,
+            "score_norm": 0.2779
+        }
+    },
+    "web_log_nginx.detailed_response_codes": {
+        "200": {
+            "score": 0.1078,
+            "score_norm": 0.4632
+        },
+        "404": {
+            "score": 0.0172,
+            "score_norm": 0.0328
+        },
+        "301": {
+            "score": 0.0493,
+            "score_norm": 0.1853
+        }
     },
     "netdata.plugin_statsd_charting_cpu": {
-        "dimensions": [
-            {
-                "user": {
-                    "score": 0.16806722689075632
-                }
-            },
-            {
-                "system": {
-                    "score": 0.05483234120610547
-                }
-            }
-        ]
+        "system": {
+            "score": 0.0515,
+            "score_norm": 0.1957
+        }
     },
-    "system.ip": {
-        "dimensions": [
-            {
-                "received": {
-                    "score": 0.09789670658777289
-                }
-            },
-            {
-                "sent": {
-                    "score": 0.09854647779157186
-                }
-            }
-        ]
+    "services.throttle_io_write": {
+        "netdata": {
+            "score": 0.0423,
+            "score_norm": 0.152
+        }
     },
-    "ipv4.packets": {
-        "dimensions": [
-            {
-                "received": {
-                    "score": 0.09889032104390211
-                }
-            },
-            {
-                "sent": {
-                    "score": 0.10039401391121039
-                }
-            },
-            {
-                "delivered": {
-                    "score": 0.09873784919585515
-                }
-            }
-        ]
+    "apps.mem": {
+        "python.d.plugin": {
+            "score": 0.0179,
+            "score_norm": 0.0361
+        },
+        "sql": {
+            "score": 0.056,
+            "score_norm": 0.2171
+        }
     },
-    "ipv4.sockstat_tcp_mem": {
-        "dimensions": [
-            {
-                "mem": {
-                    "score": 0.0638172275353459
-                }
-            }
-        ]
+    "services.mem_usage": {
+        "nginx": {
+            "score": 0.0485,
+            "score_norm": 0.1815
+        },
+        "ssh": {
+            "score": 0.026,
+            "score_norm": 0.0746
+        },
+        "unscd": {
+            "score": 0.0227,
+            "score_norm": 0.0589
+        },
+        "gvpe": {
+            "score": 0.1157,
+            "score_norm": 0.5007
+        },
+        "netdata": {
+            "score": 0.054,
+            "score_norm": 0.2076
+        },
+        "mariadb": {
+            "score": 0.0758,
+            "score_norm": 0.3112
+        }
     },
-    "netdata.net": {
-        "dimensions": [
-            {
-                "in": {
-                    "score": 0.10022517360221483
-                }
-            },
-            {
-                "out": {
-                    "score": 0.10008075081906015
-                }
-            }
-        ]
-    },
-    "cpu.cpu0_softnet_stat": {
-        "dimensions": [
-            {
-                "processed": {
-                    "score": 0.14659796354773003
-                }
-            }
-        ]
-    },
-    "netfilter.conntrack_sockets": {
-        "dimensions": [
-            {
-                "connections": {
-                    "score": 0.1890490635873085
-                }
-            }
-        ]
-    },
-    "cpu.cpu2_softnet_stat": {
-        "dimensions": [
-            {
-                "processed": {
-                    "score": 0.0929572147814027
-                }
-            }
-        ]
-    },
-    "disk_iotime.vda": {
-        "dimensions": [
-            {
-                "writes": {
-                    "score": 0.03103383930349175
-                }
-            }
-        ]
-    },
-    "cpu.cpu1_softnet_stat": {
-        "dimensions": [
-            {
-                "processed": {
-                    "score": 0.076322861030601
-                }
-            }
-        ]
-    },
-    "disk_util.vda": {
-        "dimensions": [
-            {
-                "utilization": {
-                    "score": 0.04473058038952798
-                }
-            }
-        ]
-    },
-    "disk_backlog.vda": {
-        "dimensions": [
-            {
-                "backlog": {
-                    "score": 0.031122909245382996
-                }
-            }
-        ]
-    },
-    "netfilter.synproxy_syn_received": {
-        "dimensions": [
-            {
-                "received": {
-                    "score": 0.18879997197789128
-                }
-            }
-        ]
-    },
-    "disk.vda": {
-        "dimensions": [
-            {
-                "writes": {
-                    "score": 0.06007148933887517
-                }
-            }
-        ]
-    },
-    "netfilter.conntrack_new": {
-        "dimensions": [
-            {
-                "ignore": {
-                    "score": 0.10072555448825854
-                }
-            },
-            {
-                "invalid": {
-                    "score": 0.1887805941487123
-                }
-            }
-        ]
-    },
-    "system.ipv6": {
-        "dimensions": [
-            {
-                "received": {
-                    "score": 0.25136927449242824
-                }
-            }
-        ]
-    },
-    "ipv6.packets": {
-        "dimensions": [
-            {
-                "received": {
-                    "score": 0.2567827163167388
-                }
-            }
-        ]
-    },
-    "system.pgpgio": {
-        "dimensions": [
-            {
-                "out": {
-                    "score": 0.06077855118088679
-                }
-            }
-        ]
-    },
-    "ipv6.mcast": {
-        "dimensions": [
-            {
-                "received": {
-                    "score": 0.2513818442159553
-                }
-            }
-        ]
-    },
-    "ipv6.ect": {
-        "dimensions": [
-            {
-                "InNoECTPkts": {
-                    "score": 0.2568183881681712
-                }
-            }
-        ]
-    },
-    "ipv4.tcpopens": {
-        "dimensions": [
-            {
-                "active": {
-                    "score": 0.06589261814182365
-                }
-            },
-            {
-                "passive": {
-                    "score": 0.1879927147146217
-                }
-            }
-        ]
-    },
-    "mem.writeback": {
-        "dimensions": [
-            {
-                "Dirty": {
-                    "score": 0.08154355162127028
-                }
-            }
-        ]
-    },
-    "ipv4.icmpmsg": {
-        "dimensions": [
-            {
-                "OutEchoReps": {
-                    "score": 0.0533363517954491
-                }
-            },
-            {
-                "InEchos": {
-                    "score": 0.0533363517954491
-                }
-            }
-        ]
-    },
-    "ipv4.udppackets": {
-        "dimensions": [
-            {
-                "received": {
-                    "score": 0.09442913596614541
-                }
-            },
-            {
-                "sent": {
-                    "score": 0.14198333527159926
-                }
-            }
-        ]
-    },
-    "ip.ecnpkts": {
-        "dimensions": [
-            {
-                "NoECTP": {
-                    "score": 0.09908086728187693
-                }
-            }
-        ]
+    "services.cpu": {
+        "nginx": {
+            "score": 0.135,
+            "score_norm": 0.5924
+        },
+        "gvpe": {
+            "score": 0.0706,
+            "score_norm": 0.2865
+        },
+        "netdata": {
+            "score": 0.0846,
+            "score_norm": 0.353
+        },
+        "mariadb": {
+            "score": 0.055,
+            "score_norm": 0.2124
+        }
     },
     "mem.kernel": {
-        "dimensions": [
-            {
-                "Slab": {
-                    "score": 0.019406864894711134
-                }
-            },
-            {
-                "KernelStack": {
-                    "score": 0.15094253913435285
-                }
-            },
-            {
-                "PageTables": {
-                    "score": 0.16434587129147382
-                }
-            }
-        ]
-    },
-    "net_packets.eth0": {
-        "dimensions": [
-            {
-                "received": {
-                    "score": 0.09995770762152005
-                }
-            },
-            {
-                "sent": {
-                    "score": 0.10812361301071258
-                }
-            }
-        ]
-    },
-    "ipv4.tcppackets": {
-        "dimensions": [
-            {
-                "received": {
-                    "score": 0.09931985987026573
-                }
-            },
-            {
-                "sent": {
-                    "score": 0.10020836950615605
-                }
-            }
-        ]
-    },
-    "mem.ksm_ratios": {
-        "dimensions": [
-            {
-                "savings": {
-                    "score": 0.004750522246781001
-                }
-            }
-        ]
-    },
-    "system.net": {
-        "dimensions": [
-            {
-                "received": {
-                    "score": 0.10422060175956288
-                }
-            },
-            {
-                "sent": {
-                    "score": 0.09993574483352133
-                }
-            }
-        ]
-    },
-    "net.vpn0": {
-        "dimensions": [
-            {
-                "received": {
-                    "score": 0.1513290449971303
-                }
-            }
-        ]
-    },
-    "mem.committed": {
-        "dimensions": [
-            {
-                "Committed_AS": {
-                    "score": 0.14417131941345046
-                }
-            }
-        ]
-    },
-    "net.eth0": {
-        "dimensions": [
-            {
-                "received": {
-                    "score": 0.10422604011976236
-                }
-            },
-            {
-                "sent": {
-                    "score": 0.09993522470825555
-                }
-            }
-        ]
-    },
-    "system.ram": {
-        "dimensions": [
-            {
-                "free": {
-                    "score": 0.0940898974906574
-                }
-            },
-            {
-                "used": {
-                    "score": 0.0940391746981785
-                }
-            },
-            {
-                "cached": {
-                    "score": 0.10204111391767037
-                }
-            }
-        ]
-    },
-    "mem.available": {
-        "dimensions": [
-            {
-                "avail": {
-                    "score": 0.09384396748160938
-                }
-            }
-        ]
-    },
-    "cpu.cpu3_softirqs": {
-        "dimensions": [
-            {
-                "TIMER": {
-                    "score": 0.15067791585776158
-                }
-            },
-            {
-                "NET_TX": {
-                    "score": 0.09471310475097866
-                }
-            },
-            {
-                "NET_RX": {
-                    "score": 0.10053127690999365
-                }
-            },
-            {
-                "TASKLET": {
-                    "score": 0.1003895986142827
-                }
-            },
-            {
-                "SCHED": {
-                    "score": 0.19059233080512517
-                }
-            },
-            {
-                "RCU": {
-                    "score": 0.18177934164746223
-                }
-            }
-        ]
-    },
-    "ipv4.tcpsock": {
-        "dimensions": [
-            {
-                "connections": {
-                    "score": 0.17777561111396797
-                }
-            }
-        ]
-    },
-    "apps.lreads": {
-        "dimensions": [
-            {
-                "netdata": {
-                    "score": 0.0709785194379625
-                }
-            },
-            {
-                "apps.plugin": {
-                    "score": 0.12177016627690454
-                }
-            },
-            {
-                "charts.d.plugin": {
-                    "score": 0.11865974382638185
-                }
-            },
-            {
-                "python.d.plugin": {
-                    "score": 0.12466809489132571
-                }
-            },
-            {
-                "tc-qos-helper": {
-                    "score": 0.03081969658562119
-                }
-            },
-            {
-                "httpd": {
-                    "score": 0.10667975852604555
-                }
-            },
-            {
-                "email": {
-                    "score": 0.086083066249907
-                }
-            },
-            {
-                "vpn": {
-                    "score": 0.2648114893660459
-                }
-            },
-            {
-                "containers": {
-                    "score": 0.05268194910693604
-                }
-            },
-            {
-                "system": {
-                    "score": 0.14355508936182412
-                }
-            }
-        ]
-    },
-    "ipv4.icmp": {
-        "dimensions": [
-            {
-                "received": {
-                    "score": 0.05333678209611502
-                }
-            },
-            {
-                "sent": {
-                    "score": 0.05333678209611502
-                }
-            }
-        ]
-    },
-    "ipv4.sockstat_sockets": {
-        "dimensions": [
-            {
-                "used": {
-                    "score": 0.17339676252701314
-                }
-            }
-        ]
-    },
-    "mem.pgfaults": {
-        "dimensions": [
-            {
-                "minor": {
-                    "score": 0.12986696215738833
-                }
-            }
-        ]
-    },
-    "ipv4.sockstat_tcp_sockets": {
-        "dimensions": [
-            {
-                "alloc": {
-                    "score": 0.17777561111396797
-                }
-            },
-            {
-                "inuse": {
-                    "score": 0.17777561111396797
-                }
-            },
-            {
-                "timewait": {
-                    "score": 0.24029590788819022
-                }
-            }
-        ]
-    },
-    "mem.ksm_savings": {
-        "dimensions": [
-            {
-                "savings": {
-                    "score": 0.004752913781864088
-                }
-            }
-        ]
-    },
-    "ipv6.mcastpkts": {
-        "dimensions": [
-            {
-                "received": {
-                    "score": 0.2567647043174028
-                }
-            }
-        ]
-    },
-    "netdata.requests": {
-        "dimensions": [
-            {
-                "requests": {
-                    "score": 0.0991535103374615
-                }
-            }
-        ]
-    },
-    "apps.sockets": {
-        "dimensions": [
-            {
-                "httpd": {
-                    "score": 0.183665177002453
-                }
-            }
-        ]
-    },
-    "netdata.server_cpu": {
-        "dimensions": [
-            {
-                "user": {
-                    "score": 0.17790373871720128
-                }
-            },
-            {
-                "system": {
-                    "score": 0.10805749819160089
-                }
-            }
-        ]
-    },
-    "netdata.db_points": {
-        "dimensions": [
-            {
-                "read": {
-                    "score": 0.44694909969533214
-                }
-            },
-            {
-                "generated": {
-                    "score": 0.08901594590379305
-                }
-            }
-        ]
-    },
-    "netdata.response_time": {
-        "dimensions": [
-            {
-                "average": {
-                    "score": 0.30626801494982664
-                }
-            },
-            {
-                "max": {
-                    "score": 0.20967178219820698
-                }
-            }
-        ]
-    },
-    "disk_ops.vda": {
-        "dimensions": [
-            {
-                "writes": {
-                    "score": 0.06806865386299336
-                }
-            }
-        ]
-    },
-    "apps.lwrites": {
-        "dimensions": [
-            {
-                "netdata": {
-                    "score": 0.09469008035170835
-                }
-            },
-            {
-                "apps.plugin": {
-                    "score": 0.15330463810523298
-                }
-            },
-            {
-                "charts.d.plugin": {
-                    "score": 0.06630284763519802
-                }
-            },
-            {
-                "python.d.plugin": {
-                    "score": 0.062300457930502054
-                }
-            },
-            {
-                "tc-qos-helper": {
-                    "score": 0.03295522746753775
-                }
-            },
-            {
-                "httpd": {
-                    "score": 0.09052234545839871
-                }
-            },
-            {
-                "email": {
-                    "score": 0.07690490376265258
-                }
-            },
-            {
-                "vpn": {
-                    "score": 0.06964000137088479
-                }
-            },
-            {
-                "logs": {
-                    "score": 0.04256768289344563
-                }
-            },
-            {
-                "containers": {
-                    "score": 0.08417597182874198
-                }
-            },
-            {
-                "system": {
-                    "score": 0.12719162241596915
-                }
-            }
-        ]
-    },
-    "netdata.compression_ratio": {
-        "dimensions": [
-            {
-                "savings": {
-                    "score": 0.2912678666618542
-                }
-            }
-        ]
-    },
-    "netdata.plugin_proc_cpu": {
-        "dimensions": [
-            {
-                "user": {
-                    "score": 0.062285800795300196
-                }
-            },
-            {
-                "system": {
-                    "score": 0.18450079941817402
-                }
-            }
-        ]
-    },
-    "system.io": {
-        "dimensions": [
-            {
-                "out": {
-                    "score": 0.06007537510522964
-                }
-            }
-        ]
-    },
-    "users.cpu_user": {
-        "dimensions": [
-            {
-                "mysql": {
-                    "score": 0.11844832514198897
-                }
-            },
-            {
-                "www-data": {
-                    "score": 0.07256709789579369
-                }
-            },
-            {
-                "netdata": {
-                    "score": 0.170799739552952
-                }
-            },
-            {
-                "root": {
-                    "score": 0.06955980265349744
-                }
-            }
-        ]
-    },
-    "users.pwrites": {
-        "dimensions": [
-            {
-                "www-data": {
-                    "score": 0.11247010444888744
-                }
-            },
-            {
-                "netdata": {
-                    "score": 0.09176399264902765
-                }
-            },
-            {
-                "root": {
-                    "score": 0.08899147921198122
-                }
-            }
-        ]
-    },
-    "users.mem": {
-        "dimensions": [
-            {
-                "mysql": {
-                    "score": 0.290953557429793
-                }
-            },
-            {
-                "netdata": {
-                    "score": 0.03174378896228006
-                }
-            }
-        ]
-    },
-    "netdata.queries": {
-        "dimensions": [
-            {
-                "queries": {
-                    "score": 0.09970252088967779
-                }
-            }
-        ]
-    },
-    "users.minor_faults": {
-        "dimensions": [
-            {
-                "mysql": {
-                    "score": 0.18777820597112194
-                }
-            },
-            {
-                "netdata": {
-                    "score": 0.0886462748463148
-                }
-            },
-            {
-                "root": {
-                    "score": 0.03923197892972304
-                }
-            }
-        ]
-    },
-    "users.cpu": {
-        "dimensions": [
-            {
-                "mysql": {
-                    "score": 0.163662294191651
-                }
-            },
-            {
-                "www-data": {
-                    "score": 0.10458693047287794
-                }
-            },
-            {
-                "netdata": {
-                    "score": 0.10703354376931282
-                }
-            },
-            {
-                "root": {
-                    "score": 0.19170929015958615
-                }
-            }
-        ]
+        "Slab": {
+            "score": 0.0964,
+            "score_norm": 0.409
+        },
+        "KernelStack": {
+            "score": 0.0252,
+            "score_norm": 0.0708
+        },
+        "PageTables": {
+            "score": 0.0319,
+            "score_norm": 0.1026
+        }
     },
     "mem.ksm": {
-        "dimensions": [
-            {
-                "shared": {
-                    "score": 0.07107907025095558
-                }
-            },
-            {
-                "unshared": {
-                    "score": 0.03858115699465302
-                }
-            },
-            {
-                "sharing": {
-                    "score": 0.004752913781864088
-                }
-            },
-            {
-                "volatile": {
-                    "score": 0.02723027868240903
-                }
-            }
-        ]
+        "volatile": {
+            "score": 0.0172,
+            "score_norm": 0.0328
+        }
     },
-    "users.vmem": {
-        "dimensions": [
-            {
-                "netdata": {
-                    "score": 0.05939112086558746
-                }
-            }
-        ]
+    "mem.committed": {
+        "Committed_AS": {
+            "score": 0.0613,
+            "score_norm": 0.2423
+        }
     },
-    "cpu.cpu3_softnet_stat": {
-        "dimensions": [
-            {
-                "processed": {
-                    "score": 0.10095972510825431
-                }
-            }
-        ]
+    "mem.available": {
+        "avail": {
+            "score": 0.1711,
+            "score_norm": 0.7639
+        }
     },
-    "disk_mops.vda": {
-        "dimensions": [
-            {
-                "writes": {
-                    "score": 0.13262180447162022
-                }
-            }
-        ]
-    },
-    "net_packets.vpn0": {
-        "dimensions": [
-            {
-                "received": {
-                    "score": 0.15254732530921955
-                }
-            }
-        ]
-    },
-    "users.cpu_system": {
-        "dimensions": [
-            {
-                "mysql": {
-                    "score": 0.29899638563305414
-                }
-            },
-            {
-                "www-data": {
-                    "score": 0.09835880024083574
-                }
-            },
-            {
-                "netdata": {
-                    "score": 0.169404114847872
-                }
-            },
-            {
-                "root": {
-                    "score": 0.16692849756226383
-                }
-            }
-        ]
-    },
-    "users.uptime_avg": {
-        "dimensions": [
-            {
-                "netdata": {
-                    "score": 0.3970244663264206
-                }
-            }
-        ]
-    },
-    "system.softnet_stat": {
-        "dimensions": [
-            {
-                "processed": {
-                    "score": 0.0976180940773769
-                }
-            }
-        ]
-    },
-    "users.lreads": {
-        "dimensions": [
-            {
-                "unscd": {
-                    "score": 0.1267870058982679
-                }
-            },
-            {
-                "www-data": {
-                    "score": 0.10667975852604555
-                }
-            },
-            {
-                "netdata": {
-                    "score": 0.05792091805418567
-                }
-            },
-            {
-                "root": {
-                    "score": 0.042934740882362446
-                }
-            }
-        ]
-    },
-    "groups.lwrites": {
-        "dimensions": [
-            {
-                "ulog": {
-                    "score": 0.08496734063574105
-                }
-            },
-            {
-                "unscd": {
-                    "score": 0.11899236763963808
-                }
-            },
-            {
-                "postfix": {
-                    "score": 0.04338897544686512
-                }
-            },
-            {
-                "www-data": {
-                    "score": 0.09052234545839871
-                }
-            },
-            {
-                "netdata": {
-                    "score": 0.10312807644812917
-                }
-            },
-            {
-                "root": {
-                    "score": 0.08217769130875713
-                }
-            }
-        ]
-    },
-    "users.lwrites": {
-        "dimensions": [
-            {
-                "ulog": {
-                    "score": 0.08496734063574105
-                }
-            },
-            {
-                "unscd": {
-                    "score": 0.11899236763963808
-                }
-            },
-            {
-                "postfix": {
-                    "score": 0.04338897544686512
-                }
-            },
-            {
-                "www-data": {
-                    "score": 0.09052234545839871
-                }
-            },
-            {
-                "netdata": {
-                    "score": 0.10198856524642994
-                }
-            },
-            {
-                "root": {
-                    "score": 0.04670493660759989
-                }
-            }
-        ]
-    },
-    "groups.lreads": {
-        "dimensions": [
-            {
-                "unscd": {
-                    "score": 0.1267870058982679
-                }
-            },
-            {
-                "www-data": {
-                    "score": 0.10667975852604555
-                }
-            },
-            {
-                "netdata": {
-                    "score": 0.05499349427987484
-                }
-            },
-            {
-                "root": {
-                    "score": 0.04567719695669632
-                }
-            }
-        ]
-    },
-    "users.sockets": {
-        "dimensions": [
-            {
-                "www-data": {
-                    "score": 0.183665177002453
-                }
-            }
-        ]
-    },
-    "groups.pwrites": {
-        "dimensions": [
-            {
-                "www-data": {
-                    "score": 0.11247010444888744
-                }
-            },
-            {
-                "netdata": {
-                    "score": 0.09176399264902765
-                }
-            },
-            {
-                "root": {
-                    "score": 0.08899147921198122
-                }
-            }
-        ]
-    },
-    "groups.vmem": {
-        "dimensions": [
-            {
-                "postdrop": {
-                    "score": 0.11741989164867345
-                }
-            }
-        ]
-    },
-    "disk_avgsz.vda": {
-        "dimensions": [
-            {
-                "writes": {
-                    "score": 0.07690957374708648
-                }
-            }
-        ]
-    },
-    "groups.cpu_system": {
-        "dimensions": [
-            {
-                "mysql": {
-                    "score": 0.29899638563305414
-                }
-            },
-            {
-                "www-data": {
-                    "score": 0.09835880024083574
-                }
-            },
-            {
-                "netdata": {
-                    "score": 0.15817859207862658
-                }
-            },
-            {
-                "root": {
-                    "score": 0.2601802057270568
-                }
-            }
-        ]
-    },
-    "groups.mem": {
-        "dimensions": [
-            {
-                "mysql": {
-                    "score": 0.290953557429793
-                }
-            },
-            {
-                "postdrop": {
-                    "score": 0.11132596177375662
-                }
-            }
-        ]
-    },
-    "groups.sockets": {
-        "dimensions": [
-            {
-                "www-data": {
-                    "score": 0.183665177002453
-                }
-            }
-        ]
-    },
-    "groups.minor_faults": {
-        "dimensions": [
-            {
-                "mysql": {
-                    "score": 0.18777820597112194
-                }
-            },
-            {
-                "netdata": {
-                    "score": 0.0886462748463148
-                }
-            },
-            {
-                "root": {
-                    "score": 0.03923197892972304
-                }
-            }
-        ]
-    },
-    "groups.cpu": {
-        "dimensions": [
-            {
-                "mysql": {
-                    "score": 0.163662294191651
-                }
-            },
-            {
-                "www-data": {
-                    "score": 0.10458693047287794
-                }
-            },
-            {
-                "netdata": {
-                    "score": 0.1273589409494919
-                }
-            },
-            {
-                "root": {
-                    "score": 0.24105626662104784
-                }
-            }
-        ]
-    },
-    "groups.cpu_user": {
-        "dimensions": [
-            {
-                "mysql": {
-                    "score": 0.11844832514198897
-                }
-            },
-            {
-                "www-data": {
-                    "score": 0.07256709789579369
-                }
-            },
-            {
-                "netdata": {
-                    "score": 0.15709123514407636
-                }
-            },
-            {
-                "root": {
-                    "score": 0.08230052362474455
-                }
-            }
-        ]
+    "cpu.cpu1_softirqs": {
+        "TIMER": {
+            "score": 0.0861,
+            "score_norm": 0.3601
+        },
+        "NET_TX": {
+            "score": 0.154,
+            "score_norm": 0.6827
+        },
+        "NET_RX": {
+            "score": 0.1118,
+            "score_norm": 0.4822
+        },
+        "TASKLET": {
+            "score": 0.1879,
+            "score_norm": 0.8437
+        },
+        "SCHED": {
+            "score": 0.0646,
+            "score_norm": 0.258
+        },
+        "RCU": {
+            "score": 0.0699,
+            "score_norm": 0.2831
+        }
     },
     "mem.slab": {
-        "dimensions": [
-            {
-                "reclaimable": {
-                    "score": 0.04765655168522627
-                }
-            },
-            {
-                "unreclaimable": {
-                    "score": 0.01957125682494668
-                }
-            }
-        ]
+        "reclaimable": {
+            "score": 0.0488,
+            "score_norm": 0.1829
+        },
+        "unreclaimable": {
+            "score": 0.0943,
+            "score_norm": 0.399
+        }
+    },
+    "cpu.cpu2_softirqs": {
+        "TIMER": {
+            "score": 0.0965,
+            "score_norm": 0.4095
+        },
+        "NET_TX": {
+            "score": 0.1824,
+            "score_norm": 0.8176
+        },
+        "NET_RX": {
+            "score": 0.1383,
+            "score_norm": 0.6081
+        },
+        "TASKLET": {
+            "score": 0.1651,
+            "score_norm": 0.7354
+        },
+        "SCHED": {
+            "score": 0.0926,
+            "score_norm": 0.391
+        },
+        "RCU": {
+            "score": 0.1104,
+            "score_norm": 0.4755
+        }
+    },
+    "mem.pgfaults": {
+        "minor": {
+            "score": 0.0874,
+            "score_norm": 0.3663
+        }
+    },
+    "apps.lreads": {
+        "netdata": {
+            "score": 0.074,
+            "score_norm": 0.3026
+        },
+        "apps.plugin": {
+            "score": 0.0735,
+            "score_norm": 0.3002
+        },
+        "charts.d.plugin": {
+            "score": 0.1867,
+            "score_norm": 0.838
+        },
+        "python.d.plugin": {
+            "score": 0.1312,
+            "score_norm": 0.5743
+        },
+        "tc-qos-helper": {
+            "score": 0.2022,
+            "score_norm": 0.9116
+        },
+        "httpd": {
+            "score": 0.0453,
+            "score_norm": 0.1663
+        },
+        "email": {
+            "score": 0.0174,
+            "score_norm": 0.0337
+        },
+        "vpn": {
+            "score": 0.099,
+            "score_norm": 0.4214
+        },
+        "containers": {
+            "score": 0.1372,
+            "score_norm": 0.6029
+        },
+        "system": {
+            "score": 0.0315,
+            "score_norm": 0.1007
+        },
+        "other": {
+            "score": 0.0163,
+            "score_norm": 0.0285
+        }
+    },
+    "mysql_local.handlers": {
+        "read_rnd_next": {
+            "score": 0.1313,
+            "score_norm": 0.5748
+        }
+    },
+    "mem.writeback": {
+        "Dirty": {
+            "score": 0.0402,
+            "score_norm": 0.142
+        }
+    },
+    "system.softirqs": {
+        "TIMER": {
+            "score": 0.0956,
+            "score_norm": 0.4052
+        },
+        "NET_TX": {
+            "score": 0.1051,
+            "score_norm": 0.4504
+        },
+        "NET_RX": {
+            "score": 0.1017,
+            "score_norm": 0.4342
+        },
+        "TASKLET": {
+            "score": 0.0765,
+            "score_norm": 0.3145
+        },
+        "SCHED": {
+            "score": 0.0786,
+            "score_norm": 0.3245
+        },
+        "RCU": {
+            "score": 0.106,
+            "score_norm": 0.4546
+        }
+    },
+    "cpu.cpu0_softirqs": {
+        "TIMER": {
+            "score": 0.0585,
+            "score_norm": 0.229
+        },
+        "NET_TX": {
+            "score": 0.0882,
+            "score_norm": 0.3701
+        },
+        "NET_RX": {
+            "score": 0.1008,
+            "score_norm": 0.4299
+        },
+        "TASKLET": {
+            "score": 0.1287,
+            "score_norm": 0.5625
+        },
+        "SCHED": {
+            "score": 0.0676,
+            "score_norm": 0.2722
+        },
+        "RCU": {
+            "score": 0.0676,
+            "score_norm": 0.2722
+        }
+    },
+    "system.ram": {
+        "free": {
+            "score": 0.1876,
+            "score_norm": 0.8423
+        },
+        "used": {
+            "score": 0.1711,
+            "score_norm": 0.7639
+        },
+        "cached": {
+            "score": 0.0914,
+            "score_norm": 0.3853
+        }
+    },
+    "system.pgpgio": {
+        "out": {
+            "score": 0.095,
+            "score_norm": 0.4024
+        }
+    },
+    "cpu.cpu0_interrupts": {
+        "LOC": {
+            "score": 0.1467,
+            "score_norm": 0.648
+        },
+        "RES": {
+            "score": 0.0693,
+            "score_norm": 0.2803
+        },
+        "CAL": {
+            "score": 0.0885,
+            "score_norm": 0.3715
+        },
+        "TLB": {
+            "score": 0.1366,
+            "score_norm": 0.6
+        }
+    },
+    "cpu.cpu1_interrupts": {
+        "virtio2-req.0_32": {
+            "score": 0.0863,
+            "score_norm": 0.361
+        },
+        "LOC": {
+            "score": 0.0921,
+            "score_norm": 0.3886
+        },
+        "RES": {
+            "score": 0.0697,
+            "score_norm": 0.2822
+        },
+        "CAL": {
+            "score": 0.1609,
+            "score_norm": 0.7154
+        },
+        "TLB": {
+            "score": 0.0951,
+            "score_norm": 0.4029
+        }
+    },
+    "apps.minor_faults": {
+        "netdata": {
+            "score": 0.1055,
+            "score_norm": 0.4523
+        },
+        "charts.d.plugin": {
+            "score": 0.0726,
+            "score_norm": 0.296
+        },
+        "python.d.plugin": {
+            "score": 0.0581,
+            "score_norm": 0.2271
+        },
+        "tc-qos-helper": {
+            "score": 0.0656,
+            "score_norm": 0.2627
+        },
+        "sql": {
+            "score": 0.0769,
+            "score_norm": 0.3164
+        },
+        "vpn": {
+            "score": 0.1818,
+            "score_norm": 0.8147
+        }
+    },
+    "system.forks": {
+        "started": {
+            "score": 0.1433,
+            "score_norm": 0.6318
+        }
+    },
+    "cpu.cpu2_interrupts": {
+        "qxl_11": {
+            "score": 0.1129,
+            "score_norm": 0.4874
+        },
+        "LOC": {
+            "score": 0.1102,
+            "score_norm": 0.4746
+        },
+        "RES": {
+            "score": 0.0801,
+            "score_norm": 0.3316
+        },
+        "CAL": {
+            "score": 0.1085,
+            "score_norm": 0.4665
+        },
+        "TLB": {
+            "score": 0.0956,
+            "score_norm": 0.4052
+        }
+    },
+    "ipv4.sockstat_sockets": {
+        "used": {
+            "score": 0.0535,
+            "score_norm": 0.2052
+        }
+    },
+    "net.vpn0": {
+        "received": {
+            "score": 0.1079,
+            "score_norm": 0.4637
+        }
+    },
+    "apps.pwrites": {
+        "netdata": {
+            "score": 0.0427,
+            "score_norm": 0.1539
+        },
+        "charts.d.plugin": {
+            "score": 0.1717,
+            "score_norm": 0.7667
+        },
+        "httpd": {
+            "score": 0.0727,
+            "score_norm": 0.2964
+        },
+        "logs": {
+            "score": 0.0408,
+            "score_norm": 0.1449
+        },
+        "kernel": {
+            "score": 0.0318,
+            "score_norm": 0.1021
+        }
+    },
+    "net_packets.eth0": {
+        "received": {
+            "score": 0.0831,
+            "score_norm": 0.3458
+        },
+        "sent": {
+            "score": 0.0877,
+            "score_norm": 0.3677
+        }
+    },
+    "system.intr": {
+        "interrupts": {
+            "score": 0.0842,
+            "score_norm": 0.3511
+        }
+    },
+    "net.eth0": {
+        "received": {
+            "score": 0.061,
+            "score_norm": 0.2409
+        },
+        "sent": {
+            "score": 0.0608,
+            "score_norm": 0.2399
+        }
+    },
+    "ipv4.sockstat_tcp_mem": {
+        "mem": {
+            "score": 0.0895,
+            "score_norm": 0.3762
+        }
+    },
+    "net_packets.vpn0": {
+        "received": {
+            "score": 0.1333,
+            "score_norm": 0.5843
+        }
+    },
+    "system.processes": {
+        "running": {
+            "score": 0.043,
+            "score_norm": 0.1553
+        }
+    },
+    "system.net": {
+        "received": {
+            "score": 0.061,
+            "score_norm": 0.2409
+        },
+        "sent": {
+            "score": 0.0608,
+            "score_norm": 0.2399
+        }
+    },
+    "system.load": {
+        "load1": {
+            "score": 0.0588,
+            "score_norm": 0.2304
+        }
+    },
+    "cpu.cpu3_softirqs": {
+        "TIMER": {
+            "score": 0.1111,
+            "score_norm": 0.4789
+        },
+        "NET_TX": {
+            "score": 0.0674,
+            "score_norm": 0.2713
+        },
+        "NET_RX": {
+            "score": 0.1035,
+            "score_norm": 0.4428
+        },
+        "TASKLET": {
+            "score": 0.0447,
+            "score_norm": 0.1634
+        },
+        "SCHED": {
+            "score": 0.0963,
+            "score_norm": 0.4086
+        },
+        "RCU": {
+            "score": 0.0771,
+            "score_norm": 0.3173
+        }
+    },
+    "system.ctxt": {
+        "switches": {
+            "score": 0.0928,
+            "score_norm": 0.3919
+        }
+    },
+    "ipv4.sockstat_tcp_sockets": {
+        "alloc": {
+            "score": 0.0784,
+            "score_norm": 0.3235
+        },
+        "inuse": {
+            "score": 0.0784,
+            "score_norm": 0.3235
+        },
+        "timewait": {
+            "score": 0.0574,
+            "score_norm": 0.2238
+        }
+    },
+    "ipv4.tcpsock": {
+        "connections": {
+            "score": 0.0784,
+            "score_norm": 0.3235
+        }
+    },
+    "system.ip": {
+        "received": {
+            "score": 0.0691,
+            "score_norm": 0.2793
+        },
+        "sent": {
+            "score": 0.0749,
+            "score_norm": 0.3069
+        }
+    },
+    "cpu.cpu3": {
+        "softirq": {
+            "score": 0.0777,
+            "score_norm": 0.3202
+        },
+        "user": {
+            "score": 0.077,
+            "score_norm": 0.3169
+        },
+        "system": {
+            "score": 0.1231,
+            "score_norm": 0.5359
+        }
+    },
+    "ipv4.packets": {
+        "received": {
+            "score": 0.1111,
+            "score_norm": 0.4789
+        },
+        "sent": {
+            "score": 0.088,
+            "score_norm": 0.3691
+        },
+        "delivered": {
+            "score": 0.1271,
+            "score_norm": 0.5549
+        }
+    },
+    "ip.ecnpkts": {
+        "NoECTP": {
+            "score": 0.1111,
+            "score_norm": 0.4789
+        }
+    },
+    "ipv6.ect": {
+        "InNoECTPkts": {
+            "score": 0.1368,
+            "score_norm": 0.601
+        }
+    },
+    "cpu.cpu2": {
+        "user": {
+            "score": 0.1142,
+            "score_norm": 0.4936
+        },
+        "system": {
+            "score": 0.0714,
+            "score_norm": 0.2903
+        }
+    },
+    "netfilter.conntrack_sockets": {
+        "connections": {
+            "score": 0.1159,
+            "score_norm": 0.5017
+        }
+    },
+    "ipv6.mcast": {
+        "received": {
+            "score": 0.0947,
+            "score_norm": 0.401
+        }
+    },
+    "system.ipv6": {
+        "received": {
+            "score": 0.0947,
+            "score_norm": 0.401
+        }
+    },
+    "apps.cpu_system": {
+        "netdata": {
+            "score": 0.0702,
+            "score_norm": 0.2846
+        },
+        "apps.plugin": {
+            "score": 0.041,
+            "score_norm": 0.1458
+        },
+        "charts.d.plugin": {
+            "score": 0.0163,
+            "score_norm": 0.0285
+        },
+        "python.d.plugin": {
+            "score": 0.0606,
+            "score_norm": 0.239
+        },
+        "tc-qos-helper": {
+            "score": 0.0328,
+            "score_norm": 0.1069
+        },
+        "httpd": {
+            "score": 0.0267,
+            "score_norm": 0.0779
+        },
+        "sql": {
+            "score": 0.0704,
+            "score_norm": 0.2855
+        },
+        "vpn": {
+            "score": 0.0597,
+            "score_norm": 0.2347
+        },
+        "ksmd": {
+            "score": 0.0685,
+            "score_norm": 0.2765
+        },
+        "kernel": {
+            "score": 0.0306,
+            "score_norm": 0.0964
+        }
+    },
+    "ipv6.packets": {
+        "received": {
+            "score": 0.137,
+            "score_norm": 0.6019
+        }
+    },
+    "system.interrupts": {
+        "qxl_11": {
+            "score": 0.1047,
+            "score_norm": 0.4485
+        },
+        "virtio0-input.0_25": {
+            "score": 0.0694,
+            "score_norm": 0.2808
+        },
+        "virtio2-req.0_32": {
+            "score": 0.0863,
+            "score_norm": 0.361
+        },
+        "LOC": {
+            "score": 0.1127,
+            "score_norm": 0.4865
+        },
+        "RES": {
+            "score": 0.0547,
+            "score_norm": 0.2109
+        },
+        "CAL": {
+            "score": 0.1441,
+            "score_norm": 0.6356
+        },
+        "TLB": {
+            "score": 0.0849,
+            "score_norm": 0.3544
+        }
+    },
+    "ipv4.tcpopens": {
+        "active": {
+            "score": 0.0245,
+            "score_norm": 0.0675
+        },
+        "passive": {
+            "score": 0.0569,
+            "score_norm": 0.2214
+        }
+    },
+    "netfilter.conntrack_new": {
+        "ignore": {
+            "score": 0.1148,
+            "score_norm": 0.4964
+        },
+        "invalid": {
+            "score": 0.0652,
+            "score_norm": 0.2608
+        }
+    },
+    "ipv4.udppackets": {
+        "received": {
+            "score": 0.1299,
+            "score_norm": 0.5682
+        },
+        "sent": {
+            "score": 0.1431,
+            "score_norm": 0.6309
+        }
+    },
+    "cpu.cpu3_interrupts": {
+        "virtio0-input.0_25": {
+            "score": 0.0694,
+            "score_norm": 0.2808
+        },
+        "LOC": {
+            "score": 0.064,
+            "score_norm": 0.2551
+        },
+        "RES": {
+            "score": 0.1019,
+            "score_norm": 0.4352
+        },
+        "CAL": {
+            "score": 0.1522,
+            "score_norm": 0.6741
+        },
+        "TLB": {
+            "score": 0.1099,
+            "score_norm": 0.4732
+        }
+    },
+    "ipv6.mcastpkts": {
+        "received": {
+            "score": 0.1368,
+            "score_norm": 0.601
+        }
+    },
+    "cpu.cpu0_softnet_stat": {
+        "processed": {
+            "score": 0.1174,
+            "score_norm": 0.5088
+        }
+    },
+    "cpu.cpu1_softnet_stat": {
+        "processed": {
+            "score": 0.1129,
+            "score_norm": 0.4874
+        }
+    },
+    "cpu.cpu3_softnet_stat": {
+        "processed": {
+            "score": 0.0954,
+            "score_norm": 0.4043
+        }
+    },
+    "cpu.cpu2_softnet_stat": {
+        "processed": {
+            "score": 0.1711,
+            "score_norm": 0.7639
+        }
+    },
+    "ipv4.tcppackets": {
+        "received": {
+            "score": 0.0692,
+            "score_norm": 0.2798
+        },
+        "sent": {
+            "score": 0.1184,
+            "score_norm": 0.5135
+        }
+    },
+    "system.softnet_stat": {
+        "processed": {
+            "score": 0.1027,
+            "score_norm": 0.439
+        }
+    },
+    "users.lwrites": {
+        "ulog": {
+            "score": 0.026,
+            "score_norm": 0.0746
+        },
+        "unscd": {
+            "score": 0.0339,
+            "score_norm": 0.1121
+        },
+        "postfix": {
+            "score": 0.0179,
+            "score_norm": 0.0361
+        },
+        "www-data": {
+            "score": 0.1093,
+            "score_norm": 0.4703
+        },
+        "netdata": {
+            "score": 0.1065,
+            "score_norm": 0.457
+        },
+        "root": {
+            "score": 0.0805,
+            "score_norm": 0.3335
+        }
+    },
+    "disk_backlog.vda": {
+        "backlog": {
+            "score": 0.1065,
+            "score_norm": 0.457
+        }
+    },
+    "users.cpu_system": {
+        "mysql": {
+            "score": 0.0704,
+            "score_norm": 0.2855
+        },
+        "www-data": {
+            "score": 0.0267,
+            "score_norm": 0.0779
+        },
+        "netdata": {
+            "score": 0.0736,
+            "score_norm": 0.3007
+        },
+        "root": {
+            "score": 0.0951,
+            "score_norm": 0.4029
+        }
+    },
+    "users.minor_faults": {
+        "mysql": {
+            "score": 0.0769,
+            "score_norm": 0.3164
+        },
+        "netdata": {
+            "score": 0.0728,
+            "score_norm": 0.2969
+        },
+        "root": {
+            "score": 0.1898,
+            "score_norm": 0.8527
+        }
+    },
+    "users.pwrites": {
+        "www-data": {
+            "score": 0.0727,
+            "score_norm": 0.2964
+        },
+        "netdata": {
+            "score": 0.1263,
+            "score_norm": 0.5511
+        },
+        "root": {
+            "score": 0.0412,
+            "score_norm": 0.1468
+        }
+    },
+    "system.io": {
+        "out": {
+            "score": 0.1033,
+            "score_norm": 0.4418
+        }
+    },
+    "users.mem": {
+        "mysql": {
+            "score": 0.056,
+            "score_norm": 0.2171
+        },
+        "netdata": {
+            "score": 0.0179,
+            "score_norm": 0.0361
+        }
+    },
+    "disk.vda": {
+        "writes": {
+            "score": 0.1033,
+            "score_norm": 0.4418
+        }
+    },
+    "disk_avgsz.vda": {
+        "writes": {
+            "score": 0.0646,
+            "score_norm": 0.258
+        }
+    },
+    "netdata.db_points": {
+        "read": {
+            "score": 0.0563,
+            "score_norm": 0.2185
+        },
+        "generated": {
+            "score": 0.089,
+            "score_norm": 0.3739
+        }
+    },
+    "users.vmem": {
+        "netdata": {
+            "score": 0.0179,
+            "score_norm": 0.0361
+        }
+    },
+    "netdata.net": {
+        "in": {
+            "score": 0.082,
+            "score_norm": 0.3406
+        },
+        "out": {
+            "score": 0.1101,
+            "score_norm": 0.4741
+        }
+    },
+    "apps.lwrites": {
+        "netdata": {
+            "score": 0.0666,
+            "score_norm": 0.2675
+        },
+        "apps.plugin": {
+            "score": 0.0706,
+            "score_norm": 0.2865
+        },
+        "charts.d.plugin": {
+            "score": 0.0826,
+            "score_norm": 0.3435
+        },
+        "python.d.plugin": {
+            "score": 0.0634,
+            "score_norm": 0.2523
+        },
+        "tc-qos-helper": {
+            "score": 0.202,
+            "score_norm": 0.9107
+        },
+        "httpd": {
+            "score": 0.1093,
+            "score_norm": 0.4703
+        },
+        "email": {
+            "score": 0.0103,
+            "score_norm": 0.0
+        },
+        "vpn": {
+            "score": 0.0734,
+            "score_norm": 0.2998
+        },
+        "logs": {
+            "score": 0.0262,
+            "score_norm": 0.0755
+        },
+        "containers": {
+            "score": 0.171,
+            "score_norm": 0.7634
+        },
+        "system": {
+            "score": 0.034,
+            "score_norm": 0.1126
+        }
+    },
+    "disk_ops.vda": {
+        "writes": {
+            "score": 0.0945,
+            "score_norm": 0.4
+        }
+    },
+    "groups.cpu": {
+        "mysql": {
+            "score": 0.0609,
+            "score_norm": 0.2404
+        },
+        "www-data": {
+            "score": 0.0779,
+            "score_norm": 0.3211
+        },
+        "netdata": {
+            "score": 0.0679,
+            "score_norm": 0.2736
+        },
+        "root": {
+            "score": 0.0541,
+            "score_norm": 0.2081
+        }
+    },
+    "disk_iotime.vda": {
+        "writes": {
+            "score": 0.1065,
+            "score_norm": 0.457
+        }
+    },
+    "netdata.requests": {
+        "requests": {
+            "score": 0.098,
+            "score_norm": 0.4166
+        }
+    },
+    "users.cpu_user": {
+        "mysql": {
+            "score": 0.062,
+            "score_norm": 0.2456
+        },
+        "www-data": {
+            "score": 0.0597,
+            "score_norm": 0.2347
+        },
+        "netdata": {
+            "score": 0.0845,
+            "score_norm": 0.3525
+        },
+        "root": {
+            "score": 0.0649,
+            "score_norm": 0.2594
+        }
+    },
+    "groups.vmem": {
+        "postdrop": {
+            "score": 0.0507,
+            "score_norm": 0.1919
+        }
+    },
+    "groups.cpu_system": {
+        "mysql": {
+            "score": 0.0704,
+            "score_norm": 0.2855
+        },
+        "www-data": {
+            "score": 0.0267,
+            "score_norm": 0.0779
+        },
+        "netdata": {
+            "score": 0.0521,
+            "score_norm": 0.1986
+        },
+        "root": {
+            "score": 0.0435,
+            "score_norm": 0.1577
+        }
+    },
+    "apps.sockets": {
+        "httpd": {
+            "score": 0.07,
+            "score_norm": 0.2836
+        }
+    },
+    "netdata.queries": {
+        "queries": {
+            "score": 0.0804,
+            "score_norm": 0.333
+        }
+    },
+    "netdata.compression_ratio": {
+        "savings": {
+            "score": 0.0561,
+            "score_norm": 0.2176
+        }
+    },
+    "disk_mops.vda": {
+        "writes": {
+            "score": 0.0844,
+            "score_norm": 0.352
+        }
+    },
+    "users.sockets": {
+        "www-data": {
+            "score": 0.07,
+            "score_norm": 0.2836
+        }
+    },
+    "users.cpu": {
+        "mysql": {
+            "score": 0.0609,
+            "score_norm": 0.2404
+        },
+        "www-data": {
+            "score": 0.0779,
+            "score_norm": 0.3211
+        },
+        "netdata": {
+            "score": 0.0842,
+            "score_norm": 0.3511
+        },
+        "root": {
+            "score": 0.0774,
+            "score_norm": 0.3188
+        }
+    },
+    "groups.cpu_user": {
+        "mysql": {
+            "score": 0.062,
+            "score_norm": 0.2456
+        },
+        "www-data": {
+            "score": 0.0597,
+            "score_norm": 0.2347
+        },
+        "netdata": {
+            "score": 0.0939,
+            "score_norm": 0.3971
+        },
+        "root": {
+            "score": 0.0656,
+            "score_norm": 0.2627
+        }
+    },
+    "netdata.response_time": {
+        "average": {
+            "score": 0.0792,
+            "score_norm": 0.3273
+        },
+        "max": {
+            "score": 0.0783,
+            "score_norm": 0.323
+        }
+    },
+    "netdata.plugin_proc_cpu": {
+        "user": {
+            "score": 0.1189,
+            "score_norm": 0.5159
+        },
+        "system": {
+            "score": 0.1011,
+            "score_norm": 0.4314
+        }
     },
     "netfilter.synproxy_cookies": {
-        "dimensions": [
-            {
-                "valid": {
-                    "score": 0.18879561401522088
-                }
-            }
-        ]
+        "valid": {
+            "score": 0.0652,
+            "score_norm": 0.2608
+        }
+    },
+    "disk_util.vda": {
+        "utilization": {
+            "score": 0.1065,
+            "score_norm": 0.457
+        }
+    },
+    "users.uptime_avg": {
+        "netdata": {
+            "score": 0.0909,
+            "score_norm": 0.3829
+        }
+    },
+    "users.lreads": {
+        "unscd": {
+            "score": 0.0256,
+            "score_norm": 0.0727
+        },
+        "www-data": {
+            "score": 0.0453,
+            "score_norm": 0.1663
+        },
+        "netdata": {
+            "score": 0.0617,
+            "score_norm": 0.2442
+        },
+        "root": {
+            "score": 0.0701,
+            "score_norm": 0.2841
+        }
+    },
+    "groups.minor_faults": {
+        "mysql": {
+            "score": 0.0769,
+            "score_norm": 0.3164
+        },
+        "netdata": {
+            "score": 0.0728,
+            "score_norm": 0.2969
+        },
+        "root": {
+            "score": 0.1898,
+            "score_norm": 0.8527
+        }
+    },
+    "netfilter.synproxy_syn_received": {
+        "received": {
+            "score": 0.0583,
+            "score_norm": 0.228
+        }
+    },
+    "netdata.server_cpu": {
+        "user": {
+            "score": 0.0945,
+            "score_norm": 0.4
+        },
+        "system": {
+            "score": 0.0991,
+            "score_norm": 0.4219
+        }
+    },
+    "groups.mem": {
+        "mysql": {
+            "score": 0.056,
+            "score_norm": 0.2171
+        },
+        "postdrop": {
+            "score": 0.0591,
+            "score_norm": 0.2318
+        }
+    },
+    "groups.pwrites": {
+        "www-data": {
+            "score": 0.0727,
+            "score_norm": 0.2964
+        },
+        "netdata": {
+            "score": 0.1263,
+            "score_norm": 0.5511
+        },
+        "root": {
+            "score": 0.0412,
+            "score_norm": 0.1468
+        }
+    },
+    "groups.lwrites": {
+        "ulog": {
+            "score": 0.026,
+            "score_norm": 0.0746
+        },
+        "unscd": {
+            "score": 0.0339,
+            "score_norm": 0.1121
+        },
+        "postfix": {
+            "score": 0.0179,
+            "score_norm": 0.0361
+        },
+        "www-data": {
+            "score": 0.1093,
+            "score_norm": 0.4703
+        },
+        "netdata": {
+            "score": 0.1147,
+            "score_norm": 0.496
+        },
+        "root": {
+            "score": 0.0656,
+            "score_norm": 0.2627
+        }
+    },
+    "groups.sockets": {
+        "www-data": {
+            "score": 0.07,
+            "score_norm": 0.2836
+        }
+    },
+    "groups.lreads": {
+        "unscd": {
+            "score": 0.0256,
+            "score_norm": 0.0727
+        },
+        "www-data": {
+            "score": 0.0453,
+            "score_norm": 0.1663
+        },
+        "netdata": {
+            "score": 0.0566,
+            "score_norm": 0.22
+        },
+        "root": {
+            "score": 0.0826,
+            "score_norm": 0.3435
+        }
     }
 }

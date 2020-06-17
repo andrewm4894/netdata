@@ -8,6 +8,7 @@ import time
 
 from netdata_pandas.data import get_data, get_chart_list
 from insights_modules.model import run_model
+from insights_modules.utils import normalize_results
 
 
 def main():
@@ -88,6 +89,9 @@ def main():
 
     # get scores
     results = run_model(model, colnames, arr_baseline, arr_highlight, n_lags)
+
+    # normalize results
+    results = normalize_results(results)
 
     time_got_scores = time.time()
     log.info(f'... {round(time_got_scores - time_got_data,2)} seconds to get scores.')
