@@ -144,6 +144,8 @@ def pyod_init(model):
         from pyod.models.abod import ABOD
         clf = ABOD()
     elif model == 'auto_encoder':
+        import os
+        os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
         from pyod.models.auto_encoder import AutoEncoder
         clf = AutoEncoder(hidden_neurons=[1, 1, 1, 1])
     elif model == 'cblof':
