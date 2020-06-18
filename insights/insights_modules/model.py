@@ -94,10 +94,11 @@ def do_pyod(model, colnames, arr_baseline, arr_highlight, n_lags, model_errors='
             clf.fit(arr_baseline_dim)
         except Exception as e:
             if model_errors == 'default':
-                log.warning(f"... warning could not fit model, trying default")
+                log.warning(f"... warning could not fit model for {colname}, trying default")
                 clf = DefaulyPyODModel()
                 clf.fit(arr_baseline_dim)
             elif model_errors == 'ignore':
+                log.warning(f"... warning could not fit model for {colname}, skipping")
                 continue
             else:
                 log.error('hello')
@@ -137,6 +138,10 @@ def add_lags(arr, n_lags=1):
     arr = arr[n_lags:]
     log.debug(f'... n_lags = {n_lags} arr_orig.shape = {arr_orig.shape}  arr.shape = {arr.shape}')
     return arr
+
+
+def pyod_fit(model, data):
+
 
 
 def pyod_init(model, n_train=None, n_features=None):
