@@ -5,6 +5,9 @@ import numpy as np
 from scipy.stats import ks_2samp
 from pyod.models.hbos import HBOS as DefaulyPyODModel
 
+# filter some future warnings from sklearn that come via pyod
+warnings.simplefilter(action='ignore', category=FutureWarning)
+
 log = logging.getLogger(__name__)
 
 supported_pyod_models = [
