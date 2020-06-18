@@ -99,7 +99,7 @@ def do_pyod(model, colnames, arr_baseline, arr_highlight, n_lags, model_errors='
             elif model_errors == 'ignore':
                 continue
             else:
-                log.info('hello')
+                log.error('hello')
                 raise e
 
         # 0/1 anomaly predictions
