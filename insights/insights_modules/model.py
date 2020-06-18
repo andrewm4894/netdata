@@ -91,9 +91,6 @@ def do_pyod(model, colnames, arr_baseline, arr_highlight, n_lags, model_errors='
 
         # fit model
         try:
-            log.info('xxxxxxxxxxxxxx')
-            log.info(arr_baseline_dim.shape)
-            log.info('xxxxxxxxxxxxxx')
             clf.fit(arr_baseline_dim)
         except Exception as e:
             if model_errors == 'default':
@@ -148,11 +145,11 @@ def pyod_init(model, n_train=None, n_features=None):
         from pyod.models.abod import ABOD
         clf = ABOD()
     elif model == 'auto_encoder':
-        import os
-        os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+        #import os
+        #os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
         from pyod.models.auto_encoder import AutoEncoder
         clf = AutoEncoder(
-            hidden_neurons=[n_features, n_features*5, n_features*5, n_features], epochs=20,
+            hidden_neurons=[n_features, n_features*5, n_features*5, n_features], epochs=5,
             batch_size=64, preprocessing=False
         )
     elif model == 'cblof':
