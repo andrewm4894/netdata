@@ -90,6 +90,9 @@ def do_pyod(model, colnames, arr_baseline, arr_highlight, n_lags, model_errors='
 
         # fit model
         try:
+            log.info('xxxxxxxxxxxxxx')
+            log.info(arr_baseline_dim.shape)
+            log.info('xxxxxxxxxxxxxx')
             clf.fit(arr_baseline_dim)
         except Exception as e:
             if model_errors == 'default':
