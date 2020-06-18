@@ -140,10 +140,6 @@ def add_lags(arr, n_lags=1):
     return arr
 
 
-def pyod_fit(model, data):
-
-
-
 def pyod_init(model, n_train=None, n_features=None):
     # initial model set up
     if model == 'abod':
