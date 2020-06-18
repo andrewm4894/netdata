@@ -13,7 +13,7 @@ def run_benchmarks(host=None, model_list=None, n_list=None, sleep_secs=None):
     # parse args, arg may come in via command line or via a function call.
     parser = argparse.ArgumentParser()
     parser.add_argument('--host', type=str, nargs='?', help='host', default='127.0.0.1:19999')
-    parser.add_argument('--model_list', type=str, nargs='?', help='model_list', default='hbos')
+    parser.add_argument('--model_list', type=str, nargs='?', help='model_list', default='ks,knn,hbos')
     parser.add_argument('--n_list', type=str, nargs='?', help='n_list', default='100,1000,5000,10000')
     parser.add_argument('--sleep_secs', type=str, nargs='?', help='sleep_secs', default='5')
     args = parser.parse_args()
