@@ -147,7 +147,7 @@ def pyod_init(model):
         import os
         os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
         from pyod.models.auto_encoder import AutoEncoder
-        clf = AutoEncoder(hidden_neurons=[1, 5, 5, 1])
+        clf = AutoEncoder(hidden_neurons=[2, 5, 5, 2])
     elif model == 'cblof':
         from pyod.models.cblof import CBLOF
         clf = CBLOF()
