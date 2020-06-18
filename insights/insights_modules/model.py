@@ -4,6 +4,7 @@ import warnings
 import numpy as np
 from scipy.stats import ks_2samp
 from pyod.models.hbos import HBOS as DefaulyPyODModel
+import stumpy
 
 # filter some future warnings from sklearn that come via pyod
 warnings.simplefilter(action='ignore', category=FutureWarning)
@@ -20,6 +21,8 @@ def run_model(model, colnames, arr_baseline, arr_highlight, n_lags, model_errors
 
     if model in supported_pyod_models:
         results = do_pyod(model, colnames, arr_baseline, arr_highlight, n_lags, model_errors)
+    elif model in ['mp', 'mp_approx']:
+        results = do_mp(colnames, arr_baseline, arr_highlight, model=model)
     else:
         results = do_ks(colnames, arr_baseline, arr_highlight)
 
@@ -53,6 +56,33 @@ def do_ks(colnames, arr_baseline, arr_highlight):
         score, _ = ks_2samp(arr_baseline_dim, arr_highlight_dim, mode='asymp')
         results = save_results(results, chart, dimension, score)
 
+    return results
+
+
+def do_mp(colnames, arr_baseline, arr_highlight, model='mp'):
+    arr = np.concatenate((arr_baseline, arr_highlight))
+    n_baseline = arr_baseline.shape[0]
+    n_highlight = arr_highlight.shape[0]
+    # dict to collect results into
+    results = {}
+    # loop over each col and do the ks test
+    for colname, n in zip(colnames, range(arr_baseline.shape[1])):
+        chart = colname.split('|')[0]
+        dimension = colname.split('|')[1]
+        m = 30
+        if model == 'mp':
+            mp = stumpy.stump(arr[:, n], m)[:, 0]
+        elif model == 'mp_approx':
+            approx = stumpy.scrump(arr[:, n], m, percentage=0.01, pre_scrump=True)
+            for _ in range(20):
+                approx.update()
+            mp = approx.P_
+        else:
+            raise ValueError(f"... unknown model '{model}'")
+        mp_highlight = mp[0:n_highlight]
+        mp_thold = np.percentile(mp, 90)
+        score = np.mean(np.where(mp_highlight >= mp_thold, 1, 0))
+        results = save_results(results, chart, dimension, score)
     return results
 
 
