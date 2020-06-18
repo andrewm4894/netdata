@@ -1,4 +1,5 @@
 import logging
+import warnings
 
 import numpy as np
 from scipy.stats import ks_2samp
@@ -89,12 +90,16 @@ def do_pyod(model, colnames, arr_baseline, arr_highlight, n_lags, model_errors='
 
         # fit model
         try:
-            clf.fit(arr_baseline_dim)
+            with warnings.catch_warnings():
+                warnings.filterwarnings('ignore')
+                clf.fit(arr_baseline_dim)
         except Exception as e:
             if model_errors == 'default':
                 log.warning(f"... warning could not fit model, trying default")
                 clf = DefaulyPyODModel()
-                clf.fit(arr_baseline_dim)
+                with warnings.catch_warnings():
+                    warnings.filterwarnings('ignore')
+                    clf.fit(arr_baseline_dim)
             elif model_errors == 'ignore':
                 continue
             else:
