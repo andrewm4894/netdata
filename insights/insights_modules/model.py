@@ -158,7 +158,7 @@ def pyod_init(model, n_train=None, n_features=None):
         )
     elif model == 'cblof':
         from pyod.models.cblof import CBLOF
-        clf = CBLOF(n_clusters=2)
+        clf = CBLOF(n_clusters=4)
     elif model == 'hbos':
         from pyod.models.hbos import HBOS
         clf = HBOS()
