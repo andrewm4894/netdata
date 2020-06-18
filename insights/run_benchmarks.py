@@ -2,10 +2,13 @@ import argparse
 import io
 import re
 import time
+import warnings
 from contextlib import redirect_stdout
 
 import pandas as pd
 from metric_correlations import run_metric_correlations
+
+warnings.filterwarnings('ignore')
 
 
 def run_benchmarks(host=None, model_list=None, n_list=None, sleep_secs=None):

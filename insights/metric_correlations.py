@@ -6,14 +6,11 @@ import json
 import logging
 import sys
 import time
-import warnings
 
 from netdata_pandas.data import get_data, get_chart_list
 from insights_modules.model import run_model
 from insights_modules.utils import normalize_results
 
-
-warnings.filterwarnings('ignore')
 
 def run_metric_correlations(host=None, baseline_after=None, baseline_before=None, highlight_after=None,
                             highlight_before=None, model=None, n_lags=None, log_level=None, results_file=None,
@@ -35,7 +32,6 @@ def run_metric_correlations(host=None, baseline_after=None, baseline_before=None
     parser.add_argument('--max_points', type=str, nargs='?', help='max_points', default='10000')
     parser.add_argument('--print_results', type=bool, nargs='?', help='print_results', default=True)
     parser.add_argument('--model_errors', type=bool, nargs='?', help='model_errors', default='fail')
-    #args = parser.parse_args()
     args, unknown = parser.parse_known_args()
     host = args.host if not host else host
     baseline_after = int(args.baseline_after) if not baseline_after else int(baseline_after)
