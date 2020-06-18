@@ -32,7 +32,8 @@ def run_metric_correlations(host=None, baseline_after=None, baseline_before=None
     parser.add_argument('--max_points', type=str, nargs='?', help='max_points', default='10000')
     parser.add_argument('--print_results', type=bool, nargs='?', help='print_results', default=True)
     parser.add_argument('--model_errors', type=bool, nargs='?', help='model_errors', default='fail')
-    args = parser.parse_args()
+    #args = parser.parse_args()
+    args, unknown = parser.parse_known_args()
     host = args.host if not host else host
     baseline_after = int(args.baseline_after) if not baseline_after else int(baseline_after)
     baseline_before = int(args.baseline_before) if not baseline_before else int(baseline_before)
