@@ -8,7 +8,7 @@ import pandas as pd
 from metric_correlations import run_metric_correlations
 
 
-def run_benchmarks(model_list=None, n_list=None):
+def run_benchmarks(host=None, model_list=None, n_list=None):
 
     # parse args, arg may come in via command line or via a function call.
     parser = argparse.ArgumentParser()
