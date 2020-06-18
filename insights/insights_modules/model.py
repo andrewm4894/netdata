@@ -2,6 +2,7 @@ import logging
 
 import numpy as np
 from scipy.stats import ks_2samp
+from pyod.models.hbos import HBOS as DefaulyPyODModel
 
 log = logging.getLogger(__name__)
 
@@ -87,7 +88,17 @@ def do_pyod(model, colnames, arr_baseline, arr_highlight, n_lags, model_errors='
         log.debug(f'... arr_highlight_dim = {arr_highlight_dim}')
 
         # fit model
-        clf.fit(arr_baseline_dim)
+        try:
+            clf.fit(arr_baseline_dim)
+        except Exception as e:
+            if model_errors == 'default':
+                log.warning(f"... warning could not fit model, trying default")
+                clf = DefaulyPyODModel()
+                clf.fit(arr_baseline_dim)
+            elif model_errors == 'ignore':
+                continue
+            else:
+                raise e
 
         # 0/1 anomaly predictions
         preds = clf.predict(arr_highlight_dim)

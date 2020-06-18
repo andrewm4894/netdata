@@ -14,7 +14,7 @@ from insights_modules.utils import normalize_results
 
 def run_metric_correlations(host=None, baseline_after=None, baseline_before=None, highlight_after=None,
                             highlight_before=None, model=None, n_lags=None, log_level=None, results_file=None,
-                            max_points=None, print_results=None, model_errors=None):
+                            max_points=None, print_results=None, model_errors='fail'):
 
     time_start = time.time()
 
@@ -31,7 +31,7 @@ def run_metric_correlations(host=None, baseline_after=None, baseline_before=None
     parser.add_argument('--results_file', type=str, nargs='?', help='results_file', default=None)
     parser.add_argument('--max_points', type=str, nargs='?', help='max_points', default='10000')
     parser.add_argument('--print_results', type=bool, nargs='?', help='print_results', default=True)
-    parser.add_argument('--model_errors', type=bool, nargs='?', help='model_errors', default='ignore')
+    parser.add_argument('--model_errors', type=bool, nargs='?', help='model_errors', default='fail')
     args = parser.parse_args()
     host = args.host if not host else host
     baseline_after = int(args.baseline_after) if not baseline_after else int(baseline_after)
