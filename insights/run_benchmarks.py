@@ -11,7 +11,7 @@ from metric_correlations import run_metric_correlations
 warnings.filterwarnings('ignore')
 
 
-def run_benchmarks(host=None, model_list=None, n_list=None, sleep_secs=None):
+def run_benchmarks(host=None, model_list=None, n_list=None, sleep_secs=None, model_errors=None):
 
     # parse args, arg may come in via command line or via a function call.
     parser = argparse.ArgumentParser()
@@ -19,11 +19,13 @@ def run_benchmarks(host=None, model_list=None, n_list=None, sleep_secs=None):
     parser.add_argument('--model_list', type=str, nargs='?', help='model_list', default='ks,knn,hbos')
     parser.add_argument('--n_list', type=str, nargs='?', help='n_list', default='100,1000,5000,10000')
     parser.add_argument('--sleep_secs', type=str, nargs='?', help='sleep_secs', default='5')
+    parser.add_argument('--model_errors', type=str, nargs='?', help='model_errors', default='fail')
     args = parser.parse_args()
     host = args.host if not host else host
     model_list = args.model_list if not model_list else model_list
     n_list = args.n_list if not n_list else n_list
     sleep_secs = float(args.sleep_secs) if not sleep_secs else float(sleep_secs)
+    model_errors = args.model_errors if not model_errors else model_errors
 
     model_list = model_list.split(',')
     n_list = [int(n) for n in n_list.split(',')]
@@ -41,7 +43,8 @@ def run_benchmarks(host=None, model_list=None, n_list=None, sleep_secs=None):
             with redirect_stdout(f):
                 run_metric_correlations(
                     host=host, model=model, print_results=False, baseline_after=baseline_after,
-                    baseline_before=baseline_before, highlight_after=highlight_after, highlight_before=highlight_before
+                    baseline_before=baseline_before, highlight_after=highlight_after, highlight_before=highlight_before,
+                    model_errors=model_errors
                 )
             results = f.getvalue()
             time_data = float(re.search(" (.*) seconds to get data", results).group(1))
