@@ -90,16 +90,12 @@ def do_pyod(model, colnames, arr_baseline, arr_highlight, n_lags, model_errors='
 
         # fit model
         try:
-            with warnings.catch_warnings():
-                warnings.filterwarnings('ignore')
-                clf.fit(arr_baseline_dim)
+            clf.fit(arr_baseline_dim)
         except Exception as e:
             if model_errors == 'default':
                 log.warning(f"... warning could not fit model, trying default")
                 clf = DefaulyPyODModel()
-                with warnings.catch_warnings():
-                    warnings.filterwarnings('ignore')
-                    clf.fit(arr_baseline_dim)
+                clf.fit(arr_baseline_dim)
             elif model_errors == 'ignore':
                 continue
             else:

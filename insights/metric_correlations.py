@@ -6,11 +6,14 @@ import json
 import logging
 import sys
 import time
+import warnings
 
 from netdata_pandas.data import get_data, get_chart_list
 from insights_modules.model import run_model
 from insights_modules.utils import normalize_results
 
+
+warnings.filterwarnings('ignore')
 
 def run_metric_correlations(host=None, baseline_after=None, baseline_before=None, highlight_after=None,
                             highlight_before=None, model=None, n_lags=None, log_level=None, results_file=None,
