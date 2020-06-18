@@ -21,7 +21,7 @@ def run_benchmarks(host=None, model_list=None, n_list=None):
     n_list = args.n_list if not n_list else n_list
 
     model_list = model_list.split(',')
-    n_list = n_list.split(',')
+    n_list = [int(n) for n in n_list.split(',')]
     results_all = []
     now = time.time()
 
