@@ -125,7 +125,6 @@ def add_lags(arr, n_lags=1):
     return arr
 
 
-
 def pyod_init(model):
     # initial model set up
     if model == 'abod':

@@ -4,6 +4,7 @@ Python script to calculate metric correlations.
 import argparse
 import json
 import logging
+import sys
 import time
 
 from netdata_pandas.data import get_data, get_chart_list
@@ -11,11 +12,13 @@ from insights_modules.model import run_model
 from insights_modules.utils import normalize_results
 
 
-def main():
+def run_metric_correlations(host=None, baseline_after=None, baseline_before=None, highlight_after=None,
+                            highlight_before=None, model=None, n_lags=None, log_level=None, results_file=None,
+                            max_points=None, print_results=None):
 
     time_start = time.time()
 
-    # parse args
+    # parse args, arg may come in via command line or via a function call.
     parser = argparse.ArgumentParser()
     parser.add_argument('--host', type=str, nargs='?', help='host', default='127.0.0.1:19999')
     parser.add_argument('--baseline_after', type=str, nargs='?', help='baseline_after', default='-240')
@@ -27,26 +30,33 @@ def main():
     parser.add_argument('--log_level', type=str, nargs='?', help='log_level', default='info')
     parser.add_argument('--results_file', type=str, nargs='?', help='results_file', default=None)
     parser.add_argument('--max_points', type=str, nargs='?', help='max_points', default='5000')
+    parser.add_argument('--print_results', type=bool, nargs='?', help='print_results', default=True)
     args = parser.parse_args()
-    host = args.host
-    baseline_after = int(args.baseline_after)
-    baseline_before = int(args.baseline_before)
-    highlight_after = int(args.highlight_after)
-    highlight_before = int(args.highlight_before)
-    model = args.model
-    n_lags = int(args.n_lags)
-    log_level = args.log_level
-    results_file = args.results_file
-    max_points = int(args.max_points)
+    host = args.host if not host else host
+    baseline_after = int(args.baseline_after) if not baseline_after else int(baseline_after)
+    baseline_before = int(args.baseline_before) if not baseline_before else int(baseline_before)
+    highlight_after = int(args.highlight_after) if not highlight_after else int(highlight_after)
+    highlight_before = int(args.highlight_before) if not highlight_before else int(highlight_before)
+    model = args.model if not model else model
+    n_lags = int(args.n_lags) if not n_lags else int(n_lags)
+    log_level = args.log_level if not log_level else log_level
+    results_file = args.results_file if not results_file else results_file
+    max_points = int(args.max_points) if not max_points else int(max_points)
+    print_results = args.print_results if print_results is None else print_results
 
     # set up logging
     if log_level == 'info':
         logging.basicConfig(level=logging.INFO)
     elif log_level == 'debug':
         logging.basicConfig(level=logging.DEBUG)
+    elif log_level == 'warn':
+        logging.basicConfig(level=logging.WARN)
+    elif log_level == 'error':
+        logging.basicConfig(level=logging.ERROR)
     else:
         logging.basicConfig(level=logging.WARN)
     log = logging.getLogger(__name__)
+    log.addHandler(logging.StreamHandler(sys.stdout))
 
     # handle 'after' and 'before' values if passed in as relative integers
     if baseline_after <= 0:
@@ -65,12 +75,16 @@ def main():
     else:
         points = 0
 
-    log.info(f"... args={args}")
-
+    log.debug(f"... host={host}")
     log.debug(f"... baseline_after={baseline_after}")
     log.debug(f"... baseline_before={baseline_before}")
     log.debug(f"... highlight_after={highlight_after}")
     log.debug(f"... highlight_before={highlight_before}")
+    log.debug(f"... model={model}")
+    log.debug(f"... n_lags={n_lags}")
+    log.debug(f"... log_level={log_level}")
+    log.debug(f"... max_points={max_points}")
+    log.debug(f"... results_file={results_file}")
 
     # get charts
     charts = get_chart_list(host)
@@ -109,13 +123,14 @@ def main():
         with open(results_file, 'w', encoding='utf-8') as f:
             json.dump(results, f, ensure_ascii=False, indent=4)
 
-    print(results)
+    if print_results:
+        print(results)
 
     time_done = time.time()
     log.info(f'... {round(time_done - time_start, 2)} seconds in total.')
 
 
 if __name__ == '__main__':
-    main()
+    run_metric_correlations()
 
 
