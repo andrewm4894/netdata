@@ -59,7 +59,8 @@ def do_pyod(model, colnames, arr_baseline, arr_highlight, n_lags, model_errors='
     results = {}
 
     # initialise a pyod model
-    clf = pyod_init(model)
+    n_train, n_features = arr_baseline.shape[0], 1+n_lags
+    clf = pyod_init(model, n_train, n_features)
 
     # fit model for each dimension and then use model to score highlighted area
     for colname, n in zip(colnames, range(arr_baseline.shape[1])):
@@ -141,7 +142,7 @@ def add_lags(arr, n_lags=1):
     return arr
 
 
-def pyod_init(model):
+def pyod_init(model, n_train=None, n_features=None):
     # initial model set up
     if model == 'abod':
         from pyod.models.abod import ABOD
@@ -150,7 +151,10 @@ def pyod_init(model):
         import os
         os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
         from pyod.models.auto_encoder import AutoEncoder
-        clf = AutoEncoder(hidden_neurons=[2, 5, 5, 2])
+        clf = AutoEncoder(
+            hidden_neurons=[n_features, n_features*5, n_features*5, n_features], epochs=20,
+            batch_size=64, preprocessing=False
+        )
     elif model == 'cblof':
         from pyod.models.cblof import CBLOF
         clf = CBLOF()
