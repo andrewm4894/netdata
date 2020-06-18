@@ -14,7 +14,7 @@ def run_benchmarks(host=None, model_list=None, n_list=None):
     parser = argparse.ArgumentParser()
     parser.add_argument('--host', type=str, nargs='?', help='host', default='127.0.0.1:19999')
     parser.add_argument('--model_list', type=str, nargs='?', help='model_list', default='ks,hbos')
-    parser.add_argument('--n_list', type=str, nargs='?', help='n_list', default='100,1000')
+    parser.add_argument('--n_list', type=str, nargs='?', help='n_list', default='100,1000,5000,10000')
     args = parser.parse_args()
     host = args.host if not host else host
     model_list = args.model_list if not model_list else model_list
