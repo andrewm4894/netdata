@@ -14,7 +14,7 @@ from insights_modules.utils import normalize_results
 
 def run_metric_correlations(host=None, baseline_after=None, baseline_before=None, highlight_after=None,
                             highlight_before=None, model=None, n_lags=None, log_level=None, results_file=None,
-                            max_points=None, print_results=None):
+                            max_points=None, print_results=None, model_errors=None):
 
     time_start = time.time()
 
@@ -31,6 +31,7 @@ def run_metric_correlations(host=None, baseline_after=None, baseline_before=None
     parser.add_argument('--results_file', type=str, nargs='?', help='results_file', default=None)
     parser.add_argument('--max_points', type=str, nargs='?', help='max_points', default='10000')
     parser.add_argument('--print_results', type=bool, nargs='?', help='print_results', default=True)
+    parser.add_argument('--model_errors', type=bool, nargs='?', help='model_errors', default='ignore')
     args = parser.parse_args()
     host = args.host if not host else host
     baseline_after = int(args.baseline_after) if not baseline_after else int(baseline_after)
@@ -43,6 +44,7 @@ def run_metric_correlations(host=None, baseline_after=None, baseline_before=None
     results_file = args.results_file if not results_file else results_file
     max_points = int(args.max_points) if not max_points else int(max_points)
     print_results = args.print_results if print_results is None else print_results
+    model_errors = args.model_errors if model_errors is None else model_errors
 
     # set up logging
     if log_level == 'info':
@@ -111,7 +113,7 @@ def run_metric_correlations(host=None, baseline_after=None, baseline_before=None
     log.info(f'... {round(time_got_data - time_start,2)} seconds to get data.')
 
     # get scores
-    results = run_model(model, colnames, arr_baseline, arr_highlight, n_lags)
+    results = run_model(model, colnames, arr_baseline, arr_highlight, n_lags, model_errors=model_errors)
 
     # normalize results
     results = normalize_results(results)

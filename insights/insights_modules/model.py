@@ -11,10 +11,10 @@ supported_pyod_models = [
 ]
 
 
-def run_model(model, colnames, arr_baseline, arr_highlight, n_lags):
+def run_model(model, colnames, arr_baseline, arr_highlight, n_lags, model_errors='ignore'):
 
     if model in supported_pyod_models:
-        results = do_pyod(model, colnames, arr_baseline, arr_highlight, n_lags)
+        results = do_pyod(model, colnames, arr_baseline, arr_highlight, n_lags, model_errors)
     else:
         results = do_ks(colnames, arr_baseline, arr_highlight)
 
@@ -51,7 +51,7 @@ def do_ks(colnames, arr_baseline, arr_highlight):
     return results
 
 
-def do_pyod(model, colnames, arr_baseline, arr_highlight, n_lags):
+def do_pyod(model, colnames, arr_baseline, arr_highlight, n_lags, model_errors='default'):
 
     # dict to collect results into
     results = {}
