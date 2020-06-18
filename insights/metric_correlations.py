@@ -29,7 +29,7 @@ def run_metric_correlations(host=None, baseline_after=None, baseline_before=None
     parser.add_argument('--n_lags', type=str, nargs='?', help='n_lags', default='2')
     parser.add_argument('--log_level', type=str, nargs='?', help='log_level', default='info')
     parser.add_argument('--results_file', type=str, nargs='?', help='results_file', default=None)
-    parser.add_argument('--max_points', type=str, nargs='?', help='max_points', default='5000')
+    parser.add_argument('--max_points', type=str, nargs='?', help='max_points', default='10000')
     parser.add_argument('--print_results', type=bool, nargs='?', help='print_results', default=True)
     args = parser.parse_args()
     host = args.host if not host else host
