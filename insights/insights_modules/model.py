@@ -147,7 +147,6 @@ def pyod_init(model, n_train=None, n_features=None):
     elif model == 'auto_encoder':
         import os
         #os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-        os.environ['CUDA_VISIBLE_DEVICES'] = ''
         from pyod.models.auto_encoder import AutoEncoder
         clf = AutoEncoder(
             hidden_neurons=[n_features, n_features*5, n_features*5, n_features], epochs=5,
