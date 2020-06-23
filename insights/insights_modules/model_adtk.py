@@ -108,10 +108,10 @@ def do_adtk(model, colnames, arr_baseline, arr_highlight, n_lags=0, model_errors
             score = preds.mean().mean()
             results = save_results(results, chart, dimension, score)
 
-    # log some summary stats
-    log.info(summary_info(n_charts, n_dims, n_bad_data, fit_success, fit_fail, fit_default, model_level))
+    # summary info
+    summary = summary_info(n_charts, n_dims, n_bad_data, fit_success, fit_fail, fit_default, model_level)
 
-    return results
+    return results, summary
 
 
 def adtk_init(model, colname=None):

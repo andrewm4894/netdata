@@ -47,8 +47,8 @@ def do_mp(model, colnames, arr_baseline, arr_highlight, n_lags=0, model_errors='
         score = np.mean(np.where(mp_highlight >= mp_thold, 1, 0))
         results = save_results(results, chart, dimension, score)
 
-    # log some summary stats
-    log.info(summary_info(n_charts, n_dims, n_bad_data, fit_success, fit_fail, fit_default))
+    # summary info
+    summary = summary_info(n_charts, n_dims, n_bad_data, fit_success, fit_fail, fit_default, model_level)
 
-    return results
+    return results, summary
 

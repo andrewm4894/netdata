@@ -24,8 +24,8 @@ def do_ks(colnames, arr_baseline, arr_highlight):
         fit_success += 1
         results = save_results(results, chart, dimension, score)
 
-    # log some summary stats
-    log.info(summary_info(n_charts, n_dims, n_bad_data, fit_success, fit_fail, fit_default))
+    # summary info
+    summary = summary_info(n_charts, n_dims, n_bad_data, fit_success, fit_fail, fit_default, model_level)
 
-    return results
+    return results, summary
 

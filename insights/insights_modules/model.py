@@ -14,13 +14,13 @@ log = logging.getLogger(__name__)
 
 def run_model(model, colnames, arr_baseline, arr_highlight, n_lags=0, model_errors='ignore', model_level='dim'):
     if model in pyod_models_supported:
-        results = do_pyod(model, colnames, arr_baseline, arr_highlight, n_lags, model_errors, model_level)
+        results, summary = do_pyod(model, colnames, arr_baseline, arr_highlight, n_lags, model_errors, model_level)
     elif model in mp_models_supported:
-        results = do_mp(model, colnames, arr_baseline, arr_highlight, n_lags, model_errors, model_level)
+        results, summary = do_mp(model, colnames, arr_baseline, arr_highlight, n_lags, model_errors, model_level)
     elif model in adtk_models_supported:
-        results = do_adtk(model, colnames, arr_baseline, arr_highlight, n_lags, model_errors, model_level)
+        results, summary = do_adtk(model, colnames, arr_baseline, arr_highlight, n_lags, model_errors, model_level)
     else:
-        results = do_ks(colnames, arr_baseline, arr_highlight)
-    return results
+        results, summary = do_ks(colnames, arr_baseline, arr_highlight)
+    return results, summary
 
 
