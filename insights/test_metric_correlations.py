@@ -7,7 +7,7 @@ from netdata_pandas.data import get_chart_list
 
 # define some test inputs
 test_host = 'london.my-netdata.io'
-test_host_charts_available = get_chart_list(host=test_host)
+test_host_charts_available = set(get_chart_list(host=test_host))
 
 
 def do_test(model):
@@ -22,7 +22,7 @@ def do_test(model):
 def test_ks():
     results = do_test('ks')
     charts_scored = set(results.keys())
-    assert charts_scored.issubset(set(test_host_charts_available))
+    assert charts_scored.issubset(test_host_charts_available)
 
 
 
