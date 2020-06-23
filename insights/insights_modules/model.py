@@ -6,8 +6,9 @@ from insights_modules.model_ks import do_ks
 from insights_modules.model_mp import do_mp, mp_models_supported
 from insights_modules.model_pyod import do_pyod, pyod_models_supported
 
-# filter some future warnings from sklearn that come via pyod
+# filter some future warnings from sklearn and numba that come via pyod
 warnings.simplefilter(action='ignore', category=FutureWarning)
+warnings.filterwarnings(action='ignore', message='Insufficiently recent colorama version found. Numba requires colorama >= 0.3.9')
 
 log = logging.getLogger(__name__)
 
