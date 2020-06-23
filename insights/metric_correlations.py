@@ -95,12 +95,13 @@ def run_metric_correlations(host=None, baseline_after=None, baseline_before=None
     # get charts
     charts = get_chart_list(host)
 
-    log.info(f"... num_charts available on host={len(charts)}")
+    log.info(f"... num charts available on host={len(charts)}")
 
     # get data
     df = get_data(host, charts, after=baseline_after, before=highlight_before, diff=True, points=points,
                   ffill=True, numeric_only=True, nunique_thold=0.05, col_sep='|')
 
+    log.info(f"... num charts in df={len(set([col.split('|')[0] for col in df.columns]))}")
     log.info(f"... df.shape={df.shape}")
     log.debug(f"... df.head()={df.head()}")
 
