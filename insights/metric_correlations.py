@@ -142,7 +142,7 @@ def run_metric_correlations(host=None, baseline_after=None, baseline_before=None
     log.info(summary)
 
     if print_results:
-        print(results)
+        print(json.dumps(results))
 
 
 if __name__ == '__main__':
