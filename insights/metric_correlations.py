@@ -139,9 +139,10 @@ def run_metric_correlations(host=None, baseline_after=None, baseline_before=None
     time_done = time.time()
     log.info(f'... {round(time_done - time_start, 2)} seconds in total.')
 
+    log.info(summary)
+
     if print_results:
         print(results)
-
 
 
 if __name__ == '__main__':
