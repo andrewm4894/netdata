@@ -21,10 +21,8 @@ def do_test(model):
 
 def test_ks():
     results = do_test('ks')
-    print(set(results.keys()))
-    print(set(test_host_charts_available))
-    assert 1 == 1
-    assert 1 == 2
+    charts_scored = set(results.keys())
+    assert charts_scored.issubset(set(test_host_charts_available))
 
 
 
