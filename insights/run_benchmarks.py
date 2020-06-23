@@ -11,7 +11,7 @@ from metric_correlations import run_metric_correlations
 #warnings.filterwarnings('ignore')
 
 
-def run_benchmarks(host=None, model_list=None, n_list=None, sleep_secs=None, model_errors=None):
+def run_benchmarks(host=None, model_list=None, n_list=None, sleep_secs=None, model_errors=None, model_level=None):
 
     # parse args, arg may come in via command line or via a function call.
     parser = argparse.ArgumentParser()
@@ -20,12 +20,14 @@ def run_benchmarks(host=None, model_list=None, n_list=None, sleep_secs=None, mod
     parser.add_argument('--n_list', type=str, nargs='?', help='n_list', default='100,1000,5000,10000')
     parser.add_argument('--sleep_secs', type=str, nargs='?', help='sleep_secs', default='5')
     parser.add_argument('--model_errors', type=str, nargs='?', help='model_errors', default='fail')
+    parser.add_argument('--model_level', type=str, nargs='?', help='model_level', default='dim')
     args = parser.parse_args()
     host = args.host if not host else host
     model_list = args.model_list if not model_list else model_list
     n_list = args.n_list if not n_list else n_list
     sleep_secs = float(args.sleep_secs) if not sleep_secs else float(sleep_secs)
     model_errors = args.model_errors if not model_errors else model_errors
+    model_level = args.model_level if not model_level else model_level
 
     model_list = model_list.split(',')
     n_list = [int(n) for n in n_list.split(',')]
@@ -44,23 +46,27 @@ def run_benchmarks(host=None, model_list=None, n_list=None, sleep_secs=None, mod
                 run_metric_correlations(
                     host=host, model=model, print_results=False, baseline_after=baseline_after,
                     baseline_before=baseline_before, highlight_after=highlight_after, highlight_before=highlight_before,
-                    model_errors=model_errors, run_mode='benchmark'
+                    model_errors=model_errors, run_mode='benchmark', model_level=model_level
                 )
             results = f.getvalue()
             time_data = float(re.search(" (.*) seconds to get data", results).group(1))
             time_scores = float(re.search(" (.*) seconds to get scores", results).group(1))
             time_total = float(re.search(" (.*) seconds in total", results).group(1))
+            model_level = float(re.search(" model_level=(.*), success_rate", results).group(1))
             fit_success = float(re.search(" fit_success=(.*), fit_fail", results).group(1))
             fit_default = float(re.search(" fit_default=(.*)", results).group(1))
             fit_fail = float(re.search(" fit_fail=(.*), fit_default", results).group(1))
-            results_all.append([model, fit_success, fit_default, fit_fail, n, time_data, time_scores, time_total])
+            results_all.append([model, model_level, fit_success, fit_default, fit_fail, n, time_data, time_scores, time_total])
             # sleep for a while so you can clearly see profile of each model in your netdata dashboard :)
             if sleep_secs > 0.0:
                 time.sleep(sleep_secs)
 
     df_results = pd.DataFrame(
         results_all,
-        columns=['model', 'fit_success', 'fit_default', 'fit_fail', 't', 'time_data', 'time_scores', 'time_total']
+        columns=[
+            'model', 'model_level', 'fit_success', 'fit_default', 'fit_fail', 't', 'time_data', 'time_scores',
+            'time_total'
+        ]
     )
     print('---results---')
     print(df_results)
