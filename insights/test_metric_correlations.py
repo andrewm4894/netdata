@@ -34,8 +34,8 @@ def validate_results(results, model, model_level):
         assert dims_list == dims_list_expected
 
 
-@pytest.mark.parametrize("model", ['ks', 'hbos', 'knn', 'pca'])
 @pytest.mark.parametrize("model_level", ['dim', 'chart'])
+@pytest.mark.parametrize("model", ['ks', 'hbos', 'knn', 'pca'])
 def test_metric_correlations(model, model_level):
     results = do_test(host=test_host, model=model, model_level=model_level)
     validate_results(results, model, model_level)
