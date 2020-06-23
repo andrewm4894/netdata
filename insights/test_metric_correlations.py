@@ -2,6 +2,8 @@ import io
 import json
 from contextlib import redirect_stdout
 
+import pytest
+
 from metric_correlations import run_metric_correlations
 from netdata_pandas.data import get_chart_list
 
@@ -28,10 +30,10 @@ def validate_results(results, model_level):
         assert [list(results[chart].keys()) for chart in results] == [['*'] for i in range(len(charts_scored))]
 
 
-
-#def test_ks_default():
-#    results = do_test(host=test_host, model='ks')
-#    validate_results(results)
+@pytest.mark.parametrize("model", ['ks', 'hbos'])
+def test_ks_default(model):
+    results = do_test(host=test_host, model=model)
+    validate_results(results)
 
 
 #def test_hbos_default():
@@ -39,9 +41,10 @@ def validate_results(results, model_level):
 #    validate_results(results)
 
 
-def test_hbos_chart(model_level='chart'):
-    results = do_test(host=test_host, model='hbos', model_level=model_level)
-    validate_results(results, model_level)
+
+#def test_hbos_chart(model_level='chart'):
+#    results = do_test(host=test_host, model='hbos', model_level=model_level)
+#    validate_results(results, model_level)
 
 
 #def test_knn_default():
