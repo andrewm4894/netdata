@@ -32,25 +32,10 @@ def validate_results(results, model_level):
 
 @pytest.mark.parametrize("model", ['ks', 'hbos'])
 @pytest.mark.parametrize("model_level", ['dim', 'chart'])
-def test_ks_default(model, model_level):
+def test_metric_correlations(model, model_level):
     results = do_test(host=test_host, model=model, model_level=model_level)
     validate_results(results, model_level)
 
-
-#def test_hbos_default():
-#    results = do_test(host=test_host, model='hbos')
-#    validate_results(results)
-
-
-
-#def test_hbos_chart(model_level='chart'):
-#    results = do_test(host=test_host, model='hbos', model_level=model_level)
-#    validate_results(results, model_level)
-
-
-#def test_knn_default():
-#    results = do_test(host=test_host, model='knn')
-#    validate_results(results)
 
 
 
