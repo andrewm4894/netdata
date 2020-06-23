@@ -53,9 +53,9 @@ def run_benchmarks(host=None, model_list=None, n_list=None, sleep_secs=None, mod
             time_scores = float(re.search(" (.*) seconds to get scores", results).group(1))
             time_total = float(re.search(" (.*) seconds in total", results).group(1))
             model_level = re.search(" model_level=(.*), success_rate", results).group(1)
-            fit_success = float(re.search(" fit_success=(.*), fit_fail", results).group(1))
-            fit_default = float(re.search(" fit_default=(.*)", results).group(1))
-            fit_fail = float(re.search(" fit_fail=(.*), fit_default", results).group(1))
+            fit_success = int(re.search(" fit_success=(.*), fit_fail", results).group(1))
+            fit_default = int(re.search(" fit_default=(.*)", results).group(1))
+            fit_fail = int(re.search(" fit_fail=(.*), fit_default", results).group(1))
             results_all.append([model, model_level, fit_success, fit_default, fit_fail, n, time_data, time_scores, time_total])
             # sleep for a while so you can clearly see profile of each model in your netdata dashboard :)
             if sleep_secs > 0.0:
