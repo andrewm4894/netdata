@@ -24,8 +24,8 @@ def validate_results(results, model_level):
     charts_scored = set(results.keys())
     assert len(results) >= min_result_len
     assert charts_scored.issubset(test_host_charts_available)
-    if model_level == 'xchart':
-        assert set([results[chart] for chart in results]) == set('*')
+    if model_level == 'chart':
+        assert [list(results[chart].keys()) for chart in results] == [['*'] for i in range(len(charts_scored))]
 
 
 
@@ -42,8 +42,6 @@ def validate_results(results, model_level):
 def test_hbos_chart(model_level='chart'):
     results = do_test(host=test_host, model='hbos', model_level=model_level)
     validate_results(results, model_level)
-    print([list(results[chart].keys()) for chart in results])
-    assert 1 == 1
 
 
 #def test_knn_default():
