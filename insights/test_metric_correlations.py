@@ -1,9 +1,15 @@
+import io
+from contextlib import redirect_stdout
+
 from metric_correlations import run_metric_correlations
 
 
 def test_ks():
-    result = run_metric_correlations()
-    print(result)
+    f = io.StringIO()
+    with redirect_stdout(f):
+        run_metric_correlations()
+    results = f.getvalue()
+    print(results)
     assert 1 == 1
 
 
