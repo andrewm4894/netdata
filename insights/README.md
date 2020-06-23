@@ -94,5 +94,8 @@ python run_benchmarks.py --model_list='ks,knn,hbos' --n_list='100,1000,5000,1000
 9   hbos   dim      271        0     0   1000    4.70      1.94     6.63
 10  hbos   dim      224        0     0   5000   14.97      0.81    15.78
 11  hbos   dim      191        0     0  10000   31.06      0.88    31.95
- 
 ```
+
+#### Tests:
+
+`test_metric_correlations.py` contains some tests, use `pytest` to run them.
