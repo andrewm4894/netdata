@@ -21,8 +21,10 @@ def run_model(model, colnames, arr_baseline, arr_highlight, n_lags=0, model_erro
         results, summary = do_mp(model, colnames, arr_baseline, arr_highlight, n_lags, model_errors, model_level)
     elif model in adtk_models_supported:
         results, summary = do_adtk(model, colnames, arr_baseline, arr_highlight, n_lags, model_errors, model_level)
-    else:
+    elif model == 'ks':
         results, summary = do_ks(colnames, arr_baseline, arr_highlight)
+    else:
+        raise ValueError(f"unknown model '{model}'")
     return results, summary
 
 
