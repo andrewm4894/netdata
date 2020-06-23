@@ -24,7 +24,7 @@ def validate_results(results, model_level):
     charts_scored = set(results.keys())
     assert len(results) >= min_result_len
     assert charts_scored.issubset(test_host_charts_available)
-    if model_level == 'chart':
+    if model_level == 'xchart':
         assert set([results[chart] for chart in results]) == set('*')
 
 
