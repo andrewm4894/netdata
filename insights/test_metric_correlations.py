@@ -29,12 +29,9 @@ def validate_results(results, model, model_level):
     assert len(results) >= min_result_len
     assert charts_scored.issubset(test_host_charts_available)
     if model_level == 'chart' and model in chart_level_models:
-        print('------')
-        print([list(results[chart].keys()) for chart in results])
-        print('------')
-        print([['*'] for i in range(len(charts_scored))])
-        print('------')
-        assert [list(results[chart].keys()) for chart in results] == [['*'] for i in range(len(charts_scored))]
+        dims_list = [list(results[chart].keys()) for chart in results]
+        dims_list_expected = [['*'] for i in range(len(charts_scored))]
+        assert dims_list == dims_list_expected
 
 
 @pytest.mark.parametrize("model", ['ks', 'hbos'])
