@@ -61,6 +61,7 @@ def run_metric_correlations(host=None, baseline_after=None, baseline_before=None
         logging.basicConfig(level=logging.WARN)
     log = logging.getLogger(__name__)
 
+    log.info(__name__)
     if __name__ == 'run_benchmarks.py':
         log.addHandler(logging.StreamHandler(sys.stdout))
 
