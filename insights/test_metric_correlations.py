@@ -36,6 +36,11 @@ def test_hbos_default():
     validate_results(results)
 
 
+def test_knn_default():
+    results = do_test(host=test_host, model='knn')
+    validate_results(results)
+
+
 
 
 
