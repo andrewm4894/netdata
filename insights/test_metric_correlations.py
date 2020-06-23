@@ -31,9 +31,9 @@ def validate_results(results, model_level):
 
 
 @pytest.mark.parametrize("model", ['ks', 'hbos'])
-def test_ks_default(model):
-    results = do_test(host=test_host, model=model)
-    validate_results(results)
+def test_ks_default(model, model_level='dim'):
+    results = do_test(host=test_host, model=model, model_level=model_level)
+    validate_results(results, model_level)
 
 
 #def test_hbos_default():
