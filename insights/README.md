@@ -78,7 +78,7 @@ python metric_correlations.py --baseline_after='-480' --baseline_before='-240' -
 
 ```
 # example usage:
-python run_benchmarks.py --model_list='ks,knn,hbos' --n_list='100,1000,5000,10000'
+python run_benchmarks.py --model_list='ks,knn,hbos' --n_list='100,1000,5000,10000' --model_level='chart'
 
 # example results:
    model      n  time_data  time_scores  time_total
