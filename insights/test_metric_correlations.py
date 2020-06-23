@@ -31,6 +31,11 @@ def test_ks_default():
     validate_results(results)
 
 
+def test_hbos_default():
+    results = do_test(host=test_host, model='hbos')
+    validate_results(results)
+
+
 
 
 
