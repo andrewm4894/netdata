@@ -20,32 +20,35 @@ def do_test(host, model, model_level='dim'):
     return results
 
 
-def validate_results(results):
+def validate_results(results, model_level):
     charts_scored = set(results.keys())
     assert len(results) >= min_result_len
     assert charts_scored.issubset(test_host_charts_available)
+    if model_level == 'chart':
+        assert set([results[chart] for chart in results]) == set('*')
 
 
-def test_ks_default():
-    results = do_test(host=test_host, model='ks')
-    validate_results(results)
+
+#def test_ks_default():
+#    results = do_test(host=test_host, model='ks')
+#    validate_results(results)
 
 
-def test_hbos_default():
-    results = do_test(host=test_host, model='hbos')
-    validate_results(results)
+#def test_hbos_default():
+#    results = do_test(host=test_host, model='hbos')
+#    validate_results(results)
 
 
 def test_hbos_chart():
     results = do_test(host=test_host, model='hbos', model_level='chart')
     validate_results(results)
-    print([results[chart] for chart in results])
+    print([results[chart][0] for chart in results])
     assert 1 == 1
 
 
-def test_knn_default():
-    results = do_test(host=test_host, model='knn')
-    validate_results(results)
+#def test_knn_default():
+#    results = do_test(host=test_host, model='knn')
+#    validate_results(results)
 
 
 
