@@ -44,7 +44,7 @@ def run_benchmarks(host=None, model_list=None, n_list=None, sleep_secs=None, mod
                 run_metric_correlations(
                     host=host, model=model, print_results=False, baseline_after=baseline_after,
                     baseline_before=baseline_before, highlight_after=highlight_after, highlight_before=highlight_before,
-                    model_errors=model_errors
+                    model_errors=model_errors, run_mode='benchmark'
                 )
             results = f.getvalue()
             time_data = float(re.search(" (.*) seconds to get data", results).group(1))

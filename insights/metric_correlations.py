@@ -14,7 +14,7 @@ from insights_modules.utils import normalize_results
 
 def run_metric_correlations(host=None, baseline_after=None, baseline_before=None, highlight_after=None,
                             highlight_before=None, model=None, n_lags=None, log_level=None, results_file=None,
-                            max_points=None, print_results=None, model_errors='fail', model_level=None):
+                            max_points=None, print_results=None, model_errors='fail', model_level=None, run_mode=None):
 
     time_start = time.time()
 
@@ -33,6 +33,7 @@ def run_metric_correlations(host=None, baseline_after=None, baseline_before=None
     parser.add_argument('--print_results', type=bool, nargs='?', help='print_results', default=True)
     parser.add_argument('--model_errors', type=bool, nargs='?', help='model_errors', default='fail')
     parser.add_argument('--model_level', type=str, nargs='?', help='model_level', default='dim')
+    parser.add_argument('--run_mode', type=str, nargs='?', help='run_mode', default='default')
     args, unknown = parser.parse_known_args()
     host = args.host if not host else host
     baseline_after = int(args.baseline_after) if not baseline_after else int(baseline_after)
@@ -47,6 +48,7 @@ def run_metric_correlations(host=None, baseline_after=None, baseline_before=None
     print_results = args.print_results if print_results is None else print_results
     model_errors = args.model_errors if model_errors is None else model_errors
     model_level = args.model_level if model_level is None else model_level
+    run_mode = args.run_mode if run_mode is None else run_mode
 
     # set up logging
     if log_level == 'info':
@@ -61,8 +63,7 @@ def run_metric_correlations(host=None, baseline_after=None, baseline_before=None
         logging.basicConfig(level=logging.WARN)
     log = logging.getLogger(__name__)
 
-    log.info(__name__)
-    if __name__ == 'run_benchmarks.py':
+    if run_mode == 'benchmark':
         log.addHandler(logging.StreamHandler(sys.stdout))
 
     # handle 'after' and 'before' values if passed in as relative integers
