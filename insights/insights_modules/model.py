@@ -7,7 +7,7 @@ from insights_modules.model_mp import do_mp, mp_models_supported
 from insights_modules.model_pyod import do_pyod, pyod_models_supported
 
 # filter some future warnings from sklearn and numba that come via pyod
-warnings.simplefilter(action='ignore', category=FutureWarning)
+#warnings.simplefilter(action='ignore', category=FutureWarning)
 
 log = logging.getLogger(__name__)
 
