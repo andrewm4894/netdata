@@ -78,21 +78,21 @@ python metric_correlations.py --baseline_after='-480' --baseline_before='-240' -
 
 ```
 # example usage:
-python run_benchmarks.py --model_list='ks,knn,hbos' --n_list='100,1000,5000,10000' --model_level='chart'
+python run_benchmarks.py --model_list='ks,knn,hbos' --n_list='100,1000,5000,10000' --model_level='dim'
 
 # example results:
-   model      n  time_data  time_scores  time_total
-0     ks    100       3.08         0.36        3.44
-1     ks   1000       5.32         2.47        7.79
-2     ks   5000      14.89         0.18       15.06
-3     ks  10000      35.86         0.27       36.13
-4    knn    100       3.05         4.41        7.46
-5    knn   1000       5.60        23.45       29.06
-6    knn   5000      15.82        68.15       83.97
-7    knn  10000      31.48       144.43      175.91
-8   hbos    100       3.55         4.02        7.57
-9   hbos   1000       5.06         2.21        7.27
-10  hbos   5000      15.66         0.64       16.30
-11  hbos  10000      43.85         0.79       44.63
+   model level  success  default  fail    t_n  t_data  t_scores  t_total
+0     ks   dim      335        0     0    100    2.86      0.05     2.91
+1     ks   dim      271        0     0   1000    4.15      0.07     4.22
+2     ks   dim      224        0     0   5000   11.82      0.16    11.98
+3     ks   dim      191        0     0  10000   32.70      0.25    32.95
+4    knn   dim      339        0     0    100    3.09      4.24     7.33
+5    knn   dim      271        0     0   1000    4.55     22.53    27.07
+6    knn   dim      224        0     0   5000   13.54     93.77   107.31
+7    knn   dim      191        0     0  10000   26.32    170.13   196.45
+8   hbos   dim      339        0     0    100    2.76      3.88     6.64
+9   hbos   dim      271        0     0   1000    4.70      1.94     6.63
+10  hbos   dim      224        0     0   5000   14.97      0.81    15.78
+11  hbos   dim      191        0     0  10000   31.06      0.88    31.95
  
 ```
