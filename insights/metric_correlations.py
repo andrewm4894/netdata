@@ -60,7 +60,9 @@ def run_metric_correlations(host=None, baseline_after=None, baseline_before=None
     else:
         logging.basicConfig(level=logging.WARN)
     log = logging.getLogger(__name__)
-    #log.addHandler(logging.StreamHandler(sys.stdout))
+
+    if __name__ == 'run_benchmarks':
+        log.addHandler(logging.StreamHandler(sys.stdout))
 
     # handle 'after' and 'before' values if passed in as relative integers
     if baseline_after <= 0:
