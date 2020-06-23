@@ -16,8 +16,9 @@ python metric_correlations.py \
   --baseline_before='-240' \
   --highlight_after='-240' \
   --highlight_before='0' \
-  --model='ks' \
-  --n_lags='2'
+  --model='hbos' \
+  --n_lags='2' \
+  --model_level='chart'
 
 # typical usage:
 python metric_correlations.py --baseline_after='-480' --baseline_before='-240' --highlight_after='-240' --highlight_before='0' --model='ks'
@@ -26,6 +27,7 @@ python metric_correlations.py --baseline_after='-480' --baseline_before='-240' -
 #### Results format:
 
 ```
+# for a model_level='dim' example (where have scores at the individual dimension level)
 {
     "chart.a": {
         "dim.1": {
@@ -49,6 +51,22 @@ python metric_correlations.py --baseline_after='-480' --baseline_before='-240' -
         "dim.3": {
             "score": 0.0897,
             "score_norm": 0.3652
+        }
+    }
+}
+
+# for a model_level='chart' example (where we only have scores at the overall chart level)
+{
+    "chart.a": {
+        "*": {
+            "score": 0.0101,
+            "score_norm": 0.0063
+        }
+    },
+    "chart.b": {
+        "*": {
+            "score": 0.3345,
+            "score_norm": 0.4444
         }
     }
 }

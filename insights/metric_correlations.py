@@ -47,7 +47,6 @@ def run_metric_correlations(host=None, baseline_after=None, baseline_before=None
     print_results = args.print_results if print_results is None else print_results
     model_errors = args.model_errors if model_errors is None else model_errors
     model_level = args.model_level if model_level is None else model_level
-    print(model_level)
 
     # set up logging
     if log_level == 'info':
