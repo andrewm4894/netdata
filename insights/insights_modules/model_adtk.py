@@ -23,7 +23,7 @@ adtk_models_chart_level = [
 adtk_meta_models = ['linear', 'rf', 'huber', 'knnad', 'kernridge']
 
 
-def do_adtk(model, colnames, arr_baseline, arr_highlight):
+def do_adtk(model, colnames, arr_baseline, arr_highlight, n_lags=0, model_errors='ignore', model_level='dim'):
 
     # init some counters
     n_charts, n_dims, n_bad_data, fit_success, fit_default, fit_fail = init_counters(colnames)

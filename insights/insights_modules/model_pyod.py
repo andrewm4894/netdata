@@ -14,7 +14,7 @@ pyod_models_supported = [
 ]
 
 
-def do_pyod(model, colnames, arr_baseline, arr_highlight):
+def do_pyod(model, colnames, arr_baseline, arr_highlight, n_lags=0, model_errors='ignore', model_level='dim'):
 
     # init some counters
     n_charts, n_dims, n_bad_data, fit_success, fit_default, fit_fail = init_counters(colnames)

@@ -6,30 +6,30 @@ from scipy.stats import ks_2samp
 from pyod.models.hbos import HBOS as DefaulyPyODModel
 import stumpy
 
+from model_adtk import do_adtk, adtk_models_supported
+from model_ks import do_ks
+from model_mp import do_mp, mp_models_supported
+from model_pyod import do_pyod, pyod_models_supported
+
 # filter some future warnings from sklearn that come via pyod
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 log = logging.getLogger(__name__)
 
-supported_pyod_models = [
-    'abod', 'auto_encoder', 'cblof', 'hbos', 'iforest', 'knn', 'lmdd', 'loci', 'loda', 'lof', 'mcd', 'ocsvm',
-    'pca', 'sod', 'vae', 'xgbod'
-]
 
-
-def run_model(model, colnames, arr_baseline, arr_highlight, n_lags, model_errors='ignore'):
-
-    if model in supported_pyod_models:
-        results = do_pyod(model, colnames, arr_baseline, arr_highlight, n_lags, model_errors)
-    elif model in ['mp', 'mp_approx']:
-        results = do_mp(colnames, arr_baseline, arr_highlight, model=model)
+def run_model(model, colnames, arr_baseline, arr_highlight, n_lags=0, model_errors='ignore', model_level='dim'):
+    if model in pyod_models_supported:
+        results = do_pyod(model, colnames, arr_baseline, arr_highlight, n_lags, model_errors, model_level)
+    elif model in mp_models_supported:
+        results = do_mp(model, colnames, arr_baseline, arr_highlight, n_lags, model_errors, model_level)
+    elif model in adtk_models_supported:
+        results = do_adtk(model, colnames, arr_baseline, arr_highlight, n_lags, model_errors, model_level)
     else:
         results = do_ks(colnames, arr_baseline, arr_highlight)
-
     return results
 
 
-def do_ks(colnames, arr_baseline, arr_highlight):
+def tmp_do_ks(colnames, arr_baseline, arr_highlight):
 
     # dict to collect results into
     results = {}
@@ -59,7 +59,7 @@ def do_ks(colnames, arr_baseline, arr_highlight):
     return results
 
 
-def do_mp(colnames, arr_baseline, arr_highlight, model='mp'):
+def tmp_do_mp(colnames, arr_baseline, arr_highlight, model='mp'):
     arr = np.concatenate((arr_baseline, arr_highlight))
     n_baseline = arr_baseline.shape[0]
     n_highlight = arr_highlight.shape[0]
@@ -86,7 +86,7 @@ def do_mp(colnames, arr_baseline, arr_highlight, model='mp'):
     return results
 
 
-def do_pyod(model, colnames, arr_baseline, arr_highlight, n_lags, model_errors='default'):
+def tmp_do_pyod(model, colnames, arr_baseline, arr_highlight, n_lags, model_errors='default'):
 
     # dict to collect results into
     results = {}
@@ -156,7 +156,7 @@ def do_pyod(model, colnames, arr_baseline, arr_highlight, n_lags, model_errors='
     return results
 
 
-def save_results(results, chart, dimension, score):
+def tmp_save_results(results, chart, dimension, score):
     if chart in results:
         results[chart].update({dimension: {"score": round(score, 4)}})
     else:
@@ -164,7 +164,7 @@ def save_results(results, chart, dimension, score):
     return results
 
 
-def add_lags(arr, n_lags=1):
+def tmp_add_lags(arr, n_lags=1):
     arr_orig = np.copy(arr)
     for n_lag in range(1, n_lags + 1):
         arr = np.concatenate((arr, np.roll(arr_orig, n_lag, axis=0)), axis=1)
@@ -173,7 +173,7 @@ def add_lags(arr, n_lags=1):
     return arr
 
 
-def pyod_init(model, n_train=None, n_features=None):
+def tmp_pyod_init(model, n_train=None, n_features=None):
     # initial model set up
     if model == 'abod':
         from pyod.models.abod import ABOD
