@@ -4,7 +4,7 @@ import numpy as np
 from pyod.models.hbos import HBOS as PyODDefaultModel
 
 from insights_modules.model_utils import init_counters, try_fit, summary_info, get_col_map, save_results
-from utils import add_lags
+from insights_modules.utils import add_lags
 
 log = logging.getLogger(__name__)
 
