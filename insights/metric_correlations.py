@@ -89,9 +89,13 @@ def run_metric_correlations(host=None, baseline_after=None, baseline_before=None
     log.debug(f"... log_level={log_level}")
     log.debug(f"... max_points={max_points}")
     log.debug(f"... results_file={results_file}")
+    log.debug(f"... model_errors={model_errors}")
+    log.debug(f"... model_level={model_level}")
 
     # get charts
     charts = get_chart_list(host)
+
+    log.info(f"... num_charts available on host={len(charts)}")
 
     # get data
     df = get_data(host, charts, after=baseline_after, before=highlight_before, diff=True, points=points,
@@ -127,11 +131,12 @@ def run_metric_correlations(host=None, baseline_after=None, baseline_before=None
         with open(results_file, 'w', encoding='utf-8') as f:
             json.dump(results, f, ensure_ascii=False, indent=4)
 
+    time_done = time.time()
+    log.info(f'... {round(time_done - time_start, 2)} seconds in total.')
+
     if print_results:
         print(results)
 
-    time_done = time.time()
-    log.info(f'... {round(time_done - time_start, 2)} seconds in total.')
 
 
 if __name__ == '__main__':
