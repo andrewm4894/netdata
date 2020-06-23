@@ -64,8 +64,7 @@ def run_benchmarks(host=None, model_list=None, n_list=None, sleep_secs=None, mod
     df_results = pd.DataFrame(
         results_all,
         columns=[
-            'model', 'model_level', 'fit_success', 'fit_default', 'fit_fail', 't', 'time_data', 'time_scores',
-            'time_total'
+            'model', 'level', 'success', 'default', 'fail', 't_n', 't_data', 't_scores', 't_total'
         ]
     )
     print('---results---')
