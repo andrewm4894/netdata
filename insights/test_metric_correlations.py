@@ -8,6 +8,7 @@ from netdata_pandas.data import get_chart_list
 # define some test inputs
 test_host = 'london.my-netdata.io'
 test_host_charts_available = set(get_chart_list(host=test_host))
+min_result_len = 10
 
 
 def do_test(host, model):
@@ -22,13 +23,7 @@ def do_test(host, model):
 def test_ks():
     results = do_test(host=test_host, model='ks')
     charts_scored = set(results.keys())
-    print(charts_scored)
-    print('----------')
-    print(test_host_charts_available)
-    print('----------')
-    print(charts_scored.issubset(test_host_charts_available))
-    print('----------')
-    assert 1 == 1
+    assert len(results) >= min_result_len
     assert charts_scored.issubset(test_host_charts_available)
 
 
