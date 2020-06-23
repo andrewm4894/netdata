@@ -23,17 +23,13 @@ adtk_models_chart_level = [
 adtk_meta_models = ['linear', 'rf', 'huber', 'knnad', 'kernridge']
 
 
-def do_adtk(model, colnames, arr_baseline, arr_highlight, n_lags=0, model_errors='ignore', model_level='dim'):
+def do_adtk(model, colnames, arr_baseline, arr_highlight, n_lags=0, model_errors='default', model_level='dim'):
 
     # init some counters
     n_charts, n_dims, n_bad_data, fit_success, fit_default, fit_fail = init_counters(colnames)
 
     # dict to collect results into
     results = {}
-
-    n_lags = model.get('n_lags', 0)
-    model_level = model.get('model_level', 'dim')
-    model = model.get('type', 'iqr')
 
     df_baseline = pd.DataFrame(arr_baseline, columns=colnames)
     df_baseline = df_baseline.set_index(pd.DatetimeIndex(pd.to_datetime(df_baseline.index, unit='s'), freq='1s'))

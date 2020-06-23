@@ -14,7 +14,7 @@ from insights_modules.utils import normalize_results
 
 def run_metric_correlations(host=None, baseline_after=None, baseline_before=None, highlight_after=None,
                             highlight_before=None, model=None, n_lags=None, log_level=None, results_file=None,
-                            max_points=None, print_results=None, model_errors='fail'):
+                            max_points=None, print_results=None, model_errors='fail', model_level='dim'):
 
     time_start = time.time()
 
@@ -32,6 +32,7 @@ def run_metric_correlations(host=None, baseline_after=None, baseline_before=None
     parser.add_argument('--max_points', type=str, nargs='?', help='max_points', default='10000')
     parser.add_argument('--print_results', type=bool, nargs='?', help='print_results', default=True)
     parser.add_argument('--model_errors', type=bool, nargs='?', help='model_errors', default='fail')
+    parser.add_argument('--model_level', type=bool, nargs='?', help='model_level', default='dim')
     args, unknown = parser.parse_known_args()
     host = args.host if not host else host
     baseline_after = int(args.baseline_after) if not baseline_after else int(baseline_after)
@@ -45,6 +46,7 @@ def run_metric_correlations(host=None, baseline_after=None, baseline_before=None
     max_points = int(args.max_points) if not max_points else int(max_points)
     print_results = args.print_results if print_results is None else print_results
     model_errors = args.model_errors if model_errors is None else model_errors
+    model_level = args.model_level if model_level is None else model_level
 
     # set up logging
     if log_level == 'info':
