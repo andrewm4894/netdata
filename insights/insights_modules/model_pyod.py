@@ -3,7 +3,7 @@ import logging
 import numpy as np
 from pyod.models.hbos import HBOS as PyODDefaultModel
 
-from model_utils import init_counters, try_fit, summary_info, get_col_map
+from model_utils import init_counters, try_fit, summary_info, get_col_map, save_results
 from utils import add_lags
 
 log = logging.getLogger(__name__)
@@ -65,9 +65,13 @@ def do_pyod(model, colnames, arr_baseline, arr_highlight, n_lags=0, model_errors
             if model == ['auto_encoder']:
                 clf = pyod_init(model, n_features=arr_baseline_dim.shape[1])
 
-            clf, result = try_fit(clf, colname, arr_baseline_dim, PyODDefaultModel)
+            clf, result = try_fit(clf, colname, arr_baseline_dim, PyODDefaultModel, model_errors)
             fit_success += 1 if result == 'success' else 0
             fit_default += 1 if result == 'default' else 0
+            if result == 'ignore':
+                fit_fail += 1
+                continue
+
 
             # 0/1 anomaly predictions
             preds = clf.predict(arr_highlight_dim)
@@ -83,10 +87,7 @@ def do_pyod(model, colnames, arr_baseline, arr_highlight, n_lags=0, model_errors
 
             # save results
             score = (np.mean(probs) + np.mean(preds))/2
-            if chart in results:
-                results[chart].append({dimension: {'score': score}})
-            else:
-                results[chart] = [{dimension: {'score': score}}]
+            results = save_results(results, chart, dimension, score)
 
     # log some summary stats
     log.info(summary_info(n_charts, n_dims, n_bad_data, fit_success, fit_fail, fit_default, model_level))

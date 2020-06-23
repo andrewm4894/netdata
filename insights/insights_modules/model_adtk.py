@@ -3,7 +3,7 @@ import logging
 import pandas as pd
 from adtk.detector import InterQuartileRangeAD as ADTKDefaultModel
 
-from model_utils import init_counters, try_fit, summary_info, get_col_map
+from model_utils import init_counters, try_fit, summary_info, get_col_map, save_results
 from utils import add_lags
 
 log = logging.getLogger(__name__)
@@ -92,9 +92,12 @@ def do_adtk(model, colnames, arr_baseline, arr_highlight, n_lags=0, model_errors
             if model in adtk_meta_models:
                 clf = adtk_init(model, colname)
 
-            clf, result = try_fit(clf, colname, df_baseline_dim, ADTKDefaultModel)
+            clf, result = try_fit(clf, colname, df_baseline_dim, ADTKDefaultModel, model_errors)
             fit_success += 1 if result == 'success' else 0
             fit_default += 1 if result == 'default' else 0
+            if result == 'ignore':
+                fit_fail += 1
+                continue
 
             # get scores
             preds = clf.predict(df_highlight_dim)
@@ -103,10 +106,7 @@ def do_adtk(model, colnames, arr_baseline, arr_highlight, n_lags=0, model_errors
             log.debug(f'... preds = {preds}')
 
             score = preds.mean().mean()
-            if chart in results:
-                results[chart].append({dimension: {'score': score}})
-            else:
-                results[chart] = [{dimension: {'score': score}}]
+            results = save_results(results, chart, dimension, score)
 
     # log some summary stats
     log.info(summary_info(n_charts, n_dims, n_bad_data, fit_success, fit_fail, fit_default, model_level))

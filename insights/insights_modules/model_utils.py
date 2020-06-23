@@ -3,16 +3,22 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def try_fit(clf, colname, data, default_model):
+def try_fit(clf, colname, data, default_model, model_errors='default'):
     try:
         clf.fit(data)
         result = 'success'
     except Exception as e:
-        log.warning(e)
-        log.info(f'... could not fit model for {colname}, trying default')
-        clf = default_model()
-        clf.fit(data)
-        result = 'default'
+        if model_errors == 'default':
+            log.warning(f"... warning could not fit model for {colname}, trying default")
+            clf = default_model()
+            clf.fit(data)
+            result = 'default'
+        elif model_errors == 'ignore':
+            log.warning(f"... warning could not fit model for {colname}, skipping")
+            result = 'ignore'
+        else:
+            log.error(e)
+            raise e
     return clf, result
 
 
@@ -45,3 +51,11 @@ def summary_info(n_charts, n_dims, n_bad_data, fit_success, fit_fail, fit_defaul
     msg = f"... success_rate={success_rate}, bad_data_rate={bad_data_rate}, charts={n_charts}, dims={n_dims}"
     msg += f", bad_data={n_bad_data}, fit_success={fit_success}, fit_fail={fit_fail}, fit_default={fit_default}"
     return msg
+
+
+def save_results(results, chart, dimension, score):
+    if chart in results:
+        results[chart].update({dimension: {"score": round(score, 4)}})
+    else:
+        results[chart] = {dimension: {"score": round(score, 4)}}
+    return results

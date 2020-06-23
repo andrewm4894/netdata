@@ -3,7 +3,7 @@ import logging
 import numpy as np
 import stumpy
 
-from model_utils import init_counters, summary_info
+from model_utils import init_counters, summary_info, save_results
 
 log = logging.getLogger(__name__)
 
@@ -45,10 +45,7 @@ def do_mp(model, colnames, arr_baseline, arr_highlight, n_lags=0, model_errors='
         mp_thold = np.percentile(mp, 90)
 
         score = np.mean(np.where(mp_highlight >= mp_thold, 1, 0))
-        if chart in results:
-            results[chart].append({dimension: {'score': score}})
-        else:
-            results[chart] = [{dimension: {'score': score}}]
+        results = save_results(results, chart, dimension, score)
 
     # log some summary stats
     log.info(summary_info(n_charts, n_dims, n_bad_data, fit_success, fit_fail, fit_default))

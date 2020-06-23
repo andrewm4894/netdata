@@ -28,7 +28,7 @@ def run_model(model, colnames, arr_baseline, arr_highlight, n_lags=0, model_erro
         results = do_ks(colnames, arr_baseline, arr_highlight)
     return results
 
-
+"""
 def tmp_do_ks(colnames, arr_baseline, arr_highlight):
 
     # dict to collect results into
@@ -231,4 +231,5 @@ def tmp_pyod_init(model, n_train=None, n_features=None):
     else:
         raise ValueError(f"unknown model {model}")
     return clf
+"""
 
