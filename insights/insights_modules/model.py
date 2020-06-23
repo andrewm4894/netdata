@@ -6,10 +6,10 @@ from scipy.stats import ks_2samp
 from pyod.models.hbos import HBOS as DefaulyPyODModel
 import stumpy
 
-from model_adtk import do_adtk, adtk_models_supported
-from model_ks import do_ks
-from model_mp import do_mp, mp_models_supported
-from model_pyod import do_pyod, pyod_models_supported
+from insights_modules.model_adtk import do_adtk, adtk_models_supported
+from insights_modules.model_ks import do_ks
+from insights_modules.model_mp import do_mp, mp_models_supported
+from insights_modules.model_pyod import do_pyod, pyod_models_supported
 
 # filter some future warnings from sklearn that come via pyod
 warnings.simplefilter(action='ignore', category=FutureWarning)
