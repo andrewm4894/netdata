@@ -39,9 +39,9 @@ def validate_results(results, model_level):
 #    validate_results(results)
 
 
-def test_hbos_chart():
-    results = do_test(host=test_host, model='hbos', model_level='chart')
-    validate_results(results)
+def test_hbos_chart(model_level='chart'):
+    results = do_test(host=test_host, model='hbos', model_level=model_level)
+    validate_results(results, model_level)
     print([results[chart][0] for chart in results])
     assert 1 == 1
 
