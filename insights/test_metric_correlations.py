@@ -11,10 +11,10 @@ test_host_charts_available = set(get_chart_list(host=test_host))
 min_result_len = 10
 
 
-def do_test(host, model):
+def do_test(host, model, model_level='dim'):
     f = io.StringIO()
     with redirect_stdout(f):
-        run_metric_correlations(host=host, model=model)
+        run_metric_correlations(host=host, model=model, model_level=model_level)
     results = f.getvalue()
     results = json.loads(results)
     return results
@@ -34,6 +34,13 @@ def test_ks_default():
 def test_hbos_default():
     results = do_test(host=test_host, model='hbos')
     validate_results(results)
+
+
+def test_hbos_chart():
+    results = do_test(host=test_host, model='hbos', model_level='chart')
+    validate_results(results)
+    print([results[chart] for chart in results])
+    assert 1 == 1
 
 
 def test_knn_default():
