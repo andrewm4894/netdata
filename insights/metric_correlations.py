@@ -119,7 +119,7 @@ def run_metric_correlations(host=None, baseline_after=None, baseline_before=None
     log.info(f'... {round(time_got_data - time_start,2)} seconds to get data.')
 
     # get scores
-    results = run_model(model, colnames, arr_baseline, arr_highlight, n_lags, model_errors=model_errors)
+    results = run_model(model, colnames, arr_baseline, arr_highlight, n_lags, model_errors=model_errors, model_level=model_level)
 
     # normalize results
     results = normalize_results(results)
