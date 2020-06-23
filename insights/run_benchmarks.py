@@ -47,6 +47,8 @@ def run_benchmarks(host=None, model_list=None, n_list=None, sleep_secs=None, mod
                     model_errors=model_errors, run_mode='benchmark'
                 )
             results = f.getvalue()
+            print(results)
+            xxx
             time_data = float(re.search(" (.*) seconds to get data", results).group(1))
             time_scores = float(re.search(" (.*) seconds to get scores", results).group(1))
             time_total = float(re.search(" (.*) seconds in total", results).group(1))
