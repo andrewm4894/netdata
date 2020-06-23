@@ -3,7 +3,7 @@ import logging
 import numpy as np
 import stumpy
 
-from model_utils import init_counters, summary_info, save_results
+from insights_modules.model_utils import init_counters, summary_info, save_results
 
 log = logging.getLogger(__name__)
 
