@@ -1,4 +1,4 @@
-from metric_correlations import run_metric_correlations
+from insights.metric_correlations import run_metric_correlations
 
 
 def test_ks():
