@@ -26,6 +26,8 @@ def test_ks():
     print('----------')
     print(test_host_charts_available)
     print('----------')
+    print(test_host_charts_available.issubset(charts_scored))
+    print('----------')
     assert 1 == 1
     assert charts_scored.issubset(test_host_charts_available)
 
