@@ -20,7 +20,7 @@ min_secs_total = 120
 def do_test(host, model, model_level='dim'):
     f = io.StringIO()
     with redirect_stdout(f):
-        run_metric_correlations(host=host, model=model, model_level=model_level, run_mode='test')
+        run_metric_correlations(host=host, model=model, model_level=model_level, run_mode='test', model_errors='default')
     results = f.getvalue()
     results = json.loads(results)
     return results
@@ -42,8 +42,8 @@ def validate_results(results, model, model_level):
 
 
 @pytest.mark.parametrize("model_level", ['dim', 'chart'])
-@pytest.mark.parametrize("model", models_supported)
-#@pytest.mark.parametrize("model", ['ks', 'cblof'])
+#@pytest.mark.parametrize("model", models_supported)
+@pytest.mark.parametrize("model", ['seasonal', 'mcd'])
 @pytest.mark.timeout(120)
 def test_metric_correlations(model, model_level):
     results = do_test(host=test_host, model=model, model_level=model_level)
