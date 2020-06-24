@@ -124,7 +124,7 @@ def run_metric_correlations(host=None, baseline_after=None, baseline_before=None
     log.info(f'... {round(time_got_data - time_start,2)} seconds to get data.')
 
     # get scores
-    results, summary = run_model(model, colnames, arr_baseline, arr_highlight, n_lags, model_errors=model_errors, model_level=model_level)
+    results = run_model(model, colnames, arr_baseline, arr_highlight, n_lags, model_errors=model_errors, model_level=model_level)
 
     # normalize results
     results = normalize_results(results)
@@ -139,13 +139,10 @@ def run_metric_correlations(host=None, baseline_after=None, baseline_before=None
     time_done = time.time()
     log.info(f'... {round(time_done - time_start, 2)} seconds in total.')
 
-    log.info(summary)
+    log.info(results['summary'])
 
     if print_results:
         print(json.dumps(results))
-
-    if run_mode == 'test':
-        print(summary)
 
 
 if __name__ == '__main__':
