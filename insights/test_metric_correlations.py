@@ -13,6 +13,8 @@ from insights_modules.model import chart_level_models, models_supported
 test_host = 'london.my-netdata.io'
 test_host_charts_available = set(get_chart_list(host=test_host))
 min_result_len = 10
+min_success_rate = 0.8
+min_secs_total = 120
 
 
 def do_test(host, model, model_level='dim'):
@@ -26,9 +28,13 @@ def do_test(host, model, model_level='dim'):
 
 def validate_results(results, model, model_level):
     results_data = results['data']
+    results_summary = results['summary']
+    results_times = results['times']
     charts_scored = set(results_data.keys())
     assert len(results_data) >= min_result_len
     assert charts_scored.issubset(test_host_charts_available)
+    assert results_summary['success_rate'] >= min_success_rate
+    assert results_times['secs_total'] <= min_secs_total
     if model_level == 'chart' and model in chart_level_models:
         dims_list = [list(results_data[chart].keys()) for chart in results]
         dims_list_expected = [['*'] for i in range(len(charts_scored))]
