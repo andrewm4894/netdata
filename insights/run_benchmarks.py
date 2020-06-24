@@ -71,6 +71,8 @@ def run_benchmarks(host=None, model_list=None, n_list=None, sleep_secs=None, mod
                 if sleep_secs > 0.0:
                     time.sleep(sleep_secs)
 
+        print(results_all)
+
     df_results = pd.DataFrame(
         results_all,
         columns=[
