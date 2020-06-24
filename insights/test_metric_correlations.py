@@ -20,11 +20,12 @@ def do_test(host, model, model_level='dim'):
     with redirect_stdout(f):
         run_metric_correlations(host=host, model=model, model_level=model_level, run_mode='test')
     results = f.getvalue()
-    print(results)
-    print(len(results))
-    xxx
-    results = json.loads(results)
-    return results
+    results_split = results.split('...')
+    results_json = results_split[0]
+    results_summary = results_split[1]
+    print(results_summary)
+    results_json = json.loads(results_json)
+    return results_json
 
 
 def validate_results(results, model, model_level):
