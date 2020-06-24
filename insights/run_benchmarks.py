@@ -50,7 +50,6 @@ def run_benchmarks(host=None, model_list=None, n_list=None, sleep_secs=None, mod
                     model_errors=model_errors, model_level=model_level, log_level='error'
                 )
             results = f.getvalue()
-            print(results)
             results = json.loads(results)
             time_data = results['times']['secs_data']
             time_scores = results['times']['secs_scores']
