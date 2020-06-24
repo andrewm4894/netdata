@@ -1,5 +1,6 @@
 import argparse
 import io
+import json
 import re
 import time
 import warnings
@@ -46,16 +47,17 @@ def run_benchmarks(host=None, model_list=None, n_list=None, sleep_secs=None, mod
                 run_metric_correlations(
                     host=host, model=model, print_results=False, baseline_after=baseline_after,
                     baseline_before=baseline_before, highlight_after=highlight_after, highlight_before=highlight_before,
-                    model_errors=model_errors, run_mode='benchmark', model_level=model_level
+                    model_errors=model_errors, model_level=model_level
                 )
             results = f.getvalue()
-            time_data = float(re.search(" (.*) seconds to get data", results).group(1))
-            time_scores = float(re.search(" (.*) seconds to get scores", results).group(1))
-            time_total = float(re.search(" (.*) seconds in total", results).group(1))
-            model_level = re.search(" model_level=(.*), success_rate", results).group(1)
-            fit_success = int(re.search(" fit_success=(.*), fit_fail", results).group(1))
-            fit_default = int(re.search(" fit_default=(.*)", results).group(1))
-            fit_fail = int(re.search(" fit_fail=(.*), fit_default", results).group(1))
+            results = json.loads(results)
+            time_data = results['times']['secs_data']
+            time_scores = results['times']['secs_scores']
+            time_total = results['times']['secs_total']
+            model_level = results['summary']['model_level']
+            fit_success = results['summary']['fit_success']
+            fit_default = results['summary']['fit_default']
+            fit_fail = results['summary']['fit_fail']
             results_all.append([model, model_level, fit_success, fit_default, fit_fail, n, time_data, time_scores, time_total])
             # sleep for a while so you can clearly see profile of each model in your netdata dashboard :)
             if sleep_secs > 0.0:
