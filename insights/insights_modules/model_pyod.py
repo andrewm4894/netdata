@@ -149,7 +149,7 @@ def pyod_init(model, n_features=None):
     elif model == 'sod':
         from pyod.models.sod import SOD
         clf = SOD()
-    elif model == 'vae':
+    elif model == 'vae' and n_features:
         from pyod.models.vae import VAE
         clf = VAE(
             encoder_neurons=[n_features, n_features - 2, int(n_features / 2)],
