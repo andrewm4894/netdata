@@ -36,7 +36,7 @@ def validate_results(results, model, model_level):
     assert results_summary['success_rate'] >= min_success_rate
     assert results_times['secs_total'] <= min_secs_total
     if model_level == 'chart' and model in chart_level_models:
-        dims_list = [list(results_data[chart].keys()) for chart in results]
+        dims_list = [list(results_data[chart].keys()) for chart in results_data]
         dims_list_expected = [['*'] for i in range(len(charts_scored))]
         assert dims_list == dims_list_expected
 

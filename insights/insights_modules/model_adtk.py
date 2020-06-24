@@ -174,26 +174,26 @@ def adtk_init(model, colname=None):
     elif model == 'pcaad':
         from adtk.detector import PcaAD
         clf = PcaAD()
-    elif model == 'linear':
+    elif model == 'linear' and colname:
         from adtk.detector import RegressionAD
         from sklearn.linear_model import LinearRegression
         clf = RegressionAD(LinearRegression(), target=colname)
-    elif model == 'rf':
+    elif model == 'rf' and colname:
         from adtk.detector import RegressionAD
         from sklearn.ensemble import RandomForestRegressor
         clf = RegressionAD(RandomForestRegressor(), target=colname)
-    elif model == 'huber':
+    elif model == 'huber' and colname:
         from adtk.detector import RegressionAD
         from sklearn.linear_model import HuberRegressor
         clf = RegressionAD(HuberRegressor(), target=colname)
-    elif model == 'knnad':
+    elif model == 'knnad' and colname:
         from adtk.detector import RegressionAD
         from sklearn.neighbors import KNeighborsRegressor
         clf = RegressionAD(KNeighborsRegressor(), target=colname)
-    elif model == 'kernridge':
+    elif model == 'kernridge' and colname:
         from adtk.detector import RegressionAD
         from sklearn.kernel_ridge import KernelRidge
         clf = RegressionAD(KernelRidge(), target=colname)
     else:
-        clf = ADTKDefault()
+        clf = ADTKDefaultModel()
     return clf
