@@ -73,22 +73,20 @@ def do_pyod(model, colnames, arr_baseline, arr_highlight, n_lags=0, model_errors
                 continue
 
 
-            # 0/1 anomaly predictions
-            preds = clf.predict(arr_highlight_dim)
+            # try predictions and if they fail use default model
+            try:
+                preds = clf.predict(arr_highlight_dim)
+                probs = clf.predict_proba(arr_highlight_dim)[:, 1]
+            except:
+                fit_success -= 1
+                fit_default += 1
+                clf = PyODDefaultModel()
+                clf.fit(arr_baseline_dim)
+                preds = clf.predict(arr_highlight_dim)
+                probs = clf.predict_proba(arr_highlight_dim)[:, 1]
 
             log.debug(f'... preds.shape = {preds.shape}')
             log.debug(f'... preds = {preds}')
-
-            from scipy import stats
-            print(stats.describe(arr_highlight_dim))
-            print(np.max(arr_highlight_dim))
-            print(np.min(arr_highlight_dim))
-            print(np.any(np.isnan(arr_highlight_dim)))
-            print(np.any(np.isinf(arr_highlight_dim)))
-
-            # anomaly probability scores
-            probs = clf.predict_proba(arr_highlight_dim)[:, 1]
-
             log.debug(f'... probs.shape = {probs.shape}')
             log.debug(f'... probs = {probs}')
 
