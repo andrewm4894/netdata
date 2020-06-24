@@ -60,7 +60,7 @@ def run_benchmarks(host=None, model_list=None, n_list=None, sleep_secs=None, mod
                 time_data = results['times']['secs_data']
                 time_scores = results['times']['secs_scores']
                 time_total = results['times']['secs_total']
-                model_level = results['summary']['model_level']
+                model_level = f"{model_level}->{results['summary']['model_level']}"
                 fit_success = results['summary']['fit_success']
                 fit_default = results['summary']['fit_default']
                 fit_fail = results['summary']['fit_fail']
