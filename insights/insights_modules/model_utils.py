@@ -63,3 +63,20 @@ def save_results(results, chart, dimension, score):
         results["data"][chart] = {dimension: {"score": round(score, 4)}}
     return results
 
+
+def normalize_results(results):
+    # get max and min scores
+    scores = []
+    for chart in results['data']:
+        for dimension in results['data'][chart]:
+            scores.append(results['data'][chart][dimension]['score'])
+    score_max = max(scores)
+    score_min = min(scores)
+    # normalize scores
+    for chart in results['data']:
+        for dimension in results['data'][chart]:
+            score = results['data'][chart][dimension]['score']
+            score_norm = round((score - score_min) / (score_max - score_min), 4)
+            results['data'][chart][dimension]['score_norm'] = score_norm
+    return results
+
