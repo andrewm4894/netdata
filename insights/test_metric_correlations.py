@@ -24,6 +24,7 @@ def do_test(host, model, model_level='dim'):
     results_json = results_split[0]
     results_summary = results_split[1]
     print(results_summary)
+    xxx
     results_json = json.loads(results_json)
     return results_json
 
