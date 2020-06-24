@@ -20,21 +20,17 @@ def do_test(host, model, model_level='dim'):
     with redirect_stdout(f):
         run_metric_correlations(host=host, model=model, model_level=model_level, run_mode='test')
     results = f.getvalue()
-    results_split = results.split('...')
-    results_json = results_split[0]
-    results_summary = results_split[1]
-    print(results_summary)
-    xxx
-    results_json = json.loads(results_json)
-    return results_json
+    results = json.loads(results)
+    return results
 
 
 def validate_results(results, model, model_level):
-    charts_scored = set(results.keys())
-    assert len(results) >= min_result_len
+    results_data = results['data']
+    charts_scored = set(results_data.keys())
+    assert len(results_data) >= min_result_len
     assert charts_scored.issubset(test_host_charts_available)
     if model_level == 'chart' and model in chart_level_models:
-        dims_list = [list(results[chart].keys()) for chart in results]
+        dims_list = [list(results_data[chart].keys()) for chart in results]
         dims_list_expected = [['*'] for i in range(len(charts_scored))]
         assert dims_list == dims_list_expected
 
