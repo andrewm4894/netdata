@@ -7,7 +7,7 @@ import pytest
 from metric_correlations import run_metric_correlations
 from netdata_pandas.data import get_chart_list
 
-from insights_modules.model import chart_level_models
+from insights_modules.model import chart_level_models, models_supported
 
 # define some test inputs
 test_host = 'london.my-netdata.io'
@@ -35,7 +35,7 @@ def validate_results(results, model, model_level):
 
 
 @pytest.mark.parametrize("model_level", ['dim', 'chart'])
-@pytest.mark.parametrize("model", ['ks', 'hbos', 'knn', 'pca'])
+@pytest.mark.parametrize("model", models_supported)
 def test_metric_correlations(model, model_level):
     results = do_test(host=test_host, model=model, model_level=model_level)
     validate_results(results, model, model_level)
