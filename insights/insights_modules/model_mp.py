@@ -3,7 +3,7 @@ import logging
 import numpy as np
 import stumpy
 
-from insights_modules.model_utils import init_counters, summary_info, save_results
+from insights_modules.model_utils import init_counters, save_results, summary_dict
 
 log = logging.getLogger(__name__)
 
@@ -47,8 +47,8 @@ def do_mp(model, colnames, arr_baseline, arr_highlight, n_lags=0, model_errors='
         score = np.mean(np.where(mp_highlight >= mp_thold, 1, 0))
         results = save_results(results, chart, dimension, score)
 
-    # summary info
-    summary = summary_info(n_charts, n_dims, n_bad_data, fit_success, fit_fail, fit_default, model_level)
+    # add summary to results
+    results['summary'] = summary_dict(n_charts, n_dims, n_bad_data, fit_success, fit_fail, fit_default, model_level)
 
-    return results, summary
+    return results
 

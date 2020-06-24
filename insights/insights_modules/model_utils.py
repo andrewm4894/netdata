@@ -40,18 +40,18 @@ def get_col_map(colnames, model_level):
     return col_map
 
 
-def summary_info(n_charts, n_dims, n_bad_data, fit_success, fit_fail, fit_default, model_level='dim'):
-    # log some summary stats
+def summary_dict(n_charts, n_dims, n_bad_data, fit_success, fit_fail, fit_default, model_level='dim'):
+    summary = {}
     if model_level == 'chart':
         success_rate = round(fit_success / n_charts, 2)
         bad_data_rate = round(n_bad_data / n_charts, 2)
     else:
         bad_data_rate = round(n_bad_data / n_dims, 2)
         success_rate = round(fit_success / n_dims, 2)
-    msg = f"... model_level={model_level}, success_rate={success_rate}, bad_data_rate={bad_data_rate}, "
-    msg += f"charts={n_charts}, dims={n_dims}, bad_data={n_bad_data}, fit_success={fit_success}, fit_fail={fit_fail}, "
-    msg += f"fit_default={fit_default}"
-    return msg
+    summary = dict(model_level=model_level, n_charts=n_charts, n_dims=n_dims, n_bad_data=n_bad_data,
+                   fit_success=fit_success, fit_default=fit_default, fit_fail=fit_fail, success_rate=success_rate,
+                   bad_data_rate=bad_data_rate)
+    return summary
 
 
 def save_results(results, chart, dimension, score):

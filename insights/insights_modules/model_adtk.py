@@ -3,7 +3,7 @@ import logging
 import pandas as pd
 from adtk.detector import InterQuartileRangeAD as ADTKDefaultModel
 
-from insights_modules.model_utils import init_counters, try_fit, summary_info, get_col_map, save_results
+from insights_modules.model_utils import init_counters, try_fit, get_col_map, save_results, summary_dict
 from insights_modules.utils import add_lags
 
 log = logging.getLogger(__name__)
@@ -108,10 +108,10 @@ def do_adtk(model, colnames, arr_baseline, arr_highlight, n_lags=0, model_errors
             score = preds.mean().mean()
             results = save_results(results, chart, dimension, score)
 
-    # summary info
-    summary = summary_info(n_charts, n_dims, n_bad_data, fit_success, fit_fail, fit_default, model_level)
+    # add summary to results
+    results['summary'] = summary_dict(n_charts, n_dims, n_bad_data, fit_success, fit_fail, fit_default, model_level)
 
-    return results, summary
+    return results
 
 
 def adtk_init(model, colname=None):

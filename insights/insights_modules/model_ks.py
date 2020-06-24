@@ -2,7 +2,7 @@ import logging
 
 from scipy.stats import ks_2samp
 
-from insights_modules.model_utils import init_counters, summary_info, save_results
+from insights_modules.model_utils import init_counters, save_results, summary_dict
 
 log = logging.getLogger(__name__)
 
@@ -24,8 +24,8 @@ def do_ks(colnames, arr_baseline, arr_highlight, model_level='dim'):
         fit_success += 1
         results = save_results(results, chart, dimension, score)
 
-    # summary info
-    summary = summary_info(n_charts, n_dims, n_bad_data, fit_success, fit_fail, fit_default, model_level)
+    # add summary to results
+    results['summary'] = summary_dict(n_charts, n_dims, n_bad_data, fit_success, fit_fail, fit_default, model_level)
 
-    return results, summary
+    return results
 
