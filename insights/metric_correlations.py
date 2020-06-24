@@ -9,7 +9,7 @@ import time
 
 from netdata_pandas.data import get_data, get_chart_list
 from insights_modules.model import run_model
-from insights_modules.utils import normalize_results
+from insights_modules.model_utils import normalize_results
 
 
 def run_metric_correlations(host=None, baseline_after=None, baseline_before=None, highlight_after=None,
