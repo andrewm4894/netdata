@@ -151,7 +151,10 @@ def pyod_init(model, n_features=None):
         clf = SOD()
     elif model == 'vae':
         from pyod.models.vae import VAE
-        clf = VAE()
+        clf = VAE(
+            encoder_neurons=[n_features, n_features - 2, int(n_features / 2)],
+            decoder_neurons=[int(n_features / 2), n_features - 2, n_features],
+        )
     elif model == 'xgbod':
         from pyod.models.xgbod import XGBOD
         clf = XGBOD()
