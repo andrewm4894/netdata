@@ -29,46 +29,56 @@ python metric_correlations.py --baseline_after='-480' --baseline_before='-240' -
 ```
 # for a model_level='dim' example (where have scores at the individual dimension level)
 {
-    "chart.a": {
-        "dim.1": {
-            "score": 0.0101,
-            "score_norm": 0.0063
-        },
-        "dim.2": {
-            "score": 0.0897,
-            "score_norm": 0.3652
+    ...
+    "data" : 
+        {
+            "chart.a": {
+                "dim.1": {
+                    "score": 0.0101,
+                    "score_norm": 0.0063
+                },
+                "dim.2": {
+                    "score": 0.0897,
+                    "score_norm": 0.3652
+                }
+            },
+            "chart.b": {
+                "dim.1": {
+                    "score": 0.3345,
+                    "score_norm": 0.4444
+                },
+                "dim.2": {
+                    "score": 0.6789,
+                    "score_norm": 0.8907
+                },
+                "dim.3": {
+                    "score": 0.0897,
+                    "score_norm": 0.3652
+                }
+            }
         }
-    },
-    "chart.b": {
-        "dim.1": {
-            "score": 0.3345,
-            "score_norm": 0.4444
-        },
-        "dim.2": {
-            "score": 0.6789,
-            "score_norm": 0.8907
-        },
-        "dim.3": {
-            "score": 0.0897,
-            "score_norm": 0.3652
-        }
-    }
+    ...
 }
 
 # for a model_level='chart' example (where we only have scores at the overall chart level)
 {
-    "chart.a": {
-        "*": {
-            "score": 0.0101,
-            "score_norm": 0.0063
+    ....
+    "data":
+        {
+            "chart.a": {
+                "*": {
+                    "score": 0.0101,
+                    "score_norm": 0.0063
+                }
+            },
+            "chart.b": {
+                "*": {
+                    "score": 0.3345,
+                    "score_norm": 0.4444
+                }
+            }
         }
-    },
-    "chart.b": {
-        "*": {
-            "score": 0.3345,
-            "score_norm": 0.4444
-        }
-    }
+    ...
 }
 ```
 
