@@ -62,7 +62,7 @@ def do_pyod(model, colnames, arr_baseline, arr_highlight, n_lags=0, model_errors
             log.debug(f'... arr_baseline_dim = {arr_baseline_dim}')
             log.debug(f'... arr_highlight_dim = {arr_highlight_dim}')
 
-            if model == ['auto_encoder']:
+            if model == ['auto_encoder', 'vae']:
                 clf = pyod_init(model, n_features=arr_baseline_dim.shape[1])
 
             clf, result = try_fit(clf, colname, arr_baseline_dim, PyODDefaultModel, model_errors)
