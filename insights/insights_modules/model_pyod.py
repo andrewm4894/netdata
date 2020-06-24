@@ -83,6 +83,8 @@ def do_pyod(model, colnames, arr_baseline, arr_highlight, n_lags=0, model_errors
             print(stats.describe(arr_highlight_dim))
             print(np.max(arr_highlight_dim))
             print(np.min(arr_highlight_dim))
+            print(np.any(np.isnan(arr_highlight_dim)))
+            print(np.any(np.isinf(arr_highlight_dim)))
 
             # anomaly probability scores
             probs = clf.predict_proba(arr_highlight_dim)[:, 1]
