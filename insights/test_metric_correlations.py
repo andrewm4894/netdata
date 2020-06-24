@@ -35,7 +35,8 @@ def validate_results(results, model, model_level):
 
 
 @pytest.mark.parametrize("model_level", ['dim', 'chart'])
-@pytest.mark.parametrize("model", models_supported)
+#@pytest.mark.parametrize("model", models_supported)
+@pytest.mark.parametrize("model", ['kmeans'])
 def test_metric_correlations(model, model_level):
     results = do_test(host=test_host, model=model, model_level=model_level)
     validate_results(results, model, model_level)
