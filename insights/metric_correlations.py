@@ -121,8 +121,6 @@ def run_metric_correlations(host=None, baseline_after=None, baseline_before=None
     log.debug(f'... arr_highlight.shape = {arr_highlight.shape}')
 
     time_got_data = time.time()
-    secs_data = round(time_got_data - time_start,2)
-    log.info(f'... {secs_data} seconds to get data.')
 
     # get scores
     results = run_model(model, colnames, arr_baseline, arr_highlight, n_lags, model_errors=model_errors, model_level=model_level)
@@ -131,14 +129,13 @@ def run_metric_correlations(host=None, baseline_after=None, baseline_before=None
     results = normalize_results(results)
 
     time_got_scores = time.time()
-    secs_scores = round(time_got_scores - time_got_data,2)
-    log.info(f'... {secs_scores} seconds to get scores.')
-
     time_done = time.time()
-    secs_total = round(time_done - time_start, 2)
-    log.info(f'... {secs_total} seconds in total.')
 
-    results['times'] = dict(secs_data=secs_data, secs_scores=secs_scores, secs_total=secs_total)
+    results['times'] = dict(
+        secs_data=round(time_got_data - time_start, 2),
+        secs_scores=round(time_got_scores - time_got_data, 2),
+        secs_total=round(time_done - time_start, 2)
+    )
 
     if print_results:
         print(json.dumps(results))
