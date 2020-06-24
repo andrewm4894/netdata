@@ -31,7 +31,7 @@ def run_metric_correlations(host=None, baseline_after=None, baseline_before=None
     parser.add_argument('--results_file', type=str, nargs='?', help='results_file', default=None)
     parser.add_argument('--max_points', type=str, nargs='?', help='max_points', default='10000')
     parser.add_argument('--print_results', type=bool, nargs='?', help='print_results', default=True)
-    parser.add_argument('--model_errors', type=bool, nargs='?', help='model_errors', default='fail')
+    parser.add_argument('--model_errors', type=str, nargs='?', help='model_errors', default='fail')
     parser.add_argument('--model_level', type=str, nargs='?', help='model_level', default='dim')
     parser.add_argument('--run_mode', type=str, nargs='?', help='run_mode', default='default')
     args, unknown = parser.parse_known_args()
