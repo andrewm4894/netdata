@@ -18,8 +18,11 @@ min_result_len = 10
 def do_test(host, model, model_level='dim'):
     f = io.StringIO()
     with redirect_stdout(f):
-        run_metric_correlations(host=host, model=model, model_level=model_level)
+        run_metric_correlations(host=host, model=model, model_level=model_level, run_mode='test')
     results = f.getvalue()
+    print(results)
+    print(len(results))
+    xxx
     results = json.loads(results)
     return results
 
@@ -35,8 +38,8 @@ def validate_results(results, model, model_level):
 
 
 @pytest.mark.parametrize("model_level", ['dim', 'chart'])
-@pytest.mark.parametrize("model", models_supported)
-#@pytest.mark.parametrize("model", ['kmeans'])
+#@pytest.mark.parametrize("model", models_supported)
+@pytest.mark.parametrize("model", ['ks'])
 @pytest.mark.timeout(120)
 def test_metric_correlations(model, model_level):
     results = do_test(host=test_host, model=model, model_level=model_level)
