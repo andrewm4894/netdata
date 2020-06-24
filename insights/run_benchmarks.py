@@ -45,7 +45,7 @@ def run_benchmarks(host=None, model_list=None, n_list=None, sleep_secs=None, mod
             f = io.StringIO()
             with redirect_stdout(f):
                 run_metric_correlations(
-                    host=host, model=model, print_results=False, baseline_after=baseline_after,
+                    host=host, model=model, print_results=True, baseline_after=baseline_after,
                     baseline_before=baseline_before, highlight_after=highlight_after, highlight_before=highlight_before,
                     model_errors=model_errors, model_level=model_level, log_level='error'
                 )
