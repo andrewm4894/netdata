@@ -55,8 +55,11 @@ def summary_info(n_charts, n_dims, n_bad_data, fit_success, fit_fail, fit_defaul
 
 
 def save_results(results, chart, dimension, score):
-    if chart in results:
-        results[chart].update({dimension: {"score": round(score, 4)}})
+    if "data" not in results:
+        results["data"] = {}
+    if chart in results["data"]:
+        results["data"][chart].update({dimension: {"score": round(score, 4)}})
     else:
-        results[chart] = {dimension: {"score": round(score, 4)}}
+        results["data"][chart] = {dimension: {"score": round(score, 4)}}
     return results
+
