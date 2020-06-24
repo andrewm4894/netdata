@@ -21,7 +21,7 @@ def run_benchmarks(host=None, model_list=None, n_list=None, sleep_secs=None, mod
     parser.add_argument('--model_list', type=str, nargs='?', help='model_list', default='ks,knn,hbos')
     parser.add_argument('--n_list', type=str, nargs='?', help='n_list', default='100,1000,5000,10000')
     parser.add_argument('--sleep_secs', type=str, nargs='?', help='sleep_secs', default='0')
-    parser.add_argument('--model_errors', type=str, nargs='?', help='model_errors', default='fail')
+    parser.add_argument('--model_errors', type=str, nargs='?', help='model_errors', default='default')
     parser.add_argument('--model_levels', type=str, nargs='?', help='model_levels', default='dim')
     args = parser.parse_args()
     host = args.host if not host else host
