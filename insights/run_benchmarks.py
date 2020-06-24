@@ -71,16 +71,15 @@ def run_benchmarks(host=None, model_list=None, n_list=None, sleep_secs=None, mod
                 if sleep_secs > 0.0:
                     time.sleep(sleep_secs)
 
-        print(results_all)
-
-    df_results = pd.DataFrame(
-        results_all,
-        columns=[
-            'model', 'level', 'success', 'default', 'fail', 't_n', 't_data', 't_scores', 't_total'
-        ]
-    )
-    print('---results---')
-    print(df_results)
+        # collect and print results on each model
+        df_results = pd.DataFrame(
+            results_all,
+            columns=[
+                'model', 'level', 'success', 'default', 'fail', 't_n', 't_data', 't_scores', 't_total'
+            ]
+        )
+        print('---results---')
+        print(df_results)
 
 
 if __name__ == '__main__':
