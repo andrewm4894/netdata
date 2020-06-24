@@ -63,7 +63,7 @@ def run_metric_correlations(host=None, baseline_after=None, baseline_before=None
         logging.basicConfig(level=logging.WARN)
     log = logging.getLogger(__name__)
 
-    if run_mode in ['benchmark', 'test']:
+    if run_mode == 'benchmark':
         log.addHandler(logging.StreamHandler(sys.stdout))
 
     # handle 'after' and 'before' values if passed in as relative integers
@@ -143,6 +143,9 @@ def run_metric_correlations(host=None, baseline_after=None, baseline_before=None
 
     if print_results:
         print(json.dumps(results))
+
+    if run_mode == 'test':
+        print(summary)
 
 
 if __name__ == '__main__':
