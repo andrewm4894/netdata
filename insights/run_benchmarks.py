@@ -31,7 +31,7 @@ def run_benchmarks(host=None, model_list=None, n_list=None, sleep_secs=None, mod
     model_errors = args.model_errors if not model_errors else model_errors
     model_levels = args.model_levels if not model_levels else model_levels
 
-    if model_list == 'all':
+    if model_list == '*':
         model_list = models_supported
     else:
         model_list = model_list.split(',')
