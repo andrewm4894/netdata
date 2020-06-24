@@ -14,7 +14,7 @@ from insights_modules.utils import normalize_results
 
 def run_metric_correlations(host=None, baseline_after=None, baseline_before=None, highlight_after=None,
                             highlight_before=None, model=None, n_lags=None, log_level=None, results_file=None,
-                            max_points=None, print_results=None, model_errors='fail', model_level=None, run_mode=None):
+                            max_points=None, print_results=None, model_errors=None, model_level=None, run_mode=None):
 
     time_start = time.time()
 

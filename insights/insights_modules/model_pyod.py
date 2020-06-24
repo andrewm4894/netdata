@@ -72,7 +72,6 @@ def do_pyod(model, colnames, arr_baseline, arr_highlight, n_lags=0, model_errors
                 fit_fail += 1
                 continue
 
-
             # try predictions and if they fail use default model
             try:
                 preds = clf.predict(arr_highlight_dim)
