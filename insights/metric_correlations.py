@@ -131,10 +131,22 @@ def run_metric_correlations(host=None, baseline_after=None, baseline_before=None
     time_got_scores = time.time()
     time_done = time.time()
 
+    # collect some info into the results
     results['times'] = dict(
         secs_data=round(time_got_data - time_start, 2),
         secs_scores=round(time_got_scores - time_got_data, 2),
         secs_total=round(time_done - time_start, 2)
+    )
+    results['inputs'] = dict(
+        host=host,
+        model=model,
+        model_level=model_level,
+        model_errors=model_errors,
+        baseline_after=baseline_after,
+        baseline_before=baseline_before,
+        highlight_after=highlight_after,
+        highlight_before=highlight_before,
+        n_lags=n_lags
     )
 
     if print_results:
