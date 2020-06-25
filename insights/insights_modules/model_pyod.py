@@ -9,10 +9,10 @@ from insights_modules.utils import add_lags
 log = logging.getLogger(__name__)
 
 pyod_models_supported = [
-    'abod', 'auto_encoder', 'cblof', 'hbos', 'iforest', 'knn', 'lmdd', 'loda', 'lof', 'mcd', 'ocsvm',
+    'abod', 'auto_encoder', 'cblof', 'hbos', 'iforest', 'knn', 'loda', 'lof', 'mcd', 'ocsvm',
     'pca', 'sod', 'vae', 'xgbod'
 ]
-pyod_models_not_supported = ['loci']
+pyod_models_not_supported = ['loci', 'lmdd']
 
 
 def do_pyod(model, colnames, arr_baseline, arr_highlight, n_lags=0, model_errors='default', model_level='dim'):
