@@ -175,7 +175,7 @@ def adtk_init(model, colname=None):
     elif model == 'iforestad':
         from adtk.detector import OutlierDetector
         from sklearn.ensemble import IsolationForest
-        clf = OutlierDetector(IsolationForest())
+        clf = OutlierDetector(IsolationForest(n_estimators=50))
     elif model == 'pcaad':
         from adtk.detector import PcaAD
         clf = PcaAD()
