@@ -5,10 +5,10 @@ from insights_modules.model_adtk import do_adtk, adtk_models_supported
 from insights_modules.model_ks import do_ks
 from insights_modules.model_mp import do_mp, mp_models_supported
 from insights_modules.model_pyod import do_pyod, pyod_models_supported
+from insights_modules.model_utils import validate_inputs
 
 # filter some future warnings from sklearn and numba that come via pyod
 #warnings.simplefilter(action='ignore', category=FutureWarning)
-from model_utils import validate_inputs
 
 log = logging.getLogger(__name__)
 

@@ -1,6 +1,6 @@
 import logging
 
-from model_adtk import adtk_models_chart_level
+from insights_modules.model_adtk import adtk_models_chart_level
 
 log = logging.getLogger(__name__)
 
