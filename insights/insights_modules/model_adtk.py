@@ -10,11 +10,11 @@ log = logging.getLogger(__name__)
 
 adtk_models_supported = [
     'iqr', 'ar', 'esd', 'level', 'persist', 'quantile', 'seasonal', 'volatility', 'kmeans', 'birch', 'eliptic',
-    'pcaad', 'linear', 'gmm', 'vbgmm', 'isof', 'lofad', 'rf', 'huber', 'knnad', 'kernridge'
+    'pcaad', 'linear', 'gmm', 'vbgmm', 'isof', 'lofad', 'rf', 'huber', 'knnad', 'kernridge', 'ocsvmad'
 ]
 adtk_models_lags_allowed = [
     'kmeans', 'birch', 'gmm', 'eliptic', 'vbgmm', 'isof', 'lofad', 'linear', 'rf', 'huber', 'knnad',
-    'kernridge'
+    'kernridge', 'ocsvmad'
 ]
 adtk_models_chart_level = ['kmeans', 'birch', 'gmm', 'eliptic', 'vbgmm', 'isof', 'lofad', 'mcdad']
 adtk_meta_models = ['linear', 'rf', 'huber', 'knnad', 'kernridge']
@@ -158,6 +158,10 @@ def adtk_init(model, colname=None):
         from adtk.detector import OutlierDetector
         from sklearn.covariance import EllipticEnvelope
         clf = OutlierDetector(EllipticEnvelope())
+    elif model == 'ocsvmad':
+        from adtk.detector import OutlierDetector
+        from sklearn.svm import OneClassSVM
+        clf = OutlierDetector(OneClassSVM())
     elif model == 'isof':
         from adtk.detector import OutlierDetector
         from sklearn.ensemble import IsolationForest
