@@ -35,7 +35,7 @@ def validate_inputs(model, model_level, n_lags):
     if model not in models_chart_enabled and model_level == 'chart':
         model_level = 'dim'
     if model in adtk_meta_models and n_lags == 0:
-        n_lags = 1
+        n_lags = 2
     if model == 'ks':
         n_lags = 0
     if model in models_chart_only:
