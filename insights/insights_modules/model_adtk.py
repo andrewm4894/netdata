@@ -106,7 +106,9 @@ def do_adtk(model, colnames, arr_baseline, arr_highlight, n_lags=0, model_errors
             results = save_results(results, chart, dimension, score)
 
     # add summary to results
-    results['summary'] = summary_dict(n_charts, n_dims, n_bad_data, fit_success, fit_fail, fit_default, model_level)
+    results['summary'] = summary_dict(
+        n_charts, n_dims, n_bad_data, fit_success, fit_fail, fit_default, model_level, n_lags
+    )
 
     return results
 

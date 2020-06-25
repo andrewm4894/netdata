@@ -40,8 +40,7 @@ def get_col_map(colnames, model_level):
     return col_map
 
 
-def summary_dict(n_charts, n_dims, n_bad_data, fit_success, fit_fail, fit_default, model_level='dim'):
-    summary = {}
+def summary_dict(n_charts, n_dims, n_bad_data, fit_success, fit_fail, fit_default, model_level, n_lags):
     if model_level == 'chart':
         success_rate = round(fit_success / n_charts, 2)
         bad_data_rate = round(n_bad_data / n_charts, 2)
@@ -50,7 +49,7 @@ def summary_dict(n_charts, n_dims, n_bad_data, fit_success, fit_fail, fit_defaul
         success_rate = round(fit_success / n_dims, 2)
     summary = dict(model_level=model_level, n_charts=n_charts, n_dims=n_dims, n_bad_data=n_bad_data,
                    fit_success=fit_success, fit_default=fit_default, fit_fail=fit_fail, success_rate=success_rate,
-                   bad_data_rate=bad_data_rate)
+                   bad_data_rate=bad_data_rate, n_lags=n_lags)
     return summary
 
 
