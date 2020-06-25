@@ -1,7 +1,5 @@
 import logging
 
-from insights_modules.model_adtk import adtk_models_chart_level
-
 log = logging.getLogger(__name__)
 
 
@@ -82,11 +80,6 @@ def normalize_results(results):
             results['data'][chart][dimension]['score_norm'] = score_norm
     return results
 
-
-def validate_inputs(model, model_level):
-    if model not in adtk_models_chart_level and model_level == 'chart':
-        model_level = 'dim'
-    return model_level
 
 
 
