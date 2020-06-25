@@ -10,10 +10,10 @@ log = logging.getLogger(__name__)
 
 adtk_models_supported = [
     'iqr', 'ar', 'esd', 'level', 'persist', 'quantile', 'seasonal', 'volatility', 'kmeans', 'birch', 'eliptic',
-    'pcaad', 'linear', 'gmm', 'vbgmm', 'isof', 'lofad', 'mcdad', 'rf', 'huber', 'knnad', 'kernridge'
+    'pcaad', 'linear', 'gmm', 'vbgmm', 'isof', 'lofad', 'rf', 'huber', 'knnad', 'kernridge'
 ]
 adtk_models_lags_allowed = [
-    'kmeans', 'birch', 'gmm', 'eliptic', 'vbgmm', 'isof', 'lofad', 'mcdad', 'linear', 'rf', 'huber', 'knnad',
+    'kmeans', 'birch', 'gmm', 'eliptic', 'vbgmm', 'isof', 'lofad', 'linear', 'rf', 'huber', 'knnad',
     'kernridge'
 ]
 adtk_models_chart_level = ['kmeans', 'birch', 'gmm', 'eliptic', 'vbgmm', 'isof', 'lofad', 'mcdad']
@@ -158,10 +158,6 @@ def adtk_init(model, colname=None):
         from adtk.detector import OutlierDetector
         from sklearn.covariance import EllipticEnvelope
         clf = OutlierDetector(EllipticEnvelope())
-    elif model == 'mcdad':
-        from adtk.detector import OutlierDetector
-        from sklearn.covariance import MinCovDet
-        clf = OutlierDetector(MinCovDet())
     elif model == 'isof':
         from adtk.detector import OutlierDetector
         from sklearn.ensemble import IsolationForest
