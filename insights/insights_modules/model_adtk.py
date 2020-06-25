@@ -17,7 +17,7 @@ adtk_models_lags_allowed = [
     'kernridge'
 ]
 adtk_models_chart_level = [
-    'kmeans', 'birch', 'gmm', 'eliptic', 'vbgmm', 'isof', 'lofad', 'mcdad', 'linear', 'rf', 'huber', 'knnad',
+    'kmeans', 'birch', 'gmm', 'eliptic', 'vbgmm', 'isof', 'lofad', 'mcdad', 'rf', 'huber', 'knnad',
     'kernridge'
 ]
 adtk_meta_models = ['linear', 'rf', 'huber', 'knnad', 'kernridge']
