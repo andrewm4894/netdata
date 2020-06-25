@@ -11,8 +11,9 @@ from insights_modules.model_pyod import do_pyod, pyod_models_supported
 
 log = logging.getLogger(__name__)
 
-models_chart_level = pyod_models_supported + adtk_models_chart_level
 models_supported = ['ks'] + mp_models_supported + pyod_models_supported + adtk_models_supported
+models_chart_enabled = pyod_models_supported + adtk_models_chart_level
+models_chart_only = ['iforest']
 
 
 def run_model(model, colnames, arr_baseline, arr_highlight, n_lags=0, model_errors='ignore', model_level='dim'):
@@ -31,12 +32,14 @@ def run_model(model, colnames, arr_baseline, arr_highlight, n_lags=0, model_erro
 
 
 def validate_inputs(model, model_level, n_lags):
-    if model not in models_chart_level and model_level == 'chart':
+    if model not in models_chart_enabled and model_level == 'chart':
         model_level = 'dim'
     if model in adtk_meta_models and n_lags == 0:
         n_lags = 1
     if model == 'ks':
         n_lags = 0
+    if model in models_chart_only:
+        model_level = 'chart'
     return model, model_level, n_lags
 
 
