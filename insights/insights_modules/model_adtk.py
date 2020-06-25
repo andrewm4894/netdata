@@ -10,13 +10,15 @@ log = logging.getLogger(__name__)
 
 adtk_models_supported = [
     'iqr', 'ar', 'esd', 'level', 'persist', 'quantile', 'seasonal', 'volatility', 'kmeans', 'birch', 'eliptic',
-    'pcaad', 'linear', 'gmm', 'vbgmm', 'isof', 'lofad', 'rf', 'huber', 'knnad', 'kernridge', 'ocsvmad'
+    'pcaad', 'linear', 'gmm', 'vbgmm', 'isof', 'lofad', 'rf', 'huber', 'knnad', 'kernridge', 'ocsvmad', 'iforestad'
 ]
 adtk_models_lags_allowed = [
     'kmeans', 'birch', 'gmm', 'eliptic', 'vbgmm', 'isof', 'lofad', 'linear', 'rf', 'huber', 'knnad',
-    'kernridge', 'ocsvmad'
+    'kernridge', 'ocsvmad', 'iforestad'
 ]
-adtk_models_chart_level = ['kmeans', 'birch', 'gmm', 'eliptic', 'vbgmm', 'isof', 'lofad', 'mcdad', 'ocsvmad']
+adtk_models_chart_level = [
+    'kmeans', 'birch', 'gmm', 'eliptic', 'vbgmm', 'isof', 'lofad', 'mcdad', 'ocsvmad', 'iforestad'
+]
 adtk_meta_models = ['linear', 'rf', 'huber', 'knnad', 'kernridge']
 
 
@@ -170,6 +172,10 @@ def adtk_init(model, colname=None):
         from adtk.detector import OutlierDetector
         from sklearn.neighbors import LocalOutlierFactor
         clf = OutlierDetector(LocalOutlierFactor())
+    elif model == 'iforestad':
+        from adtk.detector import OutlierDetector
+        from sklearn.ensemble import IsolationForest
+        clf = OutlierDetector(IsolationForest())
     elif model == 'pcaad':
         from adtk.detector import PcaAD
         clf = PcaAD()
