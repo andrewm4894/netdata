@@ -7,7 +7,7 @@ import pytest
 from metric_correlations import run_metric_correlations
 from netdata_pandas.data import get_chart_list
 
-from insights_modules.model import chart_level_models, models_supported
+from insights_modules.model import models_chart_enabled, models_supported
 
 # define some test inputs
 test_host = 'london.my-netdata.io'
@@ -35,7 +35,7 @@ def validate_results(results, model, model_level):
     assert charts_scored.issubset(test_host_charts_available)
     assert results_summary['success_rate'] >= min_success_rate
     assert results_times['secs_total'] <= min_secs_total
-    if model_level == 'chart' and model in chart_level_models:
+    if model_level == 'chart' and model in models_chart_enabled:
         dims_list = [list(results_data[chart].keys()) for chart in results_data]
         dims_list_expected = [['*'] for i in range(len(charts_scored))]
         assert dims_list == dims_list_expected
