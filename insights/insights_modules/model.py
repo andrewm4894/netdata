@@ -8,6 +8,7 @@ from insights_modules.model_pyod import do_pyod, pyod_models_supported
 
 # filter some future warnings from sklearn and numba that come via pyod
 #warnings.simplefilter(action='ignore', category=FutureWarning)
+from model_utils import validate_inputs
 
 log = logging.getLogger(__name__)
 
@@ -16,6 +17,7 @@ models_supported = ['ks'] + mp_models_supported + pyod_models_supported + adtk_m
 
 
 def run_model(model, colnames, arr_baseline, arr_highlight, n_lags=0, model_errors='ignore', model_level='dim'):
+    model_level = validate_inputs(model, model_level)
     if model in pyod_models_supported:
         results = do_pyod(model, colnames, arr_baseline, arr_highlight, n_lags, model_errors, model_level)
     elif model in mp_models_supported:
