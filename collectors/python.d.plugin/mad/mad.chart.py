@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from datetime import datetime
+import warnings
 
 import requests
 import numpy as np
@@ -13,6 +14,7 @@ from pyod.models.mad import MAD
 
 from bases.FrameworkServices.SimpleService import SimpleService
 
+warnings.filterwarnings('ignore')
 np.seterr(divide='ignore', invalid='ignore')
 
 priority = 50
