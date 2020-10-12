@@ -13,6 +13,8 @@ from pyod.models.mad import MAD
 
 from bases.FrameworkServices.SimpleService import SimpleService
 
+np.seterr(divide='ignore', invalid='ignore')
+
 priority = 50
 
 ORDER = ['probability', 'anomaly']
@@ -76,7 +78,7 @@ class Service(SimpleService):
             self.dims_in_scope = list(df_train.columns)
             self.models = {dim: MAD() for dim in self.dims_in_scope}
             for dim in self.dims_in_scope:
-                X = df_train[[dim]].values
+                X = df_train[[dim]].dropna().values
                 self.models[dim] = self.models[dim].fit(X)
             self.fitted = True
 
@@ -86,7 +88,7 @@ class Service(SimpleService):
             get_data(self.host, self.charts_in_scope, after=-(self.smooth_n + self.diffs_n) * 2, before=0)
             ).tail(1)
         for dim in self.dims_in_scope:
-            X = self.df_predict[[dim]].values
+            X = self.df_predict[[dim]].dropna().values
             data_probability[dim + '_prob'] = np.nan_to_num(self.models[dim].predict_proba(X)[-1][1]) * 100
             data_anomaly[dim + '_anomaly'] = self.models[dim].predict(X)[-1]
         data = {**data_probability, **data_anomaly}
