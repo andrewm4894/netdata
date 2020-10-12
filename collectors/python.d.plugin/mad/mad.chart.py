@@ -35,7 +35,7 @@ class Service(SimpleService):
         self.order = ORDER
         self.definitions = CHARTS
         self.host = self.configuration.get('host', '127.0.0.1:19999')
-        if self.configuration.get('charts_in_scope') == 'system.*':
+        if self.configuration.get('charts_in_scope','system.*') == 'system.*':
             self.charts_in_scope = [c for c in requests.get(f'http://{self.host}/api/v1/charts').json()['charts'].keys() if c.startswith('system.')]
         else:
             self.charts_in_scope = self.configuration.get('charts_in_scope').split(',')
