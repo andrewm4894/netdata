@@ -39,9 +39,9 @@ class Service(SimpleService):
             self.charts_in_scope = [c for c in requests.get(f'http://{self.host}/api/v1/charts').json()['charts'].keys() if c.startswith('system.')]
         else:
             self.charts_in_scope = self.configuration.get('charts_in_scope').split(',')
-        self.train_n_secs = self.configuration.get('train_n_secs', 14400)
+        self.train_n_secs = self.configuration.get('train_n_secs', 3600)
         self.offset_n_secs = self.configuration.get('offset_n_secs', 0)
-        self.train_every_n = self.configuration.get('train_every_n', 900)
+        self.train_every_n = self.configuration.get('train_every_n', 300)
         self.smooth_n = self.configuration.get('smooth_n', 0)
         self.diffs_n = self.configuration.get('diffs_n', 0)
         self.fitted = False
