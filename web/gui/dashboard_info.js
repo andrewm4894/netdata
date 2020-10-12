@@ -17,6 +17,12 @@ netdataDashboard.menu = {
         info: 'Overview of the key system metrics.'
     },
 
+    'mad': {
+        title: 'Median Absolute Deviation',
+        icon: '<i class="fas fa-flask"></i>',
+        info: 'MAD.'
+    },
+
     'services': {
         title: 'systemd Services',
         icon: '<i class="fas fa-cogs"></i>',
