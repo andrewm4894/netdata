@@ -66,6 +66,8 @@ class Service(SimpleService):
             self.models = {model: xStream() for model in self.models_in_scope}
         else:
             self.models = {model: xStream() for model in self.models_in_scope}
+        self.preprocessor = {model: InstanceUnitNormScaler() for model in self.models_in_scope}
+        self.postprocessor = {model: RunningAveragePostprocessor(window_size=self.smooth_n) for model in self.models_in_scope}
         self.df_allmetrics = pd.DataFrame()
         self.expected_cols = []
         self.data_latest = {}
@@ -205,9 +207,9 @@ class Service(SimpleService):
         for model in self.models.keys():
             X_model = self.get_array_cols(feature_colnames, X, starts_with=model)
             try:
-                X_model = preprocessor.fit_transform_partial(X_model)
-                score = model.fit_score_partial(X_model)
-                score = postprocessor.fit_transform_partial(score)
+                X_model = self.preprocessor[model].fit_transform_partial(X_model)
+                score = self.models[model].fit_score_partial(X_model)
+                score = self.postprocessor[model].fit_transform_partial(score)
                 data[model + '_score'] = np.nan_to_num(score) * 100
             except Exception as e:
                 self.info(X_model)
