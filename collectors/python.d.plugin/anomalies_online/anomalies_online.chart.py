@@ -11,7 +11,7 @@ import requests
 import numpy as np
 import pandas as pd
 from netdata_pandas.data import get_data, get_allmetrics
-from pysad.models import xStream, ExactStorm, HalfSpaceTrees, IForestASD, KitNet
+from pysad.models import xStream, ExactStorm, HalfSpaceTrees, IForestASD, KitNet, KNNCAD
 from pysad.transform.postprocessing import RunningAveragePostprocessor
 from pysad.transform.preprocessing import InstanceUnitNormScaler
 from sklearn.preprocessing import MinMaxScaler
@@ -40,7 +40,7 @@ class Service(SimpleService):
         self.host = self.configuration.get('host', '127.0.0.1:19999')
         self.charts_regex = re.compile(self.configuration.get('charts_regex','system\..*'))
         self.charts_in_scope = list(filter(self.charts_regex.match, [c for c in requests.get(f'http://{self.host}/api/v1/charts').json()['charts'].keys()]))
-        self.model = self.configuration.get('model', 'half_space_trees')
+        self.model = self.configuration.get('model', 'knncad')
         self.lags_n = self.configuration.get('lags_n', 5)
         self.smooth_n = self.configuration.get('smooth_n', 3)
         self.diffs_n = self.configuration.get('diffs_n', 1)
@@ -67,6 +67,8 @@ class Service(SimpleService):
             self.models = {model: IForestASD() for model in self.models_in_scope}
         elif self.model == 'kitnet':
             self.models = {model: KitNet() for model in self.models_in_scope}
+        elif self.model == 'knncad':
+            self.models = {model: KNNCAD() for model in self.models_in_scope}
         else:
             self.models = {model: xStream() for model in self.models_in_scope}
         self.preprocessor = {model: InstanceUnitNormScaler() for model in self.models_in_scope}
