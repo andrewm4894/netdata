@@ -57,7 +57,7 @@ class Service(SimpleService):
         self.postprocessors = {model: RunningAveragePostprocessor(window_size=self.postprocessor_window_size) for model in self.models_in_scope}
         self.df = pd.DataFrame()
         self.data_latest = {}
-        self.min_history = (1 + self.lags_n + self.smooth_n + self.diffs_n) * 2
+        self.min_history = ((self.lags_n + 1) + (self.smooth_n + 1) + self.diffs_n)
         self.expected_cols = []
 
     @staticmethod
