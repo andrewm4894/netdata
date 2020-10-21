@@ -58,6 +58,7 @@ class Service(SimpleService):
         self.df = pd.DataFrame()
         self.data_latest = {}
         self.min_history = (1 + self.lags_n + self.smooth_n + self.diffs_n) * 2
+        self.expected_cols = []
 
     @staticmethod
     def check():
@@ -87,6 +88,9 @@ class Service(SimpleService):
 
         # get latest data to predict on
         df_allmetrics = get_allmetrics(self.host, self.charts_in_scope, wide=True, sort_cols=True)
+        if self.expected_cols == []:
+            self.expected_cols = list(df_allmetrics.columns)
+        df_allmetrics = df_allmetrics[self.expected_cols]
 
         self.debug(df_allmetrics.columns)
 
