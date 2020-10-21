@@ -11,7 +11,7 @@ import requests
 import numpy as np
 import pandas as pd
 from netdata_pandas.data import get_data, get_allmetrics
-from pysad.models import xStream, RobustRandomCutForest
+from pysad.models import RobustRandomCutForest
 from pysad.models import RobustRandomCutForest as DefaultModel
 from pysad.transform.probability_calibration import GaussianTailProbabilityCalibrator
 from pysad.transform.postprocessing import RunningAveragePostprocessor
@@ -62,9 +62,7 @@ class Service(SimpleService):
         self.diffs_n = self.configuration.get('diffs_n', 1)
         self.calibrator_window_size = self.configuration.get('calibrator_window_size', 100)
         self.postprocessor_window_size = self.configuration.get('postprocessor_window_size', 10)
-        if self.model == 'xstream':
-            self.models = {model: xStream() for model in self.models_in_scope}
-        elif self.model == 'rrcf':
+        if self.model == 'rrcf':
             self.models = {model: RobustRandomCutForest() for model in self.models_in_scope}
         else:
             self.models = {model: DefaultModel() for model in self.models_in_scope}
@@ -73,7 +71,7 @@ class Service(SimpleService):
         self.df = pd.DataFrame()
         self.data_latest = {}
         self.min_history = ((self.lags_n + 1) + (self.smooth_n + 1) + self.diffs_n)
-        self.anomaly_threshold = self.configuration.get('anomaly_threshold', 90)
+        self.anomaly_threshold = float(self.configuration.get('anomaly_threshold', 90))
 
     @staticmethod
     def check():
@@ -143,7 +141,7 @@ class Service(SimpleService):
             data_probability[f'{model}_prob'] = score
         
         # get anomaly flags
-        data_anomaly = {f"{k.replace('_prob','_anomaly')}": 1 if data_probability[k] >= (self.anomaly_threshold * 100) else 0 for k in data_probability}
+        data_anomaly = {f"{k.replace('_prob','_anomaly')}": 1 if data_probability[k] >= self.anomaly_threshold else 0 for k in data_probability}
 
         return data_probability, data_anomaly
 
