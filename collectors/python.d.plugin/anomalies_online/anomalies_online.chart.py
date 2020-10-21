@@ -58,7 +58,6 @@ class Service(SimpleService):
         self.df = pd.DataFrame()
         self.data_latest = {}
         self.min_history = ((self.lags_n + 1) + (self.smooth_n + 1) + self.diffs_n)
-        self.expected_cols = []
 
     @staticmethod
     def check():
