@@ -195,13 +195,23 @@ class Service(SimpleService):
         df_allmetrics = get_allmetrics(self.host, self.charts_in_scope, wide=True, sort_cols=True)
         self.set_expected_cols(df_allmetrics)
         df_allmetrics = df_allmetrics[self.expected_cols]
-        if self.custom_models:
-            df_allmetrics = self.add_custom_models_dims(df_allmetrics)
+        #if self.custom_models:
+        #    df_allmetrics = self.add_custom_models_dims(df_allmetrics)
         self.df_allmetrics = self.df_allmetrics.append(df_allmetrics).ffill().tail((self.lags_n + self.smooth_n + self.diffs_n) * 2)
 
         # make feature vector
         X, feature_colnames = self.make_features(self.df_allmetrics.values, list(df_allmetrics.columns))
-        data = self.try_predict(X, feature_colnames)
+        #data = self.try_predict(X, feature_colnames)
+
+        data = {}
+        for model in self.models.keys():
+            #X_model = self.get_array_cols(feature_colnames, X, starts_with=model)
+            X = df_allmetrics[df_allmetrics.columns[df_allmetrics.columns.str.startswith(model)]].values
+            score = models[model].fit_score_partial(X)
+            data[f'{model}_score'] = score
+
+        self.debug('data')
+        self.debug(data)
 
         return data
 
