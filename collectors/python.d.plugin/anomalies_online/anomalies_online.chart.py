@@ -90,11 +90,7 @@ class Service(SimpleService):
         df_allmetrics = get_allmetrics(self.host, self.charts_in_scope, wide=True, sort_cols=True)
         if self.expected_cols == []:
             self.expected_cols = list(df_allmetrics.columns)
-        df_allmetrics = df_allmetrics[self.expected_cols]
-
-        self.debug(df_allmetrics.columns)
-
-        self.df = self.df.append(df_allmetrics, ignore_index=True, sort=True).ffill().tail(self.min_history)
+        self.df = self.df[self.expected_cols].append(df_allmetrics[self.expected_cols], ignore_index=True, sort=True).ffill().tail(self.min_history)
         
         # if not enough data for features then return empty
         if len(self.df) < self.min_history:
@@ -104,8 +100,8 @@ class Service(SimpleService):
         self.make_features()
         df = self.df.tail(1)
 
-        self.debug('df.head()')
-        self.debug(df.head())
+        self.debug('self.df.head()')
+        self.debug(self.df.head())
 
         # get scores
         for model in self.models.keys():
