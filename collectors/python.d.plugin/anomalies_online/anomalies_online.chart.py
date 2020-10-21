@@ -215,11 +215,9 @@ class Service(SimpleService):
             self.debug(X.shape)
             self.debug(X)
             score = self.models[model].fit_score_partial(X)
-            score = self.calibrators[model].fit_transform(score)
-            if type(score) == np.ndarray:
-                self.debug(f'score.shape={score.shape}')
-                score = np.mean(score)
-            data[f'{model}_score'] = score * 100
+            score = self.calibrators[model].fit_transform(np.array([score]))
+            score = np.mean(score) * 100
+            data[f'{model}_score'] = score
 
         self.debug('data')
         self.debug(data)
