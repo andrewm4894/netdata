@@ -206,8 +206,12 @@ class Service(SimpleService):
         data = {}
         for model in self.models.keys():
             #X_model = self.get_array_cols(feature_colnames, X, starts_with=model)
+            
+            self.debug(f'{model}')
             X = df_allmetrics[df_allmetrics.columns[df_allmetrics.columns.str.startswith(model)]].values
-            score = models[model].fit_score_partial(X)
+            self.debug(X.shape)
+            self.debug(X)
+            score = self.models[model].fit_score_partial(X)
             data[f'{model}_score'] = score
 
         self.debug('data')
