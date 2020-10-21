@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Description: anomalies netdata python.d module
+# Description: anomalies_online netdata python.d module
 # Author: andrewm4894
 # SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -75,6 +75,10 @@ class Service(SimpleService):
                 self.charts[name].add_dimension([dim, dim, algorithm, multiplier, divisor])
 
     def make_features(self, df):
+        """Process dataframe to add lags, smoothing or differences.
+
+        :return: <pd.DataFrame> dataframe with preprocessing done.
+        """
         if self.diffs_n >= 1:
             df = df.diff(self.diffs_n).dropna()
         if self.smooth_n >= 2:
@@ -114,7 +118,7 @@ class Service(SimpleService):
             data_probability[f'{model}_prob'] = score
         
         # get anomaly flags
-        data_anomaly = {f'{k.replace('_prob','_anomaly')}': 1 if data_probability[k] >= 900 else 0 for k in data_probability}
+        data_anomaly = {f"{k.replace('_prob','_anomaly')}": 1 if data_probability[k] >= 900 else 0 for k in data_probability}
 
         return data_probability, data_anomaly
 
