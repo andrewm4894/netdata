@@ -213,6 +213,11 @@ class Service(SimpleService):
         data = {}
         for model in self.models.keys():
             X_model = self.get_array_cols(feature_colnames, X, starts_with=model)
+
+            self.debug(f'{model}')
+            self.debug(X_model.shape)
+            self.debug(X_model)
+
             try:
                 #X_model = self.preprocessor[model].fit_transform_partial(X_model)
                 score = self.models[model].fit_score_partial(X_model)
