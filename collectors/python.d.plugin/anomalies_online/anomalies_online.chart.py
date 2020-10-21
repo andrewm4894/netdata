@@ -71,13 +71,14 @@ class Service(SimpleService):
             if dim not in self.charts[name]:
                 self.charts[name].add_dimension([dim, dim, algorithm, multiplier, divisor])
 
-    def make_features(self):
+    def make_features(self, df):
         if self.diffs_n >= 1:
-            self.df = self.df.diff(self.diffs_n).dropna()
+            df = df.diff(self.diffs_n).dropna()
         if self.smooth_n >= 2:
-            self.df = self.df.rolling(self.smooth_n).mean().dropna()
+            df = df.rolling(self.smooth_n).mean().dropna()
         if self.lags_n >= 1:
-            self.df = pd.concat([self.df.shift(n) for n in range(self.lags_n + 1)], axis=1).dropna()
+            df = pd.concat([df.shift(n) for n in range(self.lags_n + 1)], axis=1).dropna()
+        return df        
 
     def predict(self):
         """Get latest data, make it into a feature vector, and get predictions for each available model.
@@ -91,23 +92,8 @@ class Service(SimpleService):
         self.df = self.df.append(df, ignore_index=True, sort=True)
         self.df = self.df.tail(self.min_history).ffill()
 
-        self.debug(self.df.shape)
-        
-        if 1 == 1:
-            return data
-
-        self.df = self.df[self.expected_cols].append(df_allmetrics[self.expected_cols], ignore_index=True, sort=True).ffill().tail(self.min_history)
-        
-        # if not enough data for features then return empty
-        if len(self.df) < self.min_history:
-            return data
-
         # make features
-        self.make_features()
-        df = self.df.tail(1)
-
-        self.debug('self.df.head()')
-        self.debug(self.df.head())
+        df = self.make_features(self.df).tail(1)
 
         # get scores
         for model in self.models.keys():
