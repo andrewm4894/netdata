@@ -57,6 +57,7 @@ class Service(SimpleService):
         self.postprocessors = {model: RunningAveragePostprocessor(window_size=self.postprocessor_window_size) for model in self.models_in_scope}
         self.df = pd.DataFrame()
         self.data_latest = {}
+        self.min_history = (1 + self.lags_n + self.smooth_n + self.diffs_n) * 2
 
     @staticmethod
     def check():
@@ -82,11 +83,17 @@ class Service(SimpleService):
 
         :return: (<dict>,<dict>) tuple of dictionaries, one for probability scores and the other for anomaly predictions.
         """
+        data = {}
+
         # get latest data to predict on
         self.df = self.df.append(
             get_allmetrics(self.host, self.charts_in_scope, wide=True, sort_cols=True), sort=True
-            ).ffill().tail((self.lags_n + self.smooth_n + self.diffs_n) * 2)
+            ).ffill().tail(self.min_history)
         
+        # if not enough data for features then return empty
+        if len(self.df) < self.min_history:
+            return data
+
         # make features
         self.make_features()
         df = self.df.tail(1)
@@ -95,7 +102,6 @@ class Service(SimpleService):
         self.debug(df.head())
 
         # get scores
-        data = {}
         for model in self.models.keys():
 
             self.debug(model)
