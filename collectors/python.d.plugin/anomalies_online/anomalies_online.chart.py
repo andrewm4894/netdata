@@ -60,8 +60,8 @@ class Service(SimpleService):
         self.lags_n = self.configuration.get('lags_n', 3)
         self.smooth_n = self.configuration.get('smooth_n', 3)
         self.diffs_n = self.configuration.get('diffs_n', 1)
-        self.calibrator_window_size = self.configuration.get('calibrator_window_size', 100)
-        self.postprocessor_window_size = self.configuration.get('postprocessor_window_size', 10)
+        self.calibrator_window_size = self.configuration.get('calibrator_window_size', 1000)
+        self.postprocessor_window_size = self.configuration.get('postprocessor_window_size', 15)
         if self.model == 'rrcf':
             self.models = {model: RobustRandomCutForest() for model in self.models_in_scope}
         else:
