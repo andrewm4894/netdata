@@ -88,9 +88,9 @@ class Service(SimpleService):
         data = {}
 
         # get latest data to predict on
-        df = get_allmetrics(self.host, self.charts_in_scope, wide=True, sort_cols=True)
-        self.df = self.df.append(df, ignore_index=True, sort=True)
-        self.df = self.df.tail(self.min_history).ffill()
+        self.df = self.df.append(
+            get_allmetrics(self.host, self.charts_in_scope, wide=True, sort_cols=True), ignore_index=True, sort=True
+            ).tail(self.min_history).ffill()
 
         # make features
         df = self.make_features(self.df).tail(1)
