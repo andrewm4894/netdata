@@ -88,20 +88,14 @@ class Service(SimpleService):
 
         # get latest data to predict on
         df = get_allmetrics(self.host, self.charts_in_scope, wide=True, sort_cols=True)
-        
-        self.debug('df.shape')
-        self.debug(df.shape)
-
         self.df = self.df.append(df, ignore_index=True, sort=True)
+        self.df = self.df.tail(self.min_history).ffill()
 
-        self.debug('self.df.shape')
         self.debug(self.df.shape)
-
-        if 1==1:
+        
+        if 1 == 1:
             return data
-       
-        if self.expected_cols == []:
-            self.expected_cols = list(df_allmetrics.columns)
+
         self.df = self.df[self.expected_cols].append(df_allmetrics[self.expected_cols], ignore_index=True, sort=True).ffill().tail(self.min_history)
         
         # if not enough data for features then return empty
