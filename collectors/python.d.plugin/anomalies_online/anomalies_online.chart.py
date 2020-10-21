@@ -182,7 +182,7 @@ class Service(SimpleService):
             return data_probability, data_anomaly
 
         # get scores on latest data
-        X = X[-1]
+        X = X[-1].reshape(1,-1)
         for model in self.models.keys():
             X_model = self.get_array_cols(feature_colnames, X, starts_with=model)
             #X_model = df[df.columns[df.columns.str.startswith(model)]].values
