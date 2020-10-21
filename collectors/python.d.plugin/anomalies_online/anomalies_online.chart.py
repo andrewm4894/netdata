@@ -55,6 +55,7 @@ class Service(SimpleService):
             self.models = {model: DefaultModel() for model in self.models_in_scope}
         self.calibrators = {model: GaussianTailProbabilityCalibrator(running_statistics=True, window_size=self.calibrator_window_size) for model in self.models_in_scope}
         self.postprocessors = {model: RunningAveragePostprocessor(window_size=self.postprocessor_window_size) for model in self.models_in_scope}
+        self.df = pd.DataFrame()
         self.data_latest = {}
 
     @staticmethod
@@ -68,20 +69,32 @@ class Service(SimpleService):
             if dim not in self.charts[name]:
                 self.charts[name].add_dimension([dim, dim, algorithm, multiplier, divisor])
 
+    def make_features(self):
+        if self.diffs_n >= 1:
+            self.df = self.df.diff(self.diffs_n).dropna()
+        if self.smooth_n >= 2:
+            self.df = self.df.rolling(self.smooth_n).mean().dropna()
+        if self.lags_n >= 1:
+            self.df = pd.concat([self.df.shift(n) for n in range(self.lags_n + 1)], axis=1).dropna()
+
     def predict(self):
         """Get latest data, make it into a feature vector, and get predictions for each available model.
 
         :return: (<dict>,<dict>) tuple of dictionaries, one for probability scores and the other for anomaly predictions.
         """
         # get latest data to predict on
-        df = get_allmetrics(self.host, self.charts_in_scope, wide=True, sort_cols=True)
+        self.df = self.df.append(
+            get_allmetrics(self.host, self.charts_in_scope, wide=True, sort_cols=True), sort=True
+            ).ffill().tail((self.lags_n + self.smooth_n + self.diffs_n) * 2)
+        
+        # make features
+        self.make_features()
+        df = self.df.tail(1)
 
+        # get scores
         data = {}
         for model in self.models.keys():
-            self.debug(f'{model}')
             X = df[df.columns[df.columns.str.startswith(model)]].values
-            self.debug(X.shape)
-            self.debug(X)
             score = self.models[model].fit_score_partial(X)
             if self.calibrator_window_size > 0:
                 score = self.calibrators[model].fit_transform(np.array([score]))
@@ -89,8 +102,6 @@ class Service(SimpleService):
                 score = self.postprocessors[model].fit_transform_partial(score)
             score = np.mean(score) * 100
             data[f'{model}_prob'] = score
-        self.debug('data')
-        self.debug(data)
 
         return data
 
