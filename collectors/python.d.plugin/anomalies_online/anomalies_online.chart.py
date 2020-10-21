@@ -30,7 +30,7 @@ CHARTS = {
         'lines': []
     },
     'anomaly': {
-        'options': ['anomaly', 'Anomaly', 'count', 'anomalies', 'anomalies_online.anomaly', 'stacked'],
+        'options': ['anomaly', 'Anomaly', 'count', 'anomalies_online', 'anomalies_online.anomaly', 'stacked'],
         'lines': []
     },
 }
@@ -72,6 +72,7 @@ class Service(SimpleService):
         self.data_latest = {}
         self.min_history = ((self.lags_n + 1) + (self.smooth_n + 1) + self.diffs_n)
         self.anomaly_threshold = float(self.configuration.get('anomaly_threshold', 90))
+        self.data_latest = {}
 
     @staticmethod
     def check():
@@ -84,21 +85,9 @@ class Service(SimpleService):
             if dim not in self.charts[name]:
                 self.charts[name].add_dimension([dim, dim, algorithm, multiplier, divisor])
 
-    def make_features(self, df):
-        """Process dataframe to add lags, smoothing or differences.
-
-        :return: <pd.DataFrame> dataframe with preprocessing done.
-        """
-        if self.diffs_n >= 1:
-            df = df.diff(self.diffs_n).dropna()
-        if self.smooth_n >= 2:
-            df = df.rolling(self.smooth_n).mean().dropna()
-        if self.lags_n >= 1:
-            df = pd.concat([df.shift(n) for n in range(self.lags_n + 1)], axis=1).dropna()
-        return df
-
-    def make_features_np(self, arr, colnames):
+    def make_features(self, arr, colnames):
         """Take in numpy array and preprocess accordingly by taking diffs, smoothing and adding lags.
+
         :param arr <np.ndarray>: numpy array we want to make features from.
         :param colnames <list>: list of colnames corresponding to arr.
         :param train <bool>: True if making features for training, in which case need to fit_transform scaler and maybe sample train_max_n.
@@ -138,6 +127,7 @@ class Service(SimpleService):
     @staticmethod
     def get_array_cols(colnames, arr, starts_with):
         """Given an array and list of colnames, return subset of cols from array where colname startswith starts_with.
+
         :param colnames <list>: list of colnames corresponding to arr.
         :param arr <np.ndarray>: numpy array we want to select a subset of cols from.
         :param starts_with <str>: the string we want to return all columns that start with given str value.
@@ -149,6 +139,7 @@ class Service(SimpleService):
 
     def add_custom_models_dims(self, df):
         """Given a df, select columns used by custom models, add custom model name as prefix, and append to df.
+
         :param df <pd.DataFrame>: dataframe to append new renamed columns to.
         :return: <pd.DataFrame> dataframe with additional columns added relating to the specified custom models.
         """
@@ -173,28 +164,43 @@ class Service(SimpleService):
         self.df = self.df.append(df_allmetrics, ignore_index=True, sort=True).tail(self.min_history).ffill()
 
         # make features
-        #df = self.make_features(self.df).tail(1)
-        X, feature_colnames = self.make_features_np(self.df.values, list(self.df.columns))
+        X, feature_colnames = self.make_features(self.df.values, list(self.df.columns))
 
         # if no features then return empty data
-        #if len(df) == 0:
         if len(X) == 0:
             return data_probability, data_anomaly
 
         # get scores on latest data
         X = X[-1].reshape(1,-1)
+        data_probability, data_anomaly = self.try_predict(X, feature_colnames)
+
+        return data_probability, data_anomaly
+
+    def try_predict(self, X, feature_colnames):
+        """Try make prediction and fall back to last known prediction if fails.
+
+        :param X <np.ndarray>: feature vector.
+        :param feature_colnames <list>: list of corresponding feature names.
+        :return: (<dict>,<dict>) tuple of dictionaries, one for probability scores and the other for anomaly predictions.
+        """
+        data_probability, data_anomaly = {}, {}
         for model in self.models.keys():
             X_model = self.get_array_cols(feature_colnames, X, starts_with=model)
-            #X_model = df[df.columns[df.columns.str.startswith(model)]].values
-            score = self.models[model].fit_score_partial(X_model)
-            if self.calibrator_window_size > 0:
-                score = self.calibrators[model].fit_transform(np.array([score]))
-            if self.postprocessor_window_size > 0:
-                score = self.postprocessors[model].fit_transform_partial(score)
-            score = np.mean(score) * 100
-            data_probability[f'{model}_prob'] = score
-        
-        # get anomaly flags
+            try:
+                score = self.models[model].fit_score_partial(X_model)
+                if self.calibrator_window_size > 0:
+                    score = self.calibrators[model].fit_transform(np.array([score]))
+                if self.postprocessor_window_size > 0:
+                    score = self.postprocessors[model].fit_transform_partial(score)
+                score = np.mean(score) * 100
+                data_probability[f'{model}_prob'] = score
+            except Exception as e:
+                self.info(X_model)
+                self.info(e)
+                self.info(f'prediction failed for {model} at run_counter {self.runs_counter}, using last prediction instead.')
+                data_probability[model + '_prob'] = self.data_latest[model + '_prob']
+                data_anomaly[model + '_anomaly'] = self.data_latest[model + '_anomaly']
+
         data_anomaly = {f"{k.replace('_prob','_anomaly')}": 1 if data_probability[k] >= self.anomaly_threshold else 0 for k in data_probability}
 
         return data_probability, data_anomaly
@@ -203,6 +209,7 @@ class Service(SimpleService):
 
         data_probability, data_anomaly = self.predict()
         data = {**data_probability, **data_anomaly}
+        self.data_latest = data
 
         self.validate_charts('probability', data_probability, divisor=100)
         self.validate_charts('anomaly', data_anomaly)
