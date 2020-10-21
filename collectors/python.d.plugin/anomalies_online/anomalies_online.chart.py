@@ -11,10 +11,10 @@ import requests
 import numpy as np
 import pandas as pd
 from netdata_pandas.data import get_data, get_allmetrics
-from pysad.models import xStream, ExactStorm, HalfSpaceTrees, IForestASD, KitNet, KNNCAD, MedianAbsoluteDeviation, RobustRandomCutForest
+from pysad.models import xStream, RobustRandomCutForest
+from pysad.models import RobustRandomCutForest as DefaultModel
 from pysad.transform.probability_calibration import GaussianTailProbabilityCalibrator
 from pysad.transform.postprocessing import RunningAveragePostprocessor
-from pysad.transform.preprocessing import InstanceUnitNormScaler
 
 from bases.FrameworkServices.SimpleService import SimpleService
 
@@ -22,11 +22,11 @@ from bases.FrameworkServices.SimpleService import SimpleService
 priority = 50
 update_every: 2
 
-ORDER = ['score']
+ORDER = ['probability']
 
 CHARTS = {
-    'score': {
-        'options': ['score', 'Anomaly Score', 'score', 'anomalies_online', 'anomalies_online.score', 'line'],
+    'probability': {
+        'options': ['probability', 'Anomaly Probability', 'probability', 'anomalies_online', 'anomalies_online.probability', 'line'],
         'lines': []
     },
 }
@@ -45,26 +45,14 @@ class Service(SimpleService):
         self.lags_n = self.configuration.get('lags_n', 0)
         self.smooth_n = self.configuration.get('smooth_n', 0)
         self.diffs_n = self.configuration.get('diffs_n', 1)
-        if self.model == 'xstream':
-            self.models = {model: xStream() for model in self.models_in_scope}
-        elif self.model == 'exact_storm':
-            self.models = {model: ExactStorm() for model in self.models_in_scope}
-        elif self.model == 'half_space_trees':
-            self.models = {model: HalfSpaceTrees() for model in self.models_in_scope}
-        elif self.model == 'iforest':
-            self.models = {model: IForestASD() for model in self.models_in_scope}
-        elif self.model == 'mad':
-            self.models = {model: MedianAbsoluteDeviation() for model in self.models_in_scope}
-        elif self.model == 'kitnet':
-            self.models = {model: KitNet() for model in self.models_in_scope}
-        elif self.model == 'rrcf':
-            self.models = {model: RobustRandomCutForest() for model in self.models_in_scope}
-        elif self.model == 'knncad':
-            self.models = {model: KNNCAD(probationary_period=50) for model in self.models_in_scope}
-        else:
-            self.models = {model: xStream() for model in self.models_in_scope}
         self.calibrator_window_size = self.configuration.get('calibrator_window_size', 100)
         self.postprocessor_window_size = self.configuration.get('postprocessor_window_size', 10)
+        if self.model == 'xstream':
+            self.models = {model: xStream() for model in self.models_in_scope}
+        elif self.model == 'rrcf':
+            self.models = {model: RobustRandomCutForest() for model in self.models_in_scope}
+        else:
+            self.models = {model: DefaultModel() for model in self.models_in_scope}
         self.calibrators = {model: GaussianTailProbabilityCalibrator(running_statistics=True, window_size=self.calibrator_window_size) for model in self.models_in_scope}
         self.postprocessors = {model: RunningAveragePostprocessor(window_size=self.postprocessor_window_size) for model in self.models_in_scope}
         self.data_latest = {}
@@ -100,7 +88,7 @@ class Service(SimpleService):
             if self.postprocessor_window_size > 0:
                 score = self.postprocessors[model].fit_transform_partial(score)
             score = np.mean(score) * 100
-            data[f'{model}_score'] = score
+            data[f'{model}_prob'] = score
         self.debug('data')
         self.debug(data)
 
@@ -110,6 +98,6 @@ class Service(SimpleService):
 
         data = self.predict()
 
-        self.validate_charts('score', data, divisor=100)
+        self.validate_charts('probability', data, divisor=100)
 
         return data
