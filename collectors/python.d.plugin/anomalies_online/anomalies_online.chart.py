@@ -175,6 +175,7 @@ class Service(SimpleService):
         # make features
         #df = self.make_features(self.df).tail(1)
         X, feature_colnames = self.make_features_np(self.df.values, list(self.df.columns))
+        X = X[-1]
 
         # if no features then return empty data
         #if len(df) == 0:
