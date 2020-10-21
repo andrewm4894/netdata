@@ -44,7 +44,18 @@ class Service(SimpleService):
         self.host = self.configuration.get('host', '127.0.0.1:19999')
         self.charts_regex = re.compile(self.configuration.get('charts_regex','system\..*'))
         self.charts_in_scope = list(filter(self.charts_regex.match, [c for c in requests.get(f'http://{self.host}/api/v1/charts').json()['charts'].keys()]))
-        self.models_in_scope = self.charts_in_scope
+        self.custom_models = self.configuration.get('custom_models', None)
+        if self.custom_models:
+            self.custom_models_names = [m['name'] for m in self.custom_models]
+            self.custom_models_dims = [i for s in [m['dimensions'].split(',') for m in self.custom_models] for i in s]
+            self.custom_models_charts = list(set([c.split('|')[0] for c in self.custom_models_dims]))
+            self.custom_models_dims_renamed = []
+            for m in self.custom_models:
+                self.custom_models_dims_renamed.extend([f"{m['name']}.{d}" for d in m['dimensions'].split(',')])
+            self.models_in_scope = list(set(self.charts_in_scope + self.custom_models_names))
+            self.charts_in_scope = list(set(self.charts_in_scope + self.custom_models_charts))
+        else:
+            self.models_in_scope = self.charts_in_scope
         self.model = self.configuration.get('model', 'rrcf')
         self.lags_n = self.configuration.get('lags_n', 3)
         self.smooth_n = self.configuration.get('smooth_n', 3)
@@ -85,6 +96,17 @@ class Service(SimpleService):
             df = df.rolling(self.smooth_n).mean().dropna()
         if self.lags_n >= 1:
             df = pd.concat([df.shift(n) for n in range(self.lags_n + 1)], axis=1).dropna()
+        return df
+
+    def add_custom_models_dims(self, df):
+        """Given a df, select columns used by custom models, add custom model name as prefix, and append to df.
+        :param df <pd.DataFrame>: dataframe to append new renamed columns to.
+        :return: <pd.DataFrame> dataframe with additional columns added relating to the specified custom models.
+        """
+        df_custom = df[self.custom_models_dims].copy()
+        df_custom.columns = self.custom_models_dims_renamed
+        df = df.join(df_custom)
+
         return df        
 
     def predict(self):
@@ -94,10 +116,12 @@ class Service(SimpleService):
         """
         data_probability, data_anomaly = {}, {}
 
+        df_allmetrics = get_allmetrics(self.host, self.charts_in_scope, wide=True, sort_cols=True)
+        if self.custom_models:
+            df_allmetrics = self.add_custom_models_dims(df_allmetrics)
+
         # get latest data to predict on
-        self.df = self.df.append(
-            get_allmetrics(self.host, self.charts_in_scope, wide=True, sort_cols=True), ignore_index=True, sort=True
-            ).tail(self.min_history).ffill()
+        self.df = self.df.append(df_allmetrics, ignore_index=True, sort=True).tail(self.min_history).ffill()
 
         # make features
         df = self.make_features(self.df).tail(1)
