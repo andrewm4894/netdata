@@ -25,7 +25,7 @@ xxx.
 # become netdata user
 sudo su -s /bin/bash netdata
 # install required packages for the netdata user
-pip3 install --user netdata-pandas==0.0.23 numba==0.50.1 mmh3==2.5.1 pysad==0.1.1
+pip3 install --user netdata-pandas==0.0.23 numba==0.50.1 mmh3==2.5.1 rrcf==0.4.3 pysad==0.1.1
 ```
 
 ## Configuration
