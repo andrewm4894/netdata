@@ -38,11 +38,11 @@ class Service(SimpleService):
         self.order = ORDER
         self.definitions = CHARTS
         self.host = self.configuration.get('host', '127.0.0.1:19999')
-        self.charts_regex = re.compile(self.configuration.get('charts_regex','system\..*'))
+        self.charts_regex = re.compile(self.configuration.get('charts_regex','system.cpu|system.load'))
         self.charts_in_scope = list(filter(self.charts_regex.match, [c for c in requests.get(f'http://{self.host}/api/v1/charts').json()['charts'].keys()]))
         self.model = self.configuration.get('model', 'knncad')
-        self.lags_n = self.configuration.get('lags_n', 5)
-        self.smooth_n = self.configuration.get('smooth_n', 3)
+        self.lags_n = self.configuration.get('lags_n', 0)
+        self.smooth_n = self.configuration.get('smooth_n', 0)
         self.diffs_n = self.configuration.get('diffs_n', 1)
         self.custom_models = self.configuration.get('custom_models', None)
         self.custom_models_normalize = bool(self.configuration.get('custom_models_normalize', False))
