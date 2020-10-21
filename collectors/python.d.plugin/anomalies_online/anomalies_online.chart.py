@@ -212,9 +212,9 @@ class Service(SimpleService):
         for model in self.models.keys():
             X_model = self.get_array_cols(feature_colnames, X, starts_with=model)
             try:
-                X_model = self.preprocessor[model].fit_transform_partial(X_model)
+                #X_model = self.preprocessor[model].fit_transform_partial(X_model)
                 score = self.models[model].fit_score_partial(X_model)
-                score = self.postprocessor[model].fit_transform_partial(score)
+                #score = self.postprocessor[model].fit_transform_partial(score)
                 data[model + '_score'] = np.nan_to_num(score) * 100
             except Exception as e:
                 self.info(X_model)
