@@ -79,10 +79,10 @@ class Service(SimpleService):
         self.preprocessor = {model: InstanceUnitNormScaler() for model in self.models_in_scope}
         self.postprocessor = {model: RunningAveragePostprocessor(window_size=self.smooth_n) for model in self.models_in_scope}
         self.calibrators = {model: GaussianTailProbabilityCalibrator(running_statistics=True, window_size=100) for model in self.models_in_scope}
-        self.df_allmetrics = pd.DataFrame()
-        self.expected_cols = []
+        self.postprocessors = {model: RunningAveragePostprocessor(window_size=5) for model in self.models_in_scope}
+
         self.data_latest = {}
-        self.scaler = MinMaxScaler()
+
 
     @staticmethod
     def check():
@@ -216,6 +216,7 @@ class Service(SimpleService):
             self.debug(X)
             score = self.models[model].fit_score_partial(X)
             score = self.calibrators[model].fit_transform(np.array([score]))
+            score = self.postprocessors[model].fit_transform_partial(score)
             score = np.mean(score) * 100
             data[f'{model}_score'] = score
 
