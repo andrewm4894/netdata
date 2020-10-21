@@ -44,7 +44,7 @@ class Service(SimpleService):
         self.model = self.configuration.get('model', 'rrcf')
         self.lags_n = self.configuration.get('lags_n', 0)
         self.smooth_n = self.configuration.get('smooth_n', 0)
-        self.diffs_n = self.configuration.get('diffs_n', 0)
+        self.diffs_n = self.configuration.get('diffs_n', 1)
         self.calibrator_window_size = self.configuration.get('calibrator_window_size', 100)
         self.postprocessor_window_size = self.configuration.get('postprocessor_window_size', 10)
         if self.model == 'xstream':
