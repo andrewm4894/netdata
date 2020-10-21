@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 from netdata_pandas.data import get_data, get_allmetrics
 from pysad.models import xStream, ExactStorm, HalfSpaceTrees, IForestASD, KitNet, KNNCAD, MedianAbsoluteDeviation, RobustRandomCutForest
+from pysad.transform.probability_calibration import GaussianTailProbabilityCalibrator
 from pysad.transform.postprocessing import RunningAveragePostprocessor
 from pysad.transform.preprocessing import InstanceUnitNormScaler
 from sklearn.preprocessing import MinMaxScaler
@@ -77,6 +78,7 @@ class Service(SimpleService):
             self.models = {model: xStream() for model in self.models_in_scope}
         self.preprocessor = {model: InstanceUnitNormScaler() for model in self.models_in_scope}
         self.postprocessor = {model: RunningAveragePostprocessor(window_size=self.smooth_n) for model in self.models_in_scope}
+        self.calibrators = {model: GaussianTailProbabilityCalibrator(running_statistics=True, window_size=100) for model in self.models_in_scope}
         self.df_allmetrics = pd.DataFrame()
         self.expected_cols = []
         self.data_latest = {}
@@ -192,15 +194,16 @@ class Service(SimpleService):
         :return: (<dict>,<dict>) tuple of dictionaries, one for probability scores and the other for anomaly predictions.
         """
         # get latest data to predict on
-        df_allmetrics = get_allmetrics(self.host, self.charts_in_scope, wide=True, sort_cols=True)
-        self.set_expected_cols(df_allmetrics)
-        df_allmetrics = df_allmetrics[self.expected_cols]
+        df = get_allmetrics(self.host, self.charts_in_scope, wide=True, sort_cols=True)
+        
+        #self.set_expected_cols(df_allmetrics)
+        #df_allmetrics = df_allmetrics[self.expected_cols]
         #if self.custom_models:
         #    df_allmetrics = self.add_custom_models_dims(df_allmetrics)
-        self.df_allmetrics = self.df_allmetrics.append(df_allmetrics).ffill().tail((self.lags_n + self.smooth_n + self.diffs_n) * 2)
+        #self.df_allmetrics = self.df_allmetrics.append(df_allmetrics).ffill().tail((self.lags_n + self.smooth_n + self.diffs_n) * 2)
 
         # make feature vector
-        X, feature_colnames = self.make_features(self.df_allmetrics.values, list(df_allmetrics.columns))
+        #X, feature_colnames = self.make_features(self.df_allmetrics.values, list(df_allmetrics.columns))
         #data = self.try_predict(X, feature_colnames)
 
         data = {}
@@ -208,10 +211,14 @@ class Service(SimpleService):
             #X_model = self.get_array_cols(feature_colnames, X, starts_with=model)
             
             self.debug(f'{model}')
-            X = df_allmetrics[df_allmetrics.columns[df_allmetrics.columns.str.startswith(model)]].values
+            X = df[df.columns[df.columns.str.startswith(model)]].values
             self.debug(X.shape)
             self.debug(X)
             score = self.models[model].fit_score_partial(X)
+            score = self.calibrators[model].fit_transform(score)
+            if type(score) == np.ndarray:
+                self.debug(f'score.shape={score.shape}')
+                score = np.mean(score)
             data[f'{model}_score'] = score * 100
 
         self.debug('data')
