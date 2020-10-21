@@ -42,9 +42,9 @@ class Service(SimpleService):
         self.charts_in_scope = list(filter(self.charts_regex.match, [c for c in requests.get(f'http://{self.host}/api/v1/charts').json()['charts'].keys()]))
         self.models_in_scope = self.charts_in_scope
         self.model = self.configuration.get('model', 'rrcf')
-        self.lags_n = self.configuration.get('lags_n', 3)
-        self.smooth_n = self.configuration.get('smooth_n', 3)
-        self.diffs_n = self.configuration.get('diffs_n', 1)
+        self.lags_n = self.configuration.get('lags_n', 0)
+        self.smooth_n = self.configuration.get('smooth_n', 0)
+        self.diffs_n = self.configuration.get('diffs_n', 0)
         self.calibrator_window_size = self.configuration.get('calibrator_window_size', 100)
         self.postprocessor_window_size = self.configuration.get('postprocessor_window_size', 10)
         if self.model == 'xstream':
