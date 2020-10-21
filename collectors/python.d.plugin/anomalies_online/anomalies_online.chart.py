@@ -22,11 +22,15 @@ from bases.FrameworkServices.SimpleService import SimpleService
 priority = 50
 update_every: 2
 
-ORDER = ['probability']
+ORDER = ['probability', 'anomaly']
 
 CHARTS = {
     'probability': {
         'options': ['probability', 'Anomaly Probability', 'probability', 'anomalies_online', 'anomalies_online.probability', 'line'],
+        'lines': []
+    },
+    'anomaly': {
+        'options': ['anomaly', 'Anomaly', 'count', 'anomalies', 'anomalies_online.anomaly', 'stacked'],
         'lines': []
     },
 }
@@ -84,7 +88,7 @@ class Service(SimpleService):
 
         :return: (<dict>,<dict>) tuple of dictionaries, one for probability scores and the other for anomaly predictions.
         """
-        data = {}
+        data_probability, data_anomaly = {}, {}
 
         # get latest data to predict on
         self.df = self.df.append(
@@ -96,7 +100,7 @@ class Service(SimpleService):
 
         # if no features then return empty data
         if len(df) == 0:
-            return data
+            return data_probability, data_anomaly
 
         # get scores
         for model in self.models.keys():
@@ -107,13 +111,19 @@ class Service(SimpleService):
             if self.postprocessor_window_size > 0:
                 score = self.postprocessors[model].fit_transform_partial(score)
             score = np.mean(score) * 100
-            data[f'{model}_prob'] = score
+            data_probability[f'{model}_prob'] = score
+        
+        # get anomaly flags
+        data_anomaly = {f'{k.replace('_prob','_anomaly')}': 1 if data_probability[k] >= 900 else 0 for k in data_probability}
 
-        return data
+        return data_probability, data_anomaly
 
     def get_data(self):
 
-        data = self.predict()
-        self.validate_charts('probability', data, divisor=100)
+        data_probability, data_anomaly = self.predict()
+        data = {**data_probability, **data_anomaly}
+
+        self.validate_charts('probability', data_probability, divisor=100)
+        self.validate_charts('anomaly', data_anomaly)
 
         return data
