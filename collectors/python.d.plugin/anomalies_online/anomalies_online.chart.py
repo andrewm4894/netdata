@@ -86,9 +86,11 @@ class Service(SimpleService):
         data = {}
 
         # get latest data to predict on
-        self.df = self.df.append(
-            get_allmetrics(self.host, self.charts_in_scope, wide=True, sort_cols=True), sort=True
-            ).ffill().tail(self.min_history)
+        df_allmetrics = get_allmetrics(self.host, self.charts_in_scope, wide=True, sort_cols=True)
+
+        self.debug(df_allmetrics.columns)
+
+        self.df = self.df.append(df_allmetrics, ignore_index=True, sort=True).ffill().tail(self.min_history)
         
         # if not enough data for features then return empty
         if len(self.df) < self.min_history:
