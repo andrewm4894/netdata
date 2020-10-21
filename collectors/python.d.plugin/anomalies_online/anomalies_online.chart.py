@@ -68,7 +68,7 @@ class Service(SimpleService):
         elif self.model == 'kitnet':
             self.models = {model: KitNet() for model in self.models_in_scope}
         elif self.model == 'knncad':
-            self.models = {model: KNNCAD(probationary_period=100) for model in self.models_in_scope}
+            self.models = {model: KNNCAD(probationary_period=50) for model in self.models_in_scope}
         else:
             self.models = {model: xStream() for model in self.models_in_scope}
         self.preprocessor = {model: InstanceUnitNormScaler() for model in self.models_in_scope}
