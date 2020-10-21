@@ -97,6 +97,56 @@ class Service(SimpleService):
             df = pd.concat([df.shift(n) for n in range(self.lags_n + 1)], axis=1).dropna()
         return df
 
+    def make_features_np(self, arr, colnames):
+        """Take in numpy array and preprocess accordingly by taking diffs, smoothing and adding lags.
+        :param arr <np.ndarray>: numpy array we want to make features from.
+        :param colnames <list>: list of colnames corresponding to arr.
+        :param train <bool>: True if making features for training, in which case need to fit_transform scaler and maybe sample train_max_n.
+        :return: (<np.ndarray>, <list>) tuple of list of colnames of features and transformed numpy array.
+        """
+
+        def lag(arr, n):
+            res = np.empty_like(arr)
+            res[:n] = np.nan
+            res[n:] = arr[:-n]
+
+            return res
+
+        arr = np.nan_to_num(arr)
+
+        if self.diffs_n > 0:
+            arr = np.diff(arr, self.diffs_n, axis=0)
+            arr = arr[~np.isnan(arr).any(axis=1)]
+
+        if self.smooth_n > 1:
+            arr = np.cumsum(arr, axis=0, dtype=float)
+            arr[self.smooth_n:] = arr[self.smooth_n:] - arr[:-self.smooth_n]
+            arr = arr[self.smooth_n - 1:] / self.smooth_n
+            arr = arr[~np.isnan(arr).any(axis=1)]
+
+        if self.lags_n > 0:
+            colnames = colnames + [f'{col}_lag{lag}' for lag in range(1, self.lags_n + 1) for col in colnames]
+            arr_orig = np.copy(arr)
+            for lag_n in range(1, self.lags_n + 1):
+                arr = np.concatenate((arr, lag(arr_orig, lag_n)), axis=1)
+            arr = arr[~np.isnan(arr).any(axis=1)]
+
+        arr = np.nan_to_num(arr)
+
+        return arr, colnames
+    
+    @staticmethod
+    def get_array_cols(colnames, arr, starts_with):
+        """Given an array and list of colnames, return subset of cols from array where colname startswith starts_with.
+        :param colnames <list>: list of colnames corresponding to arr.
+        :param arr <np.ndarray>: numpy array we want to select a subset of cols from.
+        :param starts_with <str>: the string we want to return all columns that start with given str value.
+        :return: <np.ndarray> subseted array.
+        """
+        cols_idx = [i for i, x in enumerate(colnames) if x.startswith(starts_with)]
+
+        return arr[:, cols_idx]
+
     def add_custom_models_dims(self, df):
         """Given a df, select columns used by custom models, add custom model name as prefix, and append to df.
         :param df <pd.DataFrame>: dataframe to append new renamed columns to.
@@ -123,16 +173,19 @@ class Service(SimpleService):
         self.df = self.df.append(df_allmetrics, ignore_index=True, sort=True).tail(self.min_history).ffill()
 
         # make features
-        df = self.make_features(self.df).tail(1)
+        #df = self.make_features(self.df).tail(1)
+        X, feature_colnames = self.make_features_np(self.df.values, list(self.df.columns))
 
         # if no features then return empty data
-        if len(df) == 0:
+        #if len(df) == 0:
+        if len(X) == 0:
             return data_probability, data_anomaly
 
         # get scores
         for model in self.models.keys():
-            X = df[df.columns[df.columns.str.startswith(model)]].values
-            score = self.models[model].fit_score_partial(X)
+            X_model = self.get_array_cols(feature_colnames, X, starts_with=model)
+            #X_model = df[df.columns[df.columns.str.startswith(model)]].values
+            score = self.models[model].fit_score_partial(X_model)
             if self.calibrator_window_size > 0:
                 score = self.calibrators[model].fit_transform(np.array([score]))
             if self.postprocessor_window_size > 0:
