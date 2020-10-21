@@ -42,8 +42,8 @@ class Service(SimpleService):
         self.charts_in_scope = list(filter(self.charts_regex.match, [c for c in requests.get(f'http://{self.host}/api/v1/charts').json()['charts'].keys()]))
         self.models_in_scope = self.charts_in_scope
         self.model = self.configuration.get('model', 'rrcf')
-        self.lags_n = self.configuration.get('lags_n', 0)
-        self.smooth_n = self.configuration.get('smooth_n', 0)
+        self.lags_n = self.configuration.get('lags_n', 3)
+        self.smooth_n = self.configuration.get('smooth_n', 3)
         self.diffs_n = self.configuration.get('diffs_n', 1)
         self.calibrator_window_size = self.configuration.get('calibrator_window_size', 100)
         self.postprocessor_window_size = self.configuration.get('postprocessor_window_size', 10)
@@ -95,19 +95,13 @@ class Service(SimpleService):
         # make features
         df = self.make_features(self.df).tail(1)
 
+        # if no features then return empty data
         if len(df) == 0:
             return data
 
         # get scores
         for model in self.models.keys():
-
-            self.debug(model)
-
             X = df[df.columns[df.columns.str.startswith(model)]].values
-
-            self.debug(X.shape)
-            self.debug(X)
-
             score = self.models[model].fit_score_partial(X)
             if self.calibrator_window_size > 0:
                 score = self.calibrators[model].fit_transform(np.array([score]))
@@ -121,7 +115,6 @@ class Service(SimpleService):
     def get_data(self):
 
         data = self.predict()
-
         self.validate_charts('probability', data, divisor=100)
 
         return data
