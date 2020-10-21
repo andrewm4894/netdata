@@ -73,6 +73,7 @@ class Service(SimpleService):
         self.df = pd.DataFrame()
         self.data_latest = {}
         self.min_history = ((self.lags_n + 1) + (self.smooth_n + 1) + self.diffs_n)
+        self.anomaly_threshold = self.configuration.get('anomaly_threshold', 90)
 
     @staticmethod
     def check():
@@ -142,7 +143,7 @@ class Service(SimpleService):
             data_probability[f'{model}_prob'] = score
         
         # get anomaly flags
-        data_anomaly = {f"{k.replace('_prob','_anomaly')}": 1 if data_probability[k] >= 900 else 0 for k in data_probability}
+        data_anomaly = {f"{k.replace('_prob','_anomaly')}": 1 if data_probability[k] >= (self.anomaly_threshold * 100) else 0 for k in data_probability}
 
         return data_probability, data_anomaly
 
