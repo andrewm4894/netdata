@@ -175,14 +175,14 @@ class Service(SimpleService):
         # make features
         #df = self.make_features(self.df).tail(1)
         X, feature_colnames = self.make_features_np(self.df.values, list(self.df.columns))
-        X = X[-1]
 
         # if no features then return empty data
         #if len(df) == 0:
         if len(X) == 0:
             return data_probability, data_anomaly
 
-        # get scores
+        # get scores on latest data
+        X = X[-1]
         for model in self.models.keys():
             X_model = self.get_array_cols(feature_colnames, X, starts_with=model)
             #X_model = df[df.columns[df.columns.str.startswith(model)]].values
