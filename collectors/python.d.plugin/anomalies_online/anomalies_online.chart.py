@@ -95,6 +95,9 @@ class Service(SimpleService):
         # make features
         df = self.make_features(self.df).tail(1)
 
+        if len(df) == 0:
+            return data
+
         # get scores
         for model in self.models.keys():
 
