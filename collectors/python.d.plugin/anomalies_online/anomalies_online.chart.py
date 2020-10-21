@@ -38,7 +38,7 @@ class Service(SimpleService):
         self.order = ORDER
         self.definitions = CHARTS
         self.host = self.configuration.get('host', '127.0.0.1:19999')
-        self.charts_regex = re.compile(self.configuration.get('charts_regex','system.cpu'))
+        self.charts_regex = re.compile(self.configuration.get('charts_regex','system\..*'))
         self.charts_in_scope = list(filter(self.charts_regex.match, [c for c in requests.get(f'http://{self.host}/api/v1/charts').json()['charts'].keys()]))
         self.model = self.configuration.get('model', 'rrcf')
         self.lags_n = self.configuration.get('lags_n', 0)
@@ -212,7 +212,7 @@ class Service(SimpleService):
             self.debug(X.shape)
             self.debug(X)
             score = self.models[model].fit_score_partial(X)
-            data[f'{model}_score'] = score
+            data[f'{model}_score'] = score * 100
 
         self.debug('data')
         self.debug(data)
