@@ -199,7 +199,7 @@ class Service(SimpleService):
 
         # make feature vector
         X, feature_colnames = self.make_features(self.df_allmetrics.values, list(df_allmetrics.columns))
-        data = self.try_predict(X, feature_colnames)
+        data = self.try_predict(X[-1], feature_colnames)
 
         return data
 
