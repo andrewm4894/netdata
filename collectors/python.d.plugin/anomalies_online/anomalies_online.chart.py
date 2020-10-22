@@ -11,7 +11,7 @@ import requests
 import numpy as np
 import pandas as pd
 from netdata_pandas.data import get_data, get_allmetrics
-from pysad.models import RobustRandomCutForest, xStream, KNNCAD
+from pysad.models import RobustRandomCutForest, xStream, KNNCAD, KitNet
 from pysad.models import RobustRandomCutForest as DefaultModel
 from pysad.transform.probability_calibration import GaussianTailProbabilityCalibrator
 from pysad.transform.postprocessing import RunningAveragePostprocessor
@@ -56,7 +56,7 @@ class Service(SimpleService):
             self.charts_in_scope = list(set(self.charts_in_scope + self.custom_models_charts))
         else:
             self.models_in_scope = self.charts_in_scope
-        self.model = self.configuration.get('model', 'knncad')
+        self.model = self.configuration.get('model', 'kitnet')
         self.lags_n = self.configuration.get('lags_n', 3)
         self.smooth_n = self.configuration.get('smooth_n', 3)
         self.diffs_n = self.configuration.get('diffs_n', 1)
@@ -68,6 +68,8 @@ class Service(SimpleService):
             self.models = {model: xStream(num_components=20, n_chains=20, depth=10, window_size=25) for model in self.models_in_scope}
         elif self.model == 'knncad':
             self.models = {model: KNNCAD(probationary_period=50) for model in self.models_in_scope}
+        elif self.model == 'kitnet':
+            self.models = {model: KitNet(max_size_ae=10, grace_feature_mapping=100, grace_anomaly_detector=100, learning_rate=0.1, hidden_ratio=0.75) for model in self.models_in_scope}
         else:
             self.models = {model: DefaultModel() for model in self.models_in_scope}
         self.calibrators = {model: GaussianTailProbabilityCalibrator(running_statistics=True, window_size=self.calibrator_window_size) for model in self.models_in_scope}
@@ -76,7 +78,7 @@ class Service(SimpleService):
         self.data_latest = {}
         self.min_history = ((self.lags_n + 1) + (self.smooth_n + 1) + self.diffs_n)
         self.anomaly_threshold = float(self.configuration.get('anomaly_threshold', 90))
-        self.data_latest = {}
+        self.raw_score_latest = {}
 
     @staticmethod
     def check():
@@ -192,6 +194,9 @@ class Service(SimpleService):
             X_model = self.get_array_cols(feature_colnames, X, starts_with=model)
             try:
                 score = self.models[model].fit_score_partial(X_model)
+                if np.isnan(score):
+                    score = self.raw_score_latest[model]
+                self.raw_score_latest[model] = score
                 if self.calibrator_window_size > 0:
                     score = self.calibrators[model].fit_transform(np.array([score]))
                 if self.postprocessor_window_size > 0:
