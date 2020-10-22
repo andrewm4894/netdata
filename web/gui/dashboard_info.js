@@ -574,7 +574,7 @@ netdataDashboard.menu = {
     'anomalies_online': {
         title: 'Anomalies Online',
         icon: '<i class="fas fa-flask"></i>',
-        info: 'Online Anomaly Detection'
+        info: 'Anomaly scores relating to key system metrics. A high anomaly probability indicates strange behaviour and may trigger an anomaly prediction from the models. Read the <a href="https://github.com/netdata/netdata/tree/master/collectors/python.d.plugin/anomalies_online" target="_blank">anomalies_online collector docs</a> for more details.'
     },
 };
 
