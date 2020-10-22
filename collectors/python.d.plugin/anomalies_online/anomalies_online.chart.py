@@ -11,7 +11,7 @@ import requests
 import numpy as np
 import pandas as pd
 from netdata_pandas.data import get_data, get_allmetrics
-from pysad.models import RobustRandomCutForest
+from pysad.models import RobustRandomCutForest, xStream
 from pysad.models import RobustRandomCutForest as DefaultModel
 from pysad.transform.probability_calibration import GaussianTailProbabilityCalibrator
 from pysad.transform.postprocessing import RunningAveragePostprocessor
@@ -56,14 +56,16 @@ class Service(SimpleService):
             self.charts_in_scope = list(set(self.charts_in_scope + self.custom_models_charts))
         else:
             self.models_in_scope = self.charts_in_scope
-        self.model = self.configuration.get('model', 'rrcf')
+        self.model = self.configuration.get('model', 'xstream')
         self.lags_n = self.configuration.get('lags_n', 3)
         self.smooth_n = self.configuration.get('smooth_n', 3)
         self.diffs_n = self.configuration.get('diffs_n', 1)
         self.calibrator_window_size = self.configuration.get('calibrator_window_size', 1000)
         self.postprocessor_window_size = self.configuration.get('postprocessor_window_size', 15)
         if self.model == 'rrcf':
-            self.models = {model: RobustRandomCutForest() for model in self.models_in_scope}
+            self.models = {model: RobustRandomCutForest(num_trees=10, shingle_size=4, tree_size=256) for model in self.models_in_scope}
+        elif self.model == 'xstream':
+            self.models = {model: xStream(num_components=20, n_chains=20, depth=10, window_size=25) for model in self.models_in_scope}
         else:
             self.models = {model: DefaultModel() for model in self.models_in_scope}
         self.calibrators = {model: GaussianTailProbabilityCalibrator(running_statistics=True, window_size=self.calibrator_window_size) for model in self.models_in_scope}
