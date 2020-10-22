@@ -571,10 +571,10 @@ netdataDashboard.menu = {
         info: 'Summary, namespaces and topics performance data for the <b><a href="http://pulsar.apache.org/">Apache Pulsar</a></b> pub-sub messaging system.'
     },
 
-    'anomalies_online': {
+    'anomaliesonline': {
         title: 'Anomalies Online',
         icon: '<i class="fas fa-flask"></i>',
-        info: 'Anomaly scores relating to key system metrics. A high anomaly probability indicates strange behaviour and may trigger an anomaly prediction from the models. Read the <a href="https://github.com/netdata/netdata/tree/master/collectors/python.d.plugin/anomalies_online" target="_blank">anomalies_online collector docs</a> for more details.'
+        info: 'Anomaly scores relating to key system metrics. A high anomaly probability indicates strange behaviour and may trigger an anomaly prediction from the models. Read the <a href="https://github.com/netdata/netdata/tree/master/collectors/python.d.plugin/anomaliesonline" target="_blank">anomaliesonline collector docs</a> for more details.'
     },
 };
 

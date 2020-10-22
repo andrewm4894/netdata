@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Description: anomalies_online netdata python.d module
+# Description: anomaliesonline netdata python.d module
 # Author: andrewm4894
 # SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -26,11 +26,11 @@ ORDER = ['probability', 'anomaly']
 
 CHARTS = {
     'probability': {
-        'options': ['probability', 'Anomaly Probability', 'probability', 'anomalies_online', 'anomalies_online.probability', 'line'],
+        'options': ['probability', 'Anomaly Probability', 'probability', 'anomaliesonline', 'anomaliesonline.probability', 'line'],
         'lines': []
     },
     'anomaly': {
-        'options': ['anomaly', 'Anomaly', 'count', 'anomalies_online', 'anomalies_online.anomaly', 'stacked'],
+        'options': ['anomaly', 'Anomaly', 'count', 'anomaliesonline', 'anomaliesonline.anomaly', 'stacked'],
         'lines': []
     },
 }

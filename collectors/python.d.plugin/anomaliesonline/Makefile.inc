@@ -5,9 +5,9 @@
 # IT IS REQUIRED TO REFERENCE ALL FILES RELATIVE TO THE PARENT
 
 # install these files
-dist_python_DATA       += anomalies_online/anomalies_online.chart.py
-dist_pythonconfig_DATA += anomalies_online/anomalies_online.conf
+dist_python_DATA       += anomaliesonline/anomaliesonline.chart.py
+dist_pythonconfig_DATA += anomaliesonline/anomaliesonline.conf
 
 # do not install these files, but include them in the distribution
-dist_noinst_DATA       += anomalies_online/README.md anomalies_online/Makefile.inc
+dist_noinst_DATA       += anomaliesonline/README.md anomaliesonline/Makefile.inc
 
