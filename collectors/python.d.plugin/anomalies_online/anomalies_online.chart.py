@@ -11,7 +11,7 @@ import requests
 import numpy as np
 import pandas as pd
 from netdata_pandas.data import get_data, get_allmetrics
-from pysad.models import RobustRandomCutForest, xStream, KNNCAD, KitNet
+from pysad.models import RobustRandomCutForest, xStream, KNNCAD, KitNet, LODA
 from pysad.models import RobustRandomCutForest as DefaultModel
 from pysad.transform.probability_calibration import GaussianTailProbabilityCalibrator
 from pysad.transform.postprocessing import RunningAveragePostprocessor
@@ -56,7 +56,7 @@ class Service(SimpleService):
             self.charts_in_scope = list(set(self.charts_in_scope + self.custom_models_charts))
         else:
             self.models_in_scope = self.charts_in_scope
-        self.model = self.configuration.get('model', 'kitnet')
+        self.model = self.configuration.get('model', 'loda')
         self.lags_n = self.configuration.get('lags_n', 3)
         self.smooth_n = self.configuration.get('smooth_n', 3)
         self.diffs_n = self.configuration.get('diffs_n', 1)
@@ -70,6 +70,8 @@ class Service(SimpleService):
             self.models = {model: KNNCAD(probationary_period=50) for model in self.models_in_scope}
         elif self.model == 'kitnet':
             self.models = {model: KitNet(max_size_ae=10, grace_feature_mapping=100, grace_anomaly_detector=100, learning_rate=0.1, hidden_ratio=0.75) for model in self.models_in_scope}
+        elif self.model == 'loda':
+            self.models = {model: LODA(num_bins=10, num_random_cuts=100) for model in self.models_in_scope}
         else:
             self.models = {model: DefaultModel() for model in self.models_in_scope}
         self.calibrators = {model: GaussianTailProbabilityCalibrator(running_statistics=True, window_size=self.calibrator_window_size) for model in self.models_in_scope}
