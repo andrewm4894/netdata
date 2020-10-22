@@ -10,7 +10,7 @@ import re
 import requests
 import numpy as np
 import pandas as pd
-from netdata_pandas.data import get_data, get_allmetrics
+from netdata_pandas.data import get_allmetrics
 from pysad.models import RobustRandomCutForest, xStream, KNNCAD, KitNet, LODA
 from pysad.models import RobustRandomCutForest as DefaultModel
 from pysad.transform.probability_calibration import GaussianTailProbabilityCalibrator
@@ -41,9 +41,10 @@ class Service(SimpleService):
         SimpleService.__init__(self, configuration=configuration, name=name)
         self.order = ORDER
         self.definitions = CHARTS
+        self.protocol = self.configuration.get('protocol', 'http')
         self.host = self.configuration.get('host', '127.0.0.1:19999')
         self.charts_regex = re.compile(self.configuration.get('charts_regex','system\..*'))
-        self.charts_in_scope = list(filter(self.charts_regex.match, [c for c in requests.get(f'http://{self.host}/api/v1/charts').json()['charts'].keys()]))
+        self.charts_in_scope = list(filter(self.charts_regex.match, [c for c in requests.get(f'{self.protocol}://{self.host}/api/v1/charts').json()['charts'].keys()]))
         self.custom_models = self.configuration.get('custom_models', None)
         if self.custom_models:
             self.custom_models_names = [m['name'] for m in self.custom_models]
@@ -56,7 +57,7 @@ class Service(SimpleService):
             self.charts_in_scope = list(set(self.charts_in_scope + self.custom_models_charts))
         else:
             self.models_in_scope = self.charts_in_scope
-        self.model = self.configuration.get('model', 'loda')
+        self.model = self.configuration.get('model', 'rrcf')
         self.lags_n = self.configuration.get('lags_n', 3)
         self.smooth_n = self.configuration.get('smooth_n', 3)
         self.diffs_n = self.configuration.get('diffs_n', 1)
@@ -164,7 +165,7 @@ class Service(SimpleService):
         """
         data_probability, data_anomaly = {}, {}
 
-        df_allmetrics = get_allmetrics(self.host, self.charts_in_scope, wide=True, sort_cols=True)
+        df_allmetrics = get_allmetrics(self.host, self.charts_in_scope, wide=True, sort_cols=True, protocol=self.protocol)
         if self.custom_models:
             df_allmetrics = self.add_custom_models_dims(df_allmetrics)
 

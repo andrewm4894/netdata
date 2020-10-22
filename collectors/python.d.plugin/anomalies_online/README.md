@@ -38,7 +38,7 @@ Then, as the issue passes, the anomaly probabilities should settle back down int
 # become netdata user
 sudo su -s /bin/bash netdata
 # install required packages for the netdata user
-pip3 install --user netdata-pandas==0.0.23 numba==0.50.1 mmh3==2.5.1 rrcf==0.4.3 pysad==0.1.1
+pip3 install --user netdata-pandas==0.0.24 numba==0.50.1 mmh3==2.5.1 rrcf==0.4.3 pysad==0.1.1
 ```
 
 ## Configuration
@@ -67,6 +67,8 @@ sudo ./edit-config python.d/anomalies_online.conf
 The default configuration should look something like this. Here you can see each parameter (with sane defaults) and some information about each one and what it does.
 
 ```yaml
+# use http or https to pull data
+protocol: 'http'
 # what host to pull data from.
 host: '127.0.0.1:19999'
 # what charts to pull data for - A regex like 'system\..*|' or 'system\..*|apps.cpu|apps.mem' etc.
@@ -79,9 +81,9 @@ lags_n: 3
 smooth_n: 3
 # how many differences to take in preprocessing your data. diffs_n=0 would mean fitting models on the raw values of each dimension, whereas diffs_n=1 means everything is done in terms of differences.
 diffs_n: 1
-# calibrator_window_size
+# The size of the rolling window you want to use when converting a raw score from pysad into a probability using pysad.transform.probability_calibration.GaussianTailProbabilityCalibrator.
 calibrator_window_size: 1000
-# postprocessor_window_size
+# The size of the window used in a running average over the anomaly probabilities produced by pysad using pysad.transform.postprocessing.RunningAveragePostprocessor.
 postprocessor_window_size: 15
 # threshold over which you want to trigger an anomaly flag on the anomaly chart.
 anomaly_threshold: 90
