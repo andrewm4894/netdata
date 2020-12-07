@@ -43,7 +43,7 @@ if [ -n "$(command -v curl 2> /dev/null)" ]; then
         "netdata_version": "'${NETDATA_VERSION}'",
         "host_os_name": "'${NETDATA_HOST_OS_NAME}'"
         }
-  }' https://app.posthog.com/capture/
+  }' https://app.posthog.com/capture/ > /dev/null 2>&1
 else
   echo 'failed to send data to posthog'
 fi
