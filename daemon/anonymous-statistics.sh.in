@@ -42,6 +42,30 @@ if [ -n "$(command -v curl 2> /dev/null)" ]; then
         "action_result": "'${ACTION_RESULT}'",
         "action_data": "'${ACTION_DATA}'",
         "netdata_version": "'${NETDATA_VERSION}'",
+        "host_os_name": "'${NETDATA_HOST_OS_NAME}'"
+        }
+  }' https://app.posthog.com/capture/ > /dev/null 2>&1
+else
+  echo 'failed to send data to posthog' > /dev/null 2>&1
+fi
+
+# -------------------------------------------------------------------------------------------------
+# send the anonymous statistics to the Netdata PostHog
+if [ -n "$(command -v curl 2> /dev/null)" ]; then
+  curl -X POST --header "Content-Type: application/json" -d '{
+    "api_key": "zR4pStMtxgP3wJ27vIjQJvZNXwMWqZlzP0x4dKbHOHg",
+    "event": "'${ACTION}' '${ACTION_RESULT}'",
+    "properties": {
+        "distinct_id": "'${NETDATA_REGISTRY_UNIQUE_ID}'",
+        "$current_url": "agent backend",
+        "$pathname": "netdata-backend",
+        "$host": "backend.netdata.io",
+        "$ip": "127.0.0.1",
+        "$source": "agent backend",
+        "action": "'${ACTION}'",
+        "action_result": "'${ACTION_RESULT}'",
+        "action_data": "'${ACTION_DATA}'",
+        "netdata_version": "'${NETDATA_VERSION}'",
         "host_os_name": "'${NETDATA_HOST_OS_NAME}'",
         "host_os_id": "'${NETDATA_HOST_OS_ID}'",
         "host_os_id_like": "'${NETDATA_HOST_OS_ID_LIKE}'",
