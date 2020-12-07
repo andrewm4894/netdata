@@ -45,7 +45,7 @@ if [ -n "$(command -v curl 2> /dev/null)" ]; then
         }
   }' https://app.posthog.com/capture/ > /dev/null 2>&1
 else
-  echo 'failed to send data to posthog'
+  echo 'failed to send data to posthog' > /dev/null 2>&1
 fi
 
 # -------------------------------------------------------------------------------------------------
