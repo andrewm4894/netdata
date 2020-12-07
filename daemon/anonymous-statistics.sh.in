@@ -26,6 +26,24 @@ fi
 NETDATA_VERSION=$(echo "${NETDATA_VERSION}" | sed 's/-.*//g' | tr -d 'v')
 
 # -------------------------------------------------------------------------------------------------
+# send the anonymous statistics to the Netdata PostHog
+if [ -n "$(command -v curl 2> /dev/null)" ]; then
+  curl -v -L --header "Content-Type: application/json" -d '{
+    "api_key": "my-key",
+    "properties": {
+        "$current_url": "agent backend",
+        "$pathname": "netdata-backend",
+        "$host": "backend.netdata.io",
+        "$ip": "127.0.0.1"
+        },
+    "distinct_id": "'${NETDATA_REGISTRY_UNIQUE_ID}'",
+    "event": "'${ACTION}' '${ACTION_RESULT}'",
+  }' https://app.posthog.com/batch/
+else
+  echo 'failed to send data to posthog'
+fi
+
+# -------------------------------------------------------------------------------------------------
 # send the anonymous statistics to GA
 # https://developers.google.com/analytics/devguides/collection/protocol/v1/parameters
 # The maximum index for a cd parameter is 20 so we have effectively run out.
