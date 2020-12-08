@@ -41,6 +41,7 @@ if [ -n "$(command -v curl 2> /dev/null)" ]; then
         "action": "'"${ACTION}"'",
         "action_result": "'"${ACTION_RESULT}"'",
         "action_data": "'"${ACTION_DATA}"'",
+        "netdata_registry_unique_id": "'${NETDATA_REGISTRY_UNIQUE_ID}'",
         "netdata_version": "'"${NETDATA_VERSION}"'",
         "host_os_name": "'"${NETDATA_HOST_OS_NAME}"'",
         "host_os_id": "'"${NETDATA_HOST_OS_ID}"'",
