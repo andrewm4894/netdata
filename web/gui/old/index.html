@@ -36,11 +36,42 @@
         !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.async=!0,p.src=s.api_host+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
         posthog.init('zR4pStMtxgP3wJ27vIjQJvZNXwMWqZlzP0x4dKbHOHg',{api_host:'https://app.posthog.com'})
         posthog.register({
-            "distinct_id": "TODO",
+            "distinct_id": "${NETDATA_REGISTRY_UNIQUE_ID}",
             "$ip": "127.0.0.1",
             "$current_url": "agent dashboard",
             "$pathname": "netdata-dashboard",
-            "$host": "dashboard.netdata.io"
+            "$host": "dashboard.netdata.io",
+            "netdata_registry_unique_id": "${NETDATA_REGISTRY_UNIQUE_ID}",
+            "event_source": "agent dashboard",
+            "netdata_version": "${NETDATA_VERSION}",
+            "host_os_name": "${NETDATA_HOST_OS_NAME}",
+            "host_os_id": "${NETDATA_HOST_OS_ID}",
+            "host_os_id_like": "${NETDATA_HOST_OS_ID_LIKE}",
+            "host_os_version": "${NETDATA_HOST_OS_VERSION}",
+            "host_os_version_id": "${NETDATA_HOST_OS_VERSION_ID}",
+            "host_os_detection": "${NETDATA_HOST_OS_DETECTION}",
+            "system_kernel_name": "${NETDATA_SYSTEM_KERNEL_NAME}",
+            "system_kernel_version": "${NETDATA_SYSTEM_KERNEL_VERSION}",
+            "system_architecture": "${NETDATA_SYSTEM_ARCHITECTURE}",
+            "system_virtualization": "${NETDATA_SYSTEM_VIRTUALIZATION}",
+            "system_virt_detection": "${NETDATA_SYSTEM_VIRT_DETECTION}",
+            "system_container": "${NETDATA_SYSTEM_CONTAINER}",
+            "system_container_detection": "${NETDATA_SYSTEM_CONTAINER_DETECTION}",
+            "container_os_name": "${NETDATA_CONTAINER_OS_NAME}",
+            "container_os_id": "${NETDATA_CONTAINER_OS_ID}",
+            "container_os_id_like": "${NETDATA_CONTAINER_OS_ID_LIKE}",
+            "container_os_version": "${NETDATA_CONTAINER_OS_VERSION}",
+            "container_os_version_id": "${NETDATA_CONTAINER_OS_VERSION_ID}",
+            "container_os_detection": "${NETDATA_CONTAINER_OS_DETECTION}",
+            "system_cpu_detection": "${NETDATA_SYSTEM_CPU_DETECTION}",
+            "system_cpu_freq": "${NETDATA_SYSTEM_CPU_FREQ}",
+            "system_cpu_logical_cpu_count": "${NETDATA_SYSTEM_CPU_LOGICAL_CPU_COUNT}",
+            "system_cpu_model": "${NETDATA_SYSTEM_CPU_MODEL}",
+            "system_cpu_vendor": "${NETDATA_SYSTEM_CPU_VENDOR}",
+            "system_disk_detection": "${NETDATA_SYSTEM_DISK_DETECTION}",
+            "system_ram_detection": "${NETDATA_SYSTEM_RAM_DETECTION}",
+            "system_total_disk_size": "${NETDATA_SYSTEM_TOTAL_DISK_SIZE}",
+            "system_total_ram": "${NETDATA_SYSTEM_TOTAL_RAM}"
         })
     </script>
     <script src="../main.js?v20200429-0"></script>
