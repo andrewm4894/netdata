@@ -43,11 +43,11 @@ if [ -n "$(command -v curl 2> /dev/null)" ]; then
         "action_data": "'${ACTION_DATA}'",
         "netdata_version": "'${NETDATA_VERSION}'",
         "host_os_name": "'${NETDATA_HOST_OS_NAME}'",
-        "host_os_id": "'${NETDATA_HOST_OS_ID}'",
-        "host_os_id_like": "'${NETDATA_HOST_OS_ID_LIKE}'",
-        "host_os_version": "'${NETDATA_HOST_OS_VERSION}'",
-        "host_os_version_id": "'${NETDATA_HOST_OS_VERSION_ID}'",
-        "host_os_detection": "'${NETDATA_HOST_OS_DETECTION}'"
+        "host_os_id": "'"${NETDATA_HOST_OS_ID}"'",
+        "host_os_id_like": "'"${NETDATA_HOST_OS_ID_LIKE}"'",
+        "host_os_version": "'"${NETDATA_HOST_OS_VERSION}"'",
+        "host_os_version_id": "'"${NETDATA_HOST_OS_VERSION_ID}"'",
+        "host_os_detection": "'"${NETDATA_HOST_OS_DETECTION}"'"
         }
   }' https://app.posthog.com/capture/ > /dev/null 2>&1
 else
