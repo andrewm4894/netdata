@@ -23,7 +23,7 @@ Netdata collects usage information via two different channels:
 
 You can opt-out from sending anonymous statistics to Netdata through three different [opt-out mechanisms](#opt-out).
 
-## PostHog JavaScript
+## Agent Dashboard - PostHog JavaScript
 
 When you kick off an agent dashboard session Netdata will initialise a PostHog session and mask various event attributes.
 
@@ -54,7 +54,7 @@ In the above snippet a Netdata PostHog session is initialized and the `ip`, `cur
 We have configured the dashboard to trigger the PostHog JavaScript code only when the variable `anonymous_statistics` is true. The value of this
 variable is controlled via the [opt-out mechanism](#opt-out).
 
-## Anonymous Statistics Script
+## Agent Backend - Anonymous Statistics Script
 
 Every time the daemon is started or stopped and every time a fatal condition is encountered, Netdata uses the anonymous
 statistics script to collect system information and send it to the Netdata PostHog via an http call. The information collected for all
