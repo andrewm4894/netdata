@@ -107,6 +107,6 @@ Each of these opt-out processes does the following:
 
 ## Migration from Google Analytics and Google Tag Manager.
 
-Prior to vX.XX we used Google Analytics to capture this information. This has a number of issues in terms of discomfot with some of our users sending any product usage data to a third party like Google. It was also not that useful in terms of generating the insights we needed from that data to help catch bugs early and find opportunities for product improvement as Google Analytics does not allow its users access to the raw underlying data without paying a significant amount of money which would be infeasible for a project like Netdata.
+Prior to vX.XX we used Google Analytics to capture this information. This led to discomfot with some of our users in sending any product usage data to a third party like Google. It was also not even that useful in terms of generating the insights we needed to help catch bugs early and find opportunities for product improvement as Google Analytics does not allow its users access to the raw underlying data without paying a significant amount of money which would be infeasible for a project like Netdata.
 
 While we migrate fully away from Google Analytics to PostHog there maybe be a small period of time where we run both in parallel before we remove all Google Analytics related code. This is to ensure we can fully test and validate the Netdata PostHog implementation before fully defaulting to it.
