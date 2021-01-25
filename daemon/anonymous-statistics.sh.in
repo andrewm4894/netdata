@@ -49,6 +49,7 @@ if [ -n "$(command -v curl 2> /dev/null)" ]; then
         "host_os_version": "'"${NETDATA_HOST_OS_VERSION}"'",
         "host_os_version_id": "'"${NETDATA_HOST_OS_VERSION_ID}"'",
         "host_os_detection": "'"${NETDATA_HOST_OS_DETECTION}"'",
+        "host_is_k8s_node": "'"${NETDATA_HOST_IS_K8S_NODE}"'",
         "system_kernel_name": "'"${NETDATA_SYSTEM_KERNEL_NAME}"'",
         "system_kernel_version": "'"${NETDATA_SYSTEM_KERNEL_VERSION}"'",
         "system_architecture": "'"${NETDATA_SYSTEM_ARCHITECTURE}"'",
@@ -99,6 +100,7 @@ else
         "host_os_version": "'"${NETDATA_HOST_OS_VERSION}"'",
         "host_os_version_id": "'"${NETDATA_HOST_OS_VERSION_ID}"'",
         "host_os_detection": "'"${NETDATA_HOST_OS_DETECTION}"'",
+        "host_is_k8s_node": "'"${NETDATA_HOST_IS_K8S_NODE}"'",
         "system_kernel_name": "'"${NETDATA_SYSTEM_KERNEL_NAME}"'",
         "system_kernel_version": "'"${NETDATA_SYSTEM_KERNEL_VERSION}"'",
         "system_architecture": "'"${NETDATA_SYSTEM_ARCHITECTURE}"'",
@@ -164,6 +166,7 @@ if [ -n "$(command -v curl 2> /dev/null)" ]; then
     --data-urlencode "cd17=${NETDATA_CONTAINER_OS_VERSION}" \
     --data-urlencode "cd18=${NETDATA_CONTAINER_OS_VERSION_ID}" \
     --data-urlencode "cd19=${NETDATA_CONTAINER_OS_DETECTION}" \
+    --data-urlencode "cd20=${NETDATA_HOST_IS_K8S_NODE}" \
     "https://www.google-analytics.com/collect" > /dev/null 2>&1
 else
   wget -q -O - --timeout=1 "https://www.google-analytics.com/collect?\
@@ -199,5 +202,6 @@ else
 &cd17=${NETDATA_CONTAINER_OS_VERSION} \
 &cd18=${NETDATA_CONTAINER_OS_VERSION_ID} \
 &cd19=${NETDATA_CONTAINER_OS_DETECTION} \
+&cd20=${NETDATA_HOST_IS_K8S_NODE} \
 " > /dev/null 2>&1
 fi
