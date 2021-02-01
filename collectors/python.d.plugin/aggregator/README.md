@@ -6,3 +6,14 @@ custom_edit_url: https://github.com/netdata/netdata/edit/master/collectors/pytho
 ## Aggregator
 
 todo
+
+```bash
+# become netdata user
+sudo su -s /bin/bash netdata
+# install required packages for the netdata user
+pip3 install --user numpy==1.19.5 requests==2.25.1
+```
+
+```
+grep 'aggregator' /var/log/netdata/error.log
+```
