@@ -36,11 +36,11 @@ class Service(SimpleService):
     def check():
         return True
 
-    def get_hosts(host):
+    def get_hosts(self, host):
         r = requests.get(f'http://{host}/api/v1/info')
         return r.json().get('mirrored_hosts', {})
 
-    def get_allmetrics(parent, child):
+    def get_allmetrics(self, parent, child):
         r = requests.get(f'http://{parent}/host/{child}/api/v1/allmetrics?format=json')
         return r.json()
 
@@ -56,7 +56,7 @@ class Service(SimpleService):
         out_prefix = 'devml'
 
         # get children
-        children = get_hosts(parent)
+        children = self.get_hosts(parent)
         children = [child for child in children if child_contains in child]
 
         if len(children) > 0:
@@ -65,7 +65,7 @@ class Service(SimpleService):
 
             # get metrics from children
             for child in children:
-                allmetrics_child = get_allmetrics(parent, child)
+                allmetrics_child = self.get_allmetrics(parent, child)
                 allmetrics[child] = {
                     allmetrics_child.get(chart, {}).get('name', ''): allmetrics_child.get(chart, {}).get('dimensions', {})
                     for chart in allmetrics_child if chart in charts
