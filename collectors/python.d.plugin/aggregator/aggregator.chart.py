@@ -100,7 +100,7 @@ class Service(SimpleService):
                     else:
                         allmetrics_agg[out_chart][dim] = np.mean(allmetrics_list[chart][dim])
 
-            self.info(allmetrics_agg)
+            #self.info(allmetrics_agg)
 
         data = dict()
 
