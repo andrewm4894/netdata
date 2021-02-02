@@ -97,12 +97,12 @@ class Service(SimpleService):
                         data_chart[out_dim] = np.mean(allmetrics_list[chart][dim])
 
                 self.validate_charts(
-                    name=out_chart, title=out_chart, units='xx', family='aggregator', 
+                    name=out_chart, title=out_chart, units=self.parent_charts(chart).get('units',''), family='aggregator', 
                     context='aggregator.xx', chart_type='line', data=data_chart
                 )
 
                 data = {**data, **data_chart}
                 
-        self.info(data)
+        #self.info(data)
 
         return data
