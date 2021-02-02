@@ -11,16 +11,9 @@ from bases.FrameworkServices.SimpleService import SimpleService
 priority = 90000
 
 ORDER = [
-    'random',
 ]
 
 CHARTS = {
-    'random': {
-        'options': [None, 'A random number', 'random number', 'random', 'random', 'line'],
-        'lines': [
-            ['random1']
-        ]
-    }
 }
 
 
@@ -40,6 +33,15 @@ class Service(SimpleService):
     @staticmethod
     def check():
         return True
+
+    def validate_charts(self, chart_name, data, algorithm='absolute', multiplier=1, divisor=1):
+        chart_config = {'options': [None, 'A random number', 'random number', 'random', 'random', 'line']}
+        if chart_name not in self.charts:
+            chart_params = [chart_name] + chart_config['options']
+            self.charts.add_chart(params=chart_params)
+        for dim in data:
+            if dim not in self.charts[chart_name]:
+                self.charts[chart_name].add_dimension([dim, dim, algorithm, multiplier, divisor])
 
     def get_charts(self):
         r = requests.get(f'http://{self.parent}/api/v1/charts')
@@ -114,6 +116,7 @@ class Service(SimpleService):
 
             data[dimension_id] = np.random.choice([1,2,3])
 
+        self.validate_charts('rand', data)
         self.info(data)
 
         return data
