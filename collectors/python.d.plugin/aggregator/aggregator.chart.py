@@ -86,49 +86,22 @@ class Service(SimpleService):
                         else:
                             allmetrics_list[chart][dim].append(allmetrics[child][chart][dim]['value'])
 
-            # aggregate each metric over available data
             data = {}
-            #allmetrics_agg = {
-            #    f"{self.out_prefix}.{chart.replace('.','_')}": {
-            #        dim: None
-            #        for dim in allmetrics_list[chart]
-            #    }
-            #    for chart in allmetrics_list
-            #}
+
             for chart in allmetrics_list:
-
                 data_chart = {}
-
-                out_chart = f"{self.out_prefix}.{chart.replace('.','_')}"
-
+                out_chart = f"{self.out_prefix}_{chart.replace('.','_')}"
                 for dim in allmetrics_list[chart]:
-
+                    out_dim = f"{chart.replace('.','_')}_{dim}"
                     if self.charts_to_agg[chart]['agg_func'] == 'mean':
-
-                        data_chart[f'{out_chart}_{dim}'] = np.mean(allmetrics_list[chart][dim])
-
+                        data_chart[out_dim] = np.mean(allmetrics_list[chart][dim])
                     else:
-
-                        data_chart[f'{out_chart}_{dim}'] = np.mean(allmetrics_list[chart][dim])
+                        data_chart[out_dim] = np.mean(allmetrics_list[chart][dim])
 
                 self.validate_charts(out_chart, data_chart)
 
                 data = {**data, **data_chart}
                 
-
-            #self.info(allmetrics_agg)
-
-        #data = dict()
-
-        #for i in range(1, 2):
-            #dimension_id = ''.join(['random', str(i)])
-
-            #if dimension_id not in self.charts['random']:
-            #    self.charts['random'].add_dimension([dimension_id])
-
-            #data[dimension_id] = np.random.choice([1,2,3])
-
-        #self.validate_charts('rand', data)
         self.info(data)
 
         return data
