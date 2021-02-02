@@ -20,12 +20,13 @@ CHARTS = {
 class Service(SimpleService):
     def __init__(self, configuration=None, name=None):
         SimpleService.__init__(self, configuration=configuration, name=name)
-        self.order = ORDER
+        #self.order = ORDER
         self.definitions = CHARTS
         self.parent = self.configuration.get('parent', '127.0.0.1:19999')
         self.child_contains = self.configuration.get('child_contains', None)
         self.out_prefix = self.configuration.get('out_prefix', 'agg')
         self.charts_to_agg = self.configuration.get('charts_to_agg', None)
+        self.order = [self.charts_to_agg[n]['name'] for n in range(0,len(self.charts_to_agg))]
         self.charts_to_agg = {self.charts_to_agg[n]['name']: {'agg_func': self.charts_to_agg[n]['agg_func']} for n in range(0,len(self.charts_to_agg))}
         self.children = []
         self.parent_charts = self.get_charts()
@@ -92,8 +93,7 @@ class Service(SimpleService):
                 data_chart = {}
                 out_chart = f"{self.out_prefix}_{chart.replace('.','_')}"
                 for dim in allmetrics_list[chart]:
-                    #out_dim = f"{chart.replace('.','_')}_{dim}"
-                    out_dim = f"{dim}"
+                    out_dim = f"{chart.replace('.','_')}_{dim}"
                     if self.charts_to_agg[chart]['agg_func'] == 'mean':
                         data_chart[out_dim] = np.mean(allmetrics_list[chart][dim])
                     else:
