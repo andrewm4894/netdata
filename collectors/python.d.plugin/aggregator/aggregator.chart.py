@@ -87,7 +87,7 @@ class Service(SimpleService):
                             allmetrics_list[chart][dim].append(allmetrics[child][chart][dim]['value'])
 
             # aggregate each metric over available data
-            allmetrics_agg = {}
+            data = {}
             #allmetrics_agg = {
             #    f"{self.out_prefix}.{chart.replace('.','_')}": {
             #        dim: None
@@ -96,27 +96,39 @@ class Service(SimpleService):
             #    for chart in allmetrics_list
             #}
             for chart in allmetrics_list:
+
+                data_chart = {}
+
                 out_chart = f"{self.out_prefix}.{chart.replace('.','_')}"
+
                 for dim in allmetrics_list[chart]:
+
                     if self.charts_to_agg[chart]['agg_func'] == 'mean':
-                        #allmetrics_agg[out_chart][dim] = np.mean(allmetrics_list[chart][dim])
-                        allmetrics_agg[f'{out_chart}_{dim}'] = np.mean(allmetrics_list[chart][dim])
+
+                        data_chart[f'{out_chart}_{dim}'] = np.mean(allmetrics_list[chart][dim])
+
                     else:
-                        allmetrics_agg[f'{out_chart}_{dim}'] = np.mean(allmetrics_list[chart][dim])
 
-            self.info(allmetrics_agg)
+                        data_chart[f'{out_chart}_{dim}'] = np.mean(allmetrics_list[chart][dim])
 
-        data = dict()
+                self.validate_charts(out_chart, data_chart)
 
-        for i in range(1, 2):
-            dimension_id = ''.join(['random', str(i)])
+                data = {**data, **data_chart}
+                
+
+            #self.info(allmetrics_agg)
+
+        #data = dict()
+
+        #for i in range(1, 2):
+            #dimension_id = ''.join(['random', str(i)])
 
             #if dimension_id not in self.charts['random']:
             #    self.charts['random'].add_dimension([dimension_id])
 
-            data[dimension_id] = np.random.choice([1,2,3])
+            #data[dimension_id] = np.random.choice([1,2,3])
 
-        self.validate_charts('rand', data)
+        #self.validate_charts('rand', data)
         self.info(data)
 
         return data
