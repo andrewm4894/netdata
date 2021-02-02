@@ -33,6 +33,7 @@ class Service(SimpleService):
         self.child_contains = self.configuration.get('child_contains', None)
         self.out_prefix = self.configuration.get('out_prefix', 'agg')
         self.charts_to_agg = self.configuration.get('charts_to_agg', None)
+        self.charts_to_agg = {self.charts_to_agg[n]['name']: {'agg_func': self.charts_to_agg[n]['agg_func']} for n in range(0,len(self.charts_to_agg))}
         self.children = []
 
     @staticmethod
@@ -49,12 +50,9 @@ class Service(SimpleService):
 
     def get_data(self):
 
-        self.info(self.charts_to_agg)
-        XXX
-
         # get children
         self.children = self.get_children()
-        self.children = [child for child in children if self.child_contains in child]
+        self.children = [child for child in self.children if self.child_contains in child]
 
         if len(self.children) > 0:
 
@@ -83,21 +81,21 @@ class Service(SimpleService):
 
             # aggregate each metric over available data
             allmetrics_agg = {
-                f"{out_prefix}.{chart.replace('.','_')}": {
+                f"{self.out_prefix}.{chart.replace('.','_')}": {
                     dim: None
                     for dim in allmetrics_list[chart]
                 }
                 for chart in allmetrics_list
             }
             for chart in allmetrics_list:
-                out_chart = f"{out_prefix}.{chart.replace('.','_')}"
+                out_chart = f"{self.out_prefix}.{chart.replace('.','_')}"
                 for dim in allmetrics_list[chart]:
                     if self.charts_to_agg[chart]['agg_func'] == 'mean':
                         allmetrics_agg[out_chart][dim] = np.mean(allmetrics_list[chart][dim])
                     else:
                         allmetrics_agg[out_chart][dim] = np.mean(allmetrics_list[chart][dim])
 
-            #self.info(allmetrics_agg)
+            self.info(allmetrics_agg)
 
         data = dict()
 

@@ -23,3 +23,9 @@ cd netdata
 git pull
 sudo cp collectors/python.d.plugin/aggregator/aggregator.chart.py /usr/libexec/netdata/python.d/
 ```
+
+```
+sudo su -s /bin/bash netdata
+/usr/libexec/netdata/plugins.d/python.d.plugin aggregator debug trace nolock 
+
+```
