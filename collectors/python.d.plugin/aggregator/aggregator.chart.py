@@ -103,6 +103,7 @@ class Service(SimpleService):
 
                 data = {**data, **data_chart}
                 
+        self.info(self.order)
         self.info(data)
 
         return data
