@@ -85,11 +85,11 @@ class Service(SimpleService):
             for child in allmetrics:
                 for chart in allmetrics[child]:
                     for dim in allmetrics[child][chart]:
-                        if dim not in self.charts_to_agg[chart]['exclude_dims']:
-                            if dim not in allmetrics_list[chart]:
-                                allmetrics_list[chart][dim] = [allmetrics[child][chart][dim]['value']]
-                            else:
-                                allmetrics_list[chart][dim].append(allmetrics[child][chart][dim]['value'])
+                        #if dim not in self.charts_to_agg[chart]['exclude_dims']:
+                        if dim not in allmetrics_list[chart]:
+                            allmetrics_list[chart][dim] = [allmetrics[child][chart][dim]['value']]
+                        else:
+                            allmetrics_list[chart][dim].append(allmetrics[child][chart][dim]['value'])
 
             data = {}
 
@@ -97,11 +97,12 @@ class Service(SimpleService):
                 data_chart = {}
                 out_chart = f"{self.out_prefix}_{chart.replace('.','_')}"
                 for dim in allmetrics_list[chart]:
-                    out_dim = f"{chart.replace('.','_')}_{dim}"
-                    if self.charts_to_agg[chart]['agg_func'] == 'mean':
-                        data_chart[out_dim] = np.mean(allmetrics_list[chart][dim])
-                    else:
-                        data_chart[out_dim] = np.mean(allmetrics_list[chart][dim])
+                    if dim not in self.charts_to_agg[chart]['exclude_dims']:
+                        out_dim = f"{chart.replace('.','_')}_{dim}"
+                        if self.charts_to_agg[chart]['agg_func'] == 'mean':
+                            data_chart[out_dim] = np.mean(allmetrics_list[chart][dim])
+                        else:
+                            data_chart[out_dim] = np.mean(allmetrics_list[chart][dim])
 
                 self.validate_charts(
                     name=out_chart, title=out_chart, units=self.parent_charts[chart].get('units',''), 
