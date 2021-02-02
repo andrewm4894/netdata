@@ -85,20 +85,22 @@ class Service(SimpleService):
                             allmetrics_list[chart][dim].append(allmetrics[child][chart][dim]['value'])
 
             # aggregate each metric over available data
-            allmetrics_agg = {
-                f"{self.out_prefix}.{chart.replace('.','_')}": {
-                    dim: None
-                    for dim in allmetrics_list[chart]
-                }
-                for chart in allmetrics_list
-            }
+            allmetrics_agg = {}
+            #allmetrics_agg = {
+            #    f"{self.out_prefix}.{chart.replace('.','_')}": {
+            #        dim: None
+            #        for dim in allmetrics_list[chart]
+            #    }
+            #    for chart in allmetrics_list
+            #}
             for chart in allmetrics_list:
                 out_chart = f"{self.out_prefix}.{chart.replace('.','_')}"
                 for dim in allmetrics_list[chart]:
                     if self.charts_to_agg[chart]['agg_func'] == 'mean':
-                        allmetrics_agg[out_chart][dim] = np.mean(allmetrics_list[chart][dim])
+                        #allmetrics_agg[out_chart][dim] = np.mean(allmetrics_list[chart][dim])
+                        allmetrics_agg[f'{out_chart}_{dim}'] = np.mean(allmetrics_list[chart][dim])
                     else:
-                        allmetrics_agg[out_chart][dim] = np.mean(allmetrics_list[chart][dim])
+                        allmetrics_agg[f'{out_chart}_{dim}'] = np.mean(allmetrics_list[chart][dim])
 
             self.info(allmetrics_agg)
 
