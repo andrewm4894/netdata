@@ -110,7 +110,7 @@ class Service(SimpleService):
             if dimension_id not in self.charts['random']:
                 self.charts['random'].add_dimension([dimension_id])
 
-            data[dimension_id] = self.random.randint(0, 100)
+            data[dimension_id] = np.random.choice([1,2,3])
 
         self.info(data)
 
