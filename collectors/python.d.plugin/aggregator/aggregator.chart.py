@@ -35,14 +35,14 @@ class Service(SimpleService):
     def check():
         return True
 
-    def validate_charts(self, chart_name, data, algorithm='absolute', multiplier=1, divisor=1):
-        chart_config = {'options': [None, 'A random number', 'random number', 'random', 'random', 'line']}
-        if chart_name not in self.charts:
-            chart_params = [chart_name] + chart_config['options']
-            self.charts.add_chart(params=chart_params)
+    def validate_charts(self, name, data, title, units, family, context, chart_type='line', algorithm='absolute', multiplier=1, divisor=1):
+        config = {'options': [name, title, units, family, context, chart_type]}
+        if name not in self.charts:
+            params = [name] + config['options']
+            self.charts.add_chart(params=params)
         for dim in data:
-            if dim not in self.charts[chart_name]:
-                self.charts[chart_name].add_dimension([dim, dim, algorithm, multiplier, divisor])
+            if dim not in self.charts[name]:
+                self.charts[name].add_dimension([dim, dim, algorithm, multiplier, divisor])
 
     def get_charts(self):
         r = requests.get(f'http://{self.parent}/api/v1/charts')
@@ -75,10 +75,6 @@ class Service(SimpleService):
                 }
 
             # append metrics into a list
-            #allmetrics_list = {
-            #    chart: {}
-            #    for chart in set.union(*[set(allmetrics[child].keys()) for child in allmetrics])
-            #}
             allmetrics_list = {c: {} for c in self.charts_to_agg}
             for child in allmetrics:
                 for chart in allmetrics[child]:
@@ -100,11 +96,13 @@ class Service(SimpleService):
                     else:
                         data_chart[out_dim] = np.mean(allmetrics_list[chart][dim])
 
-                self.validate_charts(out_chart, data_chart)
+                self.validate_charts(
+                    name=out_chart, title=out_chart, units='xx', family='aggregator', 
+                    context='aggregator.xx', chart_type='line', data=data_chart
+                )
 
                 data = {**data, **data_chart}
                 
-        self.info(self.charts)
         self.info(data)
 
         return data
