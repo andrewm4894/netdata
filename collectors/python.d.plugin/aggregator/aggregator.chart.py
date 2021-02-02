@@ -75,10 +75,11 @@ class Service(SimpleService):
                 }
 
             # append metrics into a list
-            allmetrics_list = {
-                chart: {}
-                for chart in set.union(*[set(allmetrics[child].keys()) for child in allmetrics])
-            }
+            #allmetrics_list = {
+            #    chart: {}
+            #    for chart in set.union(*[set(allmetrics[child].keys()) for child in allmetrics])
+            #}
+            allmetrics_list = {c: {} for c in self.charts_to_agg}
             for child in allmetrics:
                 for chart in allmetrics[child]:
                     for dim in allmetrics[child][chart]:
