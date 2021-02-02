@@ -35,10 +35,15 @@ class Service(SimpleService):
         self.charts_to_agg = self.configuration.get('charts_to_agg', None)
         self.charts_to_agg = {self.charts_to_agg[n]['name']: {'agg_func': self.charts_to_agg[n]['agg_func']} for n in range(0,len(self.charts_to_agg))}
         self.children = []
+        self.parent_charts = self.get_charts()
 
     @staticmethod
     def check():
         return True
+
+    def get_charts(self):
+        r = requests.get(f'http://{self.parent}/api/v1/charts')
+        return r.json().get('charts', {})
 
     def get_children(self):
         r = requests.get(f'http://{self.parent}/api/v1/info')
@@ -106,5 +111,7 @@ class Service(SimpleService):
                 self.charts['random'].add_dimension([dimension_id])
 
             data[dimension_id] = self.random.randint(0, 100)
+
+        self.info(data)
 
         return data
