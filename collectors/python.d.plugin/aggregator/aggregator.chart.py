@@ -92,7 +92,8 @@ class Service(SimpleService):
                 data_chart = {}
                 out_chart = f"{self.out_prefix}_{chart.replace('.','_')}"
                 for dim in allmetrics_list[chart]:
-                    out_dim = f"{chart.replace('.','_')}_{dim}"
+                    #out_dim = f"{chart.replace('.','_')}_{dim}"
+                    out_dim = f"{dim}"
                     if self.charts_to_agg[chart]['agg_func'] == 'mean':
                         data_chart[out_dim] = np.mean(allmetrics_list[chart][dim])
                     else:
