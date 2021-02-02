@@ -26,7 +26,7 @@ class Service(SimpleService):
         self.child_contains = self.configuration.get('child_contains', None)
         self.out_prefix = self.configuration.get('out_prefix', 'agg')
         self.charts_to_agg = self.configuration.get('charts_to_agg', None)
-        self.order = [f"{self.out_prefix}_{self.charts_to_agg[n]['name'].replace('.','_')}" for n in range(0,len(self.charts_to_agg))]
+        #self.order = [f"{self.out_prefix}_{self.charts_to_agg[n]['name'].replace('.','_')}" for n in range(0,len(self.charts_to_agg))]
         self.charts_to_agg = {self.charts_to_agg[n]['name']: {'agg_func': self.charts_to_agg[n]['agg_func']} for n in range(0,len(self.charts_to_agg))}
         self.children = []
         self.parent_charts = self.get_charts()
@@ -103,7 +103,7 @@ class Service(SimpleService):
 
                 data = {**data, **data_chart}
                 
-        self.info(self.order)
+        self.info(self.charts)
         self.info(data)
 
         return data
