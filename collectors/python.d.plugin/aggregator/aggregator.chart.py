@@ -27,7 +27,13 @@ class Service(SimpleService):
         self.out_prefix = self.configuration.get('out_prefix', 'agg')
         self.charts_to_agg = self.configuration.get('charts_to_agg', None)
         #self.order = [f"{self.out_prefix}_{self.charts_to_agg[n]['name'].replace('.','_')}" for n in range(0,len(self.charts_to_agg))]
-        self.charts_to_agg = {self.charts_to_agg[n]['name']: {'agg_func': self.charts_to_agg[n]['agg_func']} for n in range(0,len(self.charts_to_agg))}
+        self.charts_to_agg = {
+            self.charts_to_agg[n]['name']: {
+                'agg_func': self.charts_to_agg[n].get('agg_func','mean'),
+                'exclude_dims': self.charts_to_agg[n].get('exclude_dims','').split(',')
+                } 
+                for n in range(0,len(self.charts_to_agg))
+        }
         self.children = []
         self.parent_charts = self.get_charts()
 
@@ -79,10 +85,11 @@ class Service(SimpleService):
             for child in allmetrics:
                 for chart in allmetrics[child]:
                     for dim in allmetrics[child][chart]:
-                        if dim not in allmetrics_list[chart]:
-                            allmetrics_list[chart][dim] = [allmetrics[child][chart][dim]['value']]
-                        else:
-                            allmetrics_list[chart][dim].append(allmetrics[child][chart][dim]['value'])
+                        if dim not in self.charts_to_agg[chart]['exclude_dims']:
+                            if dim not in allmetrics_list[chart]:
+                                allmetrics_list[chart][dim] = [allmetrics[child][chart][dim]['value']]
+                            else:
+                                allmetrics_list[chart][dim].append(allmetrics[child][chart][dim]['value'])
 
             data = {}
 
