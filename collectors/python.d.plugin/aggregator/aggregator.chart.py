@@ -111,8 +111,8 @@ class Service(SimpleService):
         for i in range(1, 2):
             dimension_id = ''.join(['random', str(i)])
 
-            if dimension_id not in self.charts['random']:
-                self.charts['random'].add_dimension([dimension_id])
+            #if dimension_id not in self.charts['random']:
+            #    self.charts['random'].add_dimension([dimension_id])
 
             data[dimension_id] = np.random.choice([1,2,3])
 
