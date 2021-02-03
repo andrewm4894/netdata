@@ -23,6 +23,7 @@ class Service(SimpleService):
         self.definitions = CHARTS
         self.parent = self.configuration.get('parent', '127.0.0.1:19999')
         self.child_contains = self.configuration.get('child_contains', None)
+        self.child_not_contains = self.configuration.get('child_not_contains', None)
         self.out_prefix = self.configuration.get('out_prefix', 'agg')
         self.charts_to_agg = self.configuration.get('charts_to_agg', None)
         self.charts_to_agg = {
@@ -54,15 +55,15 @@ class Service(SimpleService):
                 self.charts[name].add_dimension([dim, dim, algorithm, multiplier, divisor])
 
     def get_charts(self):
-        r = requests.get(f'http://{self.parent}/api/v1/charts')
+        r = requests.get('http://{}/api/v1/charts'.format(self.parent))
         return r.json().get('charts', {})
 
     def get_children(self):
-        r = requests.get(f'http://{self.parent}/api/v1/info')
+        r = requests.get('http://{}/api/v1/info'.format(self.parent))
         return r.json().get('mirrored_hosts', {})
 
     def get_allmetrics(self, child):
-        r = requests.get(f'http://{self.parent}/host/{child}/api/v1/allmetrics?format=json')
+        r = requests.get('http://{}/host/{}/api/v1/allmetrics?format=json'.format(self.parent, child))
         return r.json()
 
     def scrape_children(self):
@@ -119,7 +120,12 @@ class Service(SimpleService):
         # get children
         if self.children == [] or self.runs_counter % self.refresh_children_every_n == 0:
             self.children = self.get_children()
-            self.children = [child for child in self.children if self.child_contains in child]
+            self.children = [
+                child 
+                for child in self.children 
+                if self.child_contains in child and self.child_not_contains not in child
+                ]
+            self.debug('aggregating data from {}'.format(self.children))
 
         # process data if we have children that match
         if len(self.children) > 0:
