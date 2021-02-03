@@ -22,8 +22,8 @@ class Service(SimpleService):
         SimpleService.__init__(self, configuration=configuration, name=name)
         self.definitions = CHARTS
         self.parent = self.configuration.get('parent', '127.0.0.1:19999')
-        self.child_contains = self.configuration.get('child_contains', None)
-        self.child_not_contains = self.configuration.get('child_not_contains', None)
+        self.child_contains = self.configuration.get('child_contains', '')
+        self.child_not_contains = self.configuration.get('child_not_contains', '')
         self.out_prefix = self.configuration.get('out_prefix', 'agg')
         self.charts_to_agg = self.configuration.get('charts_to_agg', None)
         self.charts_to_agg = {
