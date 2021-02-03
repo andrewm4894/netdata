@@ -99,9 +99,9 @@ class Service(SimpleService):
                 for dim in allmetrics_list[chart]:
                     out_dim = f"{chart.replace('.','_')}_{dim}"
                     if self.charts_to_agg[chart]['agg_func'] == 'mean':
-                        data_chart[out_dim] = np.mean(allmetrics_list[chart][dim])*100
+                        data_chart[out_dim] = np.mean(allmetrics_list[chart][dim])*1000
                     else:
-                        data_chart[out_dim] = np.mean(allmetrics_list[chart][dim])*100
+                        data_chart[out_dim] = np.mean(allmetrics_list[chart][dim])*1000
 
                 self.validate_charts(
                     name=out_chart, 
@@ -111,7 +111,7 @@ class Service(SimpleService):
                     context=out_chart, 
                     chart_type=self.parent_charts[chart].get('chart_type','line'), 
                     data=data_chart,
-                    divisor=100
+                    divisor=1000
                 )
 
                 data = {**data, **data_chart}
