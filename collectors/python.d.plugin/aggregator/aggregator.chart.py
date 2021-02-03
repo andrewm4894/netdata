@@ -86,22 +86,8 @@ class Service(SimpleService):
     def reset_data(self):
         self.allmetrics_list = {c: {} for c in self.charts_to_agg}
 
-    def get_data(self):
-
-        # get children
-        if self.children == [] or self.runs_counter % self.refresh_children_every_n == 0:
-            self.children = self.get_children()
-            self.children = [child for child in self.children if self.child_contains in child]
-
-        # process data if we have children that match
-        if len(self.children) > 0:
-
-            self.scrape_children()
-
-            self.append_metrics()            
-
-            data = {}
-
+    def aggregate_data(self):
+        data = {}
             for chart in self.allmetrics_list:
                 data_chart = {}
                 out_chart = f"{chart.replace('.','_')}"
@@ -124,6 +110,25 @@ class Service(SimpleService):
                 )
 
                 data = {**data, **data_chart}
+
+        return data
+
+
+    def get_data(self):
+
+        # get children
+        if self.children == [] or self.runs_counter % self.refresh_children_every_n == 0:
+            self.children = self.get_children()
+            self.children = [child for child in self.children if self.child_contains in child]
+
+        # process data if we have children that match
+        if len(self.children) > 0:
+
+            self.scrape_children()
+
+            self.append_metrics()            
+
+            data = self.aggregate_data()
         
         self.reset_data()
 
