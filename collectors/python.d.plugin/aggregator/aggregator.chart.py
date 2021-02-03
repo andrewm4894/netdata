@@ -135,6 +135,10 @@ class Service(SimpleService):
             self.append_metrics()            
 
             data = self.aggregate_data()
+
+        else:
+
+            data = {}
         
         self.reset_data()
 
