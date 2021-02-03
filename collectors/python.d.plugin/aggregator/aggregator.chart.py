@@ -35,10 +35,13 @@ class Service(SimpleService):
         self.refresh_children_every_n = self.configuration.get('refresh_children_every_n', 60)
         self.children = []
         self.parent_charts = self.get_charts()
+        self.allmetrics = {}
 
-    @staticmethod
-    def check():
-        return True
+    def check(self):
+        if len(self.get_children()) >= 1:
+            return True
+        else:
+            return False
 
     def validate_charts(self, name, data, title, units, family, context, chart_type='line', algorithm='absolute', multiplier=1, divisor=1):
         config = {'options': [name, title, units, family, context, chart_type]}
@@ -61,9 +64,15 @@ class Service(SimpleService):
         r = requests.get(f'http://{self.parent}/host/{child}/api/v1/allmetrics?format=json')
         return r.json()
 
-    def get_data(self):
+    def scrape_children(self):
+        for child in self.children:
+            allmetrics_child = self.get_allmetrics(child)
+            self.allmetrics[child] = {
+                allmetrics_child.get(chart, {}).get('name', ''): allmetrics_child.get(chart, {}).get('dimensions', {})
+                for chart in allmetrics_child if chart in self.charts_to_agg
+            }
 
-        #self.info(self.charts_to_agg)
+    def get_data(self):
 
         # get children
         if self.children == [] or self.runs_counter % self.refresh_children_every_n == 0:
@@ -73,32 +82,23 @@ class Service(SimpleService):
         # process data if we have children that match
         if len(self.children) > 0:
 
-            allmetrics = {}
-
-            # get metrics from children
-            for child in self.children:
-                allmetrics_child = self.get_allmetrics(child)
-                allmetrics[child] = {
-                    allmetrics_child.get(chart, {}).get('name', ''): allmetrics_child.get(chart, {}).get('dimensions', {})
-                    for chart in allmetrics_child if chart in self.charts_to_agg
-                }
+            self.scrape_children()
 
             # append metrics into a list
             allmetrics_list = {c: {} for c in self.charts_to_agg}
-            for child in allmetrics:
-                for chart in allmetrics[child]:
-                    for dim in allmetrics[child][chart]:
+            for child in self.allmetrics:
+                for chart in self.allmetrics[child]:
+                    for dim in self.allmetrics[child][chart]:
                         if dim not in self.charts_to_agg[chart]['exclude_dims']:
                             if dim not in allmetrics_list[chart]:
-                                allmetrics_list[chart][dim] = [allmetrics[child][chart][dim]['value']]
+                                allmetrics_list[chart][dim] = [self.allmetrics[child][chart][dim]['value']]
                             else:
-                                allmetrics_list[chart][dim].append(allmetrics[child][chart][dim]['value'])
+                                allmetrics_list[chart][dim].append(self.allmetrics[child][chart][dim]['value'])
 
             data = {}
 
             for chart in allmetrics_list:
                 data_chart = {}
-                #out_chart = f"{self.out_prefix}_{chart.replace('.','_')}"
                 out_chart = f"{chart.replace('.','_')}"
                 for dim in allmetrics_list[chart]:
                     out_dim = f"{chart.replace('.','_')}_{dim}"
@@ -119,7 +119,5 @@ class Service(SimpleService):
                 )
 
                 data = {**data, **data_chart}
-                
-        #self.info(data)
 
         return data
