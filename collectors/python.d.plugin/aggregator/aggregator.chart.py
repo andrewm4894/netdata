@@ -20,7 +20,6 @@ CHARTS = {
 class Service(SimpleService):
     def __init__(self, configuration=None, name=None):
         SimpleService.__init__(self, configuration=configuration, name=name)
-        #self.order = ORDER
         self.definitions = CHARTS
         self.parent = self.configuration.get('parent', '127.0.0.1:19999')
         self.child_contains = self.configuration.get('child_contains', None)
