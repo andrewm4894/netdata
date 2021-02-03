@@ -121,5 +121,7 @@ class Service(SimpleService):
                 )
 
                 data = {**data, **data_chart}
+        
+        self.allmetrics_list = {c: {} for c in self.charts_to_agg}
 
         return data
