@@ -63,7 +63,7 @@ class Service(SimpleService):
         return r.json().get('mirrored_hosts', {})
 
     def get_children_to_agg(self):
-        if self.children == [] or self.runs_counter % self.refresh_children_every_n == 0:
+        if len(self.children) <= 1 or self.runs_counter % self.refresh_children_every_n == 0:
             self.children = self.get_children()
             if self.child_contains:
                 self.children = [child for child in self.children if any(c in child for c in self.child_contains.split(','))]
