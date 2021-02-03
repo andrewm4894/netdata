@@ -32,6 +32,7 @@ class Service(SimpleService):
                 } 
                 for n in range(0,len(self.charts_to_agg))
         }
+        self.refresh_children_every_n = self.configuration.get('refresh_children_every_n', 60)
         self.children = []
         self.parent_charts = self.get_charts()
 
@@ -62,12 +63,14 @@ class Service(SimpleService):
 
     def get_data(self):
 
-        self.info(self.charts_to_agg)
+        #self.info(self.charts_to_agg)
 
         # get children
-        self.children = self.get_children()
-        self.children = [child for child in self.children if self.child_contains in child]
+        if self.children == [] or self.runs_counter % self.refresh_children_every_n == 0:
+            self.children = self.get_children()
+            self.children = [child for child in self.children if self.child_contains in child]
 
+        # process data if we have children that match
         if len(self.children) > 0:
 
             allmetrics = {}
