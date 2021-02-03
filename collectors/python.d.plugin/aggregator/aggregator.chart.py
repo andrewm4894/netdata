@@ -124,7 +124,7 @@ class Service(SimpleService):
                 self.children = [child for child in self.children if self.child_contains in child]
             if self.child_not_contains:
                 self.children = [child for child in self.children if self.child_not_contains not in child]
-            self.debug('aggregating data from {}'.format(self.children))
+            self.info('aggregating data from {}'.format(self.children))
 
         # process data if we have children that match
         if len(self.children) > 0:
