@@ -22,6 +22,7 @@ grep 'aggregator' /var/log/netdata/error.log
 cd netdata
 git pull
 sudo cp collectors/python.d.plugin/aggregator/aggregator.chart.py /usr/libexec/netdata/python.d/
+sudo systemctl restart netdata
 ```
 
 ```
