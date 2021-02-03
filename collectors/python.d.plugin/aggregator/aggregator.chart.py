@@ -120,10 +120,15 @@ class Service(SimpleService):
         # get children
         if self.children == [] or self.runs_counter % self.refresh_children_every_n == 0:
             self.children = self.get_children()
+            #self.children = [
+            #    child 
+            #    for child in self.children 
+            #    if self.child_contains in child and self.child_not_contains not in child
+            #    ]
             self.children = [
                 child 
                 for child in self.children 
-                if self.child_contains in child and self.child_not_contains not in child
+                if self.child_contains in child
                 ]
             self.debug('aggregating data from {}'.format(self.children))
 
