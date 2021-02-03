@@ -83,6 +83,9 @@ class Service(SimpleService):
                         else:
                             self.allmetrics_list[chart][dim].append(self.allmetrics[child][chart][dim]['value'])
 
+    def reset_data(self):
+        self.allmetrics_list = {c: {} for c in self.charts_to_agg}
+
     def get_data(self):
 
         # get children
@@ -122,6 +125,6 @@ class Service(SimpleService):
 
                 data = {**data, **data_chart}
         
-        self.allmetrics_list = {c: {} for c in self.charts_to_agg}
+        self.reset_data()
 
         return data
