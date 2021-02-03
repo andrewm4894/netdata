@@ -22,8 +22,8 @@ class Service(SimpleService):
         SimpleService.__init__(self, configuration=configuration, name=name)
         self.definitions = CHARTS
         self.parent = self.configuration.get('parent', '127.0.0.1:19999')
-        self.child_contains = self.configuration.get('child_contains', '')
-        self.child_not_contains = self.configuration.get('child_not_contains', '')
+        self.child_contains = self.configuration.get('child_contains', None)
+        self.child_not_contains = self.configuration.get('child_not_contains', None)
         self.out_prefix = self.configuration.get('out_prefix', 'agg')
         self.charts_to_agg = self.configuration.get('charts_to_agg', None)
         self.charts_to_agg = {
@@ -120,16 +120,10 @@ class Service(SimpleService):
         # get children
         if self.children == [] or self.runs_counter % self.refresh_children_every_n == 0:
             self.children = self.get_children()
-            #self.children = [
-            #    child 
-            #    for child in self.children 
-            #    if self.child_contains in child and self.child_not_contains not in child
-            #    ]
-            self.children = [
-                child 
-                for child in self.children 
-                if self.child_contains in child
-                ]
+            if self.child_contains:
+                self.children = [child for child in self.children if self.child_contains in child]
+            if self.child_not_contains:
+                self.children = [child for child in self.children if self.child_not_contains not in child]
             self.debug('aggregating data from {}'.format(self.children))
 
         # process data if we have children that match
