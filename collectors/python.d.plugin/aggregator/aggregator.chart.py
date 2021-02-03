@@ -99,19 +99,20 @@ class Service(SimpleService):
                 data_chart = {}
                 out_chart = f"{self.out_prefix}_{chart.replace('.','_')}"
                 for dim in allmetrics_list[chart]:
-                    if dim not in self.charts_to_agg[chart]['exclude_dims']:
-                        out_dim = f"{chart.replace('.','_')}_{dim}"
-                        if self.charts_to_agg[chart]['agg_func'] == 'mean':
-                            data_chart[out_dim] = np.mean(allmetrics_list[chart][dim])
-                        else:
-                            data_chart[out_dim] = np.mean(allmetrics_list[chart][dim])
+                    out_dim = f"{chart.replace('.','_')}_{dim}"
+                    if self.charts_to_agg[chart]['agg_func'] == 'mean':
+                        data_chart[out_dim] = np.mean(allmetrics_list[chart][dim])
+                    else:
+                        data_chart[out_dim] = np.mean(allmetrics_list[chart][dim])
 
                 self.validate_charts(
-                    name=out_chart, title=out_chart, units=self.parent_charts[chart].get('units',''), 
-                    #family=self.parent_charts[chart].get('family','agg'), 
+                    name=out_chart, 
+                    title=out_chart, 
+                    units=self.parent_charts[chart].get('units',''), 
                     family=chart.replace('.','_'), 
                     context=out_chart, 
-                    chart_type=self.parent_charts[chart].get('chart_type','line'), data=data_chart
+                    chart_type=self.parent_charts[chart].get('chart_type','line'), 
+                    data=data_chart
                 )
 
                 data = {**data, **data_chart}
