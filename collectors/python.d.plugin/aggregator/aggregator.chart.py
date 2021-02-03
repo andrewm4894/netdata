@@ -36,6 +36,7 @@ class Service(SimpleService):
         self.children = []
         self.parent_charts = self.get_charts()
         self.allmetrics = {}
+        self.allmetrics_list = {c: {} for c in self.charts_to_agg}
 
     def check(self):
         if len(self.get_children()) >= 1:
@@ -72,6 +73,16 @@ class Service(SimpleService):
                 for chart in allmetrics_child if chart in self.charts_to_agg
             }
 
+    def append_metrics(self):
+        for child in self.allmetrics:
+            for chart in self.allmetrics[child]:
+                for dim in self.allmetrics[child][chart]:
+                    if dim not in self.charts_to_agg[chart]['exclude_dims']:
+                        if dim not in self.allmetrics_list[chart]:
+                            self.allmetrics_list[chart][dim] = [self.allmetrics[child][chart][dim]['value']]
+                        else:
+                            self.allmetrics_list[chart][dim].append(self.allmetrics[child][chart][dim]['value'])
+
     def get_data(self):
 
         # get children
@@ -84,28 +95,19 @@ class Service(SimpleService):
 
             self.scrape_children()
 
-            # append metrics into a list
-            allmetrics_list = {c: {} for c in self.charts_to_agg}
-            for child in self.allmetrics:
-                for chart in self.allmetrics[child]:
-                    for dim in self.allmetrics[child][chart]:
-                        if dim not in self.charts_to_agg[chart]['exclude_dims']:
-                            if dim not in allmetrics_list[chart]:
-                                allmetrics_list[chart][dim] = [self.allmetrics[child][chart][dim]['value']]
-                            else:
-                                allmetrics_list[chart][dim].append(self.allmetrics[child][chart][dim]['value'])
+            self.append_metrics()            
 
             data = {}
 
-            for chart in allmetrics_list:
+            for chart in self.allmetrics_list:
                 data_chart = {}
                 out_chart = f"{chart.replace('.','_')}"
-                for dim in allmetrics_list[chart]:
+                for dim in self.allmetrics_list[chart]:
                     out_dim = f"{chart.replace('.','_')}_{dim}"
                     if self.charts_to_agg[chart]['agg_func'] == 'mean':
-                        data_chart[out_dim] = np.mean(allmetrics_list[chart][dim])*1000
+                        data_chart[out_dim] = np.mean(self.allmetrics_list[chart][dim])*1000
                     else:
-                        data_chart[out_dim] = np.mean(allmetrics_list[chart][dim])*1000
+                        data_chart[out_dim] = np.mean(self.allmetrics_list[chart][dim])*1000
 
                 self.validate_charts(
                     name=out_chart, 
