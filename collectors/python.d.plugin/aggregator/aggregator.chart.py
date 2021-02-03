@@ -64,6 +64,8 @@ class Service(SimpleService):
 
     def get_data(self):
 
+        self.info(self.charts_to_agg)
+
         # get children
         self.children = self.get_children()
         self.children = [child for child in self.children if self.child_contains in child]
@@ -85,11 +87,11 @@ class Service(SimpleService):
             for child in allmetrics:
                 for chart in allmetrics[child]:
                     for dim in allmetrics[child][chart]:
-                        #if dim not in self.charts_to_agg[chart]['exclude_dims']:
-                        if dim not in allmetrics_list[chart]:
-                            allmetrics_list[chart][dim] = [allmetrics[child][chart][dim]['value']]
-                        else:
-                            allmetrics_list[chart][dim].append(allmetrics[child][chart][dim]['value'])
+                        if dim not in self.charts_to_agg[chart]['exclude_dims']:
+                            if dim not in allmetrics_list[chart]:
+                                allmetrics_list[chart][dim] = [allmetrics[child][chart][dim]['value']]
+                            else:
+                                allmetrics_list[chart][dim].append(allmetrics[child][chart][dim]['value'])
 
             data = {}
 
