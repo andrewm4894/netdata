@@ -62,6 +62,15 @@ class Service(SimpleService):
         r = requests.get('http://{}/api/v1/info'.format(self.parent))
         return r.json().get('mirrored_hosts', {})
 
+    def get_children_to_agg(self):
+        if self.children == [] or self.runs_counter % self.refresh_children_every_n == 0:
+            self.children = self.get_children()
+            if self.child_contains:
+                self.children = [child for child in self.children if any(c in child for c in self.chart_contains.split(','))]
+            if self.child_not_contains:
+                self.children = [child for child in self.children if not any(c in child for c in self.chart_not_contains.split(','))]
+            self.info('aggregating data from {}'.format(self.children))
+
     def get_allmetrics(self, child):
         r = requests.get('http://{}/host/{}/api/v1/allmetrics?format=json'.format(self.parent, child))
         return r.json()
@@ -117,28 +126,12 @@ class Service(SimpleService):
 
     def get_data(self):
 
-        # get children
-        if self.children == [] or self.runs_counter % self.refresh_children_every_n == 0:
-            self.children = self.get_children()
-            if self.child_contains:
-                self.children = [child for child in self.children if self.child_contains in child]
-            if self.child_not_contains:
-                self.children = [child for child in self.children if self.child_not_contains not in child]
-            self.info('aggregating data from {}'.format(self.children))
+        self.get_children_to_agg()      
 
-        # process data if we have children that match
         if len(self.children) > 0:
-
             self.scrape_children()
-
             self.append_metrics()            
-
             data = self.aggregate_data()
-
-        else:
-
-            data = {}
-        
-        self.reset_data()
+            self.reset_data()
 
         return data
