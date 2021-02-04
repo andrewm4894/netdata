@@ -5,6 +5,20 @@ custom_edit_url: https://github.com/netdata/netdata/edit/master/collectors/pytho
 
 ## Aggregator
 
+This collector 'aggregates' charts from multiple children that are streaming to a parent node. 
+
+### Charts
+
+### Requirements
+
+### Configuration
+
+### Troubleshooting
+
+### Notes
+
+- xxx
+
 todo
 
 ```bash

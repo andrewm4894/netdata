@@ -123,7 +123,6 @@ class Service(SimpleService):
 
         return data
 
-
     def get_data(self):
 
         self.get_children_to_agg()      
