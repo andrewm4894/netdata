@@ -9,6 +9,10 @@ This collector 'aggregates' charts from multiple children that are streaming to 
 
 ### Charts
 
+You should see charts similar to those you have configured to aggregate. For example in the below chart underneath the "Aggregator devml" context we see the "system cpu" chart with is just the aggregation of the system.cpu chart over the specified children nodes. 
+
+![netdata-aggregator-collector](https://github.com/andrewm4894/random/blob/master/images/netdata/netdata-aggregator-collector.jpg)
+
 ### Requirements
 
 ### Configuration
