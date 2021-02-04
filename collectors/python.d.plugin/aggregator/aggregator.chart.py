@@ -3,10 +3,14 @@
 # Author: andrewm4894
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-import requests
+#import requests
+import urllib3
+import json
 import numpy as np
 
 from bases.FrameworkServices.SimpleService import SimpleService
+
+http = urllib3.PoolManager()
 
 priority = 90000
 
@@ -55,12 +59,18 @@ class Service(SimpleService):
                 self.charts[name].add_dimension([dim, dim, algorithm, multiplier, divisor])
 
     def get_charts(self):
-        r = requests.get('http://{}/api/v1/charts'.format(self.parent))
-        return r.json().get('charts', {})
+        url = 'http://{}/api/v1/charts'.format(self.parent)
+        response = http.request('GET', url)
+        response = urllib2.urlopen()
+        data = json.load(response.data.decode('utf-8'))
+        return data.get('charts', {})
 
     def get_children(self):
-        r = requests.get('http://{}/api/v1/info'.format(self.parent))
-        return r.json().get('mirrored_hosts', {})
+        url = 'http://{}/api/v1/info'.format(self.parent)
+        response = http.request('GET', url)
+        response = urllib2.urlopen()
+        data = json.load(response.data.decode('utf-8'))
+        return data.get('mirrored_hosts', {})
 
     def get_children_to_agg(self):
         if len(self.children) <= 1 or self.runs_counter % self.refresh_children_every_n == 0:
@@ -72,8 +82,11 @@ class Service(SimpleService):
             self.info('aggregating data from {}'.format(self.children))
 
     def get_allmetrics(self, child):
-        r = requests.get('http://{}/host/{}/api/v1/allmetrics?format=json'.format(self.parent, child))
-        return r.json()
+        url = 'http://{}/host/{}/api/v1/allmetrics?format=json'.format(self.parent, child)
+        response = http.request('GET', url)
+        response = urllib2.urlopen()
+        data = json.load(response.data.decode('utf-8'))
+        return data
 
     def scrape_children(self):
         for child in self.children:
