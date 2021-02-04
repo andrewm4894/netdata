@@ -32,7 +32,7 @@ class Service(SimpleService):
         }
         self.refresh_children_every_n = self.configuration.get('refresh_children_every_n', 60)
         self.children = []
-        self.parent_charts = self.get_charts()
+        self.chart_defs = self.get_charts()
         self.allmetrics = {}
         self.allmetrics_list = {c: {} for c in self.charts_to_agg}
 
@@ -53,10 +53,13 @@ class Service(SimpleService):
             if dim not in self.charts[name]:
                 self.charts[name].add_dimension([dim, dim, algorithm, multiplier, divisor])
 
-    def get_charts(self):
+    def get_charts(self, child=None):
         """Pull charts metedata from the Netdata REST API.
         """
-        url = 'http://{}/api/v1/charts'.format(self.parent)
+        if child:
+            url = 'http://{}/host/{}/api/v1/charts'.format(self.parent, child)
+        else:
+            url = 'http://{}/api/v1/charts'.format(self.parent)
         response = http.request('GET', url)
         data = json.loads(response.data.decode('utf-8'))
         return data.get('charts', {})
@@ -78,6 +81,7 @@ class Service(SimpleService):
                 self.children = [child for child in self.children if any(c in child for c in self.child_contains.split(','))]
             if self.child_not_contains:
                 self.children = [child for child in self.children if not any(c in child for c in self.child_not_contains.split(','))]
+            self.chart_defs = self.get_charts(child=self.children[0])
             self.info('aggregating data from {}'.format(self.children))
 
     def get_allmetrics(self, child):
@@ -134,10 +138,10 @@ class Service(SimpleService):
             self.validate_charts(
                 name=out_chart, 
                 title=out_chart, 
-                units=self.parent_charts[chart].get('units',''), 
+                units=self.chart_defs[chart].get('units',''), 
                 family=chart.replace('.','_'), 
                 context=out_chart, 
-                chart_type=self.parent_charts[chart].get('chart_type','line'), 
+                chart_type=self.chart_defs[chart].get('chart_type','line'), 
                 data=data_chart,
                 divisor=1000
             )
