@@ -138,10 +138,10 @@ class Service(SimpleService):
             self.validate_charts(
                 name=out_chart, 
                 title=out_chart, 
-                units=self.chart_defs[chart].get('units',''), 
+                units=self.chart_defs.get(chart,{'units':''}).get('units'), 
                 family=chart.replace('.','_'), 
                 context=out_chart, 
-                chart_type=self.chart_defs[chart].get('chart_type','line'), 
+                chart_type=self.chart_defs.get(chart,{'chart_type':'line'}).get('chart_type'), 
                 data=data_chart,
                 divisor=1000
             )
