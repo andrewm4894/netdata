@@ -10,13 +10,9 @@ from bases.FrameworkServices.SimpleService import SimpleService
 
 http = urllib3.PoolManager()
 
-priority = 90000
+ORDER = []
 
-ORDER = [
-]
-
-CHARTS = {
-}
+CHARTS = {}
 
 
 class Service(SimpleService):
@@ -47,6 +43,8 @@ class Service(SimpleService):
             return False
 
     def validate_charts(self, name, data, title, units, family, context, chart_type='line', algorithm='absolute', multiplier=1, divisor=1):
+        """Check if chart is defined, add it if not, then add each dimension as needed.
+        """
         config = {'options': [name, title, units, family, context, chart_type]}
         if name not in self.charts:
             params = [name] + config['options']
@@ -56,18 +54,24 @@ class Service(SimpleService):
                 self.charts[name].add_dimension([dim, dim, algorithm, multiplier, divisor])
 
     def get_charts(self):
+        """Pull charts metedata from the Netdata REST API.
+        """
         url = 'http://{}/api/v1/charts'.format(self.parent)
         response = http.request('GET', url)
         data = json.loads(response.data.decode('utf-8'))
         return data.get('charts', {})
 
     def get_children(self):
+        """Pull list of children from the Netdata REST API.
+        """
         url = 'http://{}/api/v1/info'.format(self.parent)
         response = http.request('GET', url)
         data = json.loads(response.data.decode('utf-8'))
         return data.get('mirrored_hosts', {})
 
     def get_children_to_agg(self):
+        """Define the list of children to aggregate over.
+        """
         if len(self.children) <= 1 or self.runs_counter % self.refresh_children_every_n == 0:
             self.children = self.get_children()
             if self.child_contains:
@@ -77,12 +81,16 @@ class Service(SimpleService):
             self.info('aggregating data from {}'.format(self.children))
 
     def get_allmetrics(self, child):
+        """Get allmetrics data into a json dictionary.
+        """
         url = 'http://{}/host/{}/api/v1/allmetrics?format=json'.format(self.parent, child)
         response = http.request('GET', url)
         data = json.loads(response.data.decode('utf-8'))
         return data
 
     def scrape_children(self):
+        """Get the chart dimension level data from the /allmetrics endpoint of each child.
+        """
         for child in self.children:
             allmetrics_child = self.get_allmetrics(child)
             self.allmetrics[child] = {
@@ -91,6 +99,8 @@ class Service(SimpleService):
             }
 
     def append_metrics(self):
+        """For each chart in scope aggregate each dimension from each child into a list.
+        """
         for child in self.allmetrics:
             for chart in self.allmetrics[child]:
                 for dim in self.allmetrics[child][chart]:
@@ -100,10 +110,9 @@ class Service(SimpleService):
                         else:
                             self.allmetrics_list[chart][dim].append(self.allmetrics[child][chart][dim]['value'])
 
-    def reset_data(self):
-        self.allmetrics_list = {c: {} for c in self.charts_to_agg}
-
     def aggregate_data(self):
+        """Aggregate the list of data for each dimension to one number.
+        """
         data = {}
         for chart in self.allmetrics_list:
             data_chart = {}
@@ -136,6 +145,11 @@ class Service(SimpleService):
             data = {**data, **data_chart}
 
         return data
+
+    def reset_data(self):
+        """Reset list of metrics for each chart to be empty. 
+        """
+        self.allmetrics_list = {c: {} for c in self.charts_to_agg}
 
     def get_data(self):
 
