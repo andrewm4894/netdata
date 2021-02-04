@@ -61,14 +61,12 @@ class Service(SimpleService):
     def get_charts(self):
         url = 'http://{}/api/v1/charts'.format(self.parent)
         response = http.request('GET', url)
-        response = urllib2.urlopen()
         data = json.load(response.data.decode('utf-8'))
         return data.get('charts', {})
 
     def get_children(self):
         url = 'http://{}/api/v1/info'.format(self.parent)
         response = http.request('GET', url)
-        response = urllib2.urlopen()
         data = json.load(response.data.decode('utf-8'))
         return data.get('mirrored_hosts', {})
 
@@ -84,7 +82,6 @@ class Service(SimpleService):
     def get_allmetrics(self, child):
         url = 'http://{}/host/{}/api/v1/allmetrics?format=json'.format(self.parent, child)
         response = http.request('GET', url)
-        response = urllib2.urlopen()
         data = json.load(response.data.decode('utf-8'))
         return data
 
