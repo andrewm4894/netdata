@@ -3,23 +3,23 @@ title: "aggregator"
 custom_edit_url: https://github.com/netdata/netdata/edit/master/collectors/python.d.plugin/aggregator/README.md
 -->
 
-## Aggregator
+# Aggregator
 
 This collector 'aggregates' charts from multiple children that are streaming to a parent node. 
 
-### Charts
+## Charts
 
-You should see charts similar to those you have configured to aggregate. For example in the below chart underneath the "Aggregator devml" context we see the "system cpu" chart with is just the aggregation of the system.cpu chart over the specified children nodes. 
+You should see charts similar to those you have configured to aggregate. For example in the below chart underneath the "Aggregator devml" context we see the "system cpu" chart with is just the aggregation of the system.cpu chart over the specified children nodes (in this case two children called 'devml' and 'devml2' as defined in the configuration example below). 
 
 ![netdata-aggregator-collector](https://github.com/andrewm4894/random/blob/master/images/netdata/netdata-aggregator-collector.jpg)
 
-### Configuration
+## Configuration
 
 Enable the collector, define the configuration and restart Netdata.
 
 Note: given the nature of this collector you will have to edit the `aggregator.conf` file to define your own specific configuration. Obviously this collector can not know in advance what specific children and charts you want to aggregate over and so will fail if you dont configure `aggregator.conf`.
 
-#### Enable
+### Enable
 
 ```bash
 cd /etc/netdata/
@@ -27,7 +27,7 @@ sudo ./edit-config python.d.conf
 # Set `aggregator: no` to `aggregator: yes`
 ```
 
-#### Configure
+### Configure
 
 Edit the `python.d/aggregator.conf` configuration file using `edit-config` from the your agent's [config directory](/docs/configure/nodes.md), which is usually at `/etc/netdata`.
 
@@ -56,7 +56,7 @@ devml:
     charts_to_agg:
       # chart name.
       - name: 'system.cpu'
-        # optional aggregation function can be 'mean', 'min', 'max', 'sum'
+        # optional aggregation function can be 'mean', 'min', 'max', 'sum' ('mean' is default).
         agg_func: 'mean'
         # a "," separated string list of specific dimensions to exclude.
         exclude_dims: 'idle'
@@ -89,7 +89,7 @@ devml:
       - name: 'system.shared_memory_bytes'
 ```
 
-#### Restart
+### Restart Netdata
 
 Now restart netdata for the changes to take effect. 
 
@@ -97,7 +97,7 @@ Now restart netdata for the changes to take effect.
 sudo systemctl restart netdata
 ```
 
-### Troubleshooting
+## Troubleshooting
 
 To see any relevant log messages you can use a command like below.
 
@@ -114,7 +114,7 @@ sudo su -s /bin/bash netdata
 /usr/libexec/netdata/plugins.d/python.d.plugin aggregator debug trace nolock
 ```
 
-### Notes
+## Notes
 
 - todo
 

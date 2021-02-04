@@ -3,10 +3,8 @@
 # Author: andrewm4894
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-#import requests
 import urllib3
 import json
-import numpy as np
 
 from bases.FrameworkServices.SimpleService import SimpleService
 
@@ -112,10 +110,17 @@ class Service(SimpleService):
             out_chart = f"{chart.replace('.','_')}"
             for dim in self.allmetrics_list[chart]:
                 out_dim = f"{chart.replace('.','_')}_{dim}"
-                if self.charts_to_agg[chart]['agg_func'] == 'mean':
-                    data_chart[out_dim] = np.mean(self.allmetrics_list[chart][dim])*1000
+                x = self.allmetrics_list[chart][dim]
+                if self.charts_to_agg[chart]['agg_func'] == 'min':
+                    data_chart[out_dim] = min(x) * 1000
+                elif self.charts_to_agg[chart]['agg_func'] == 'max':
+                    data_chart[out_dim] = max(x) * 1000
+                elif self.charts_to_agg[chart]['agg_func'] == 'sum':
+                    data_chart[out_dim] = sum(x) * 1000
+                elif self.charts_to_agg[chart]['agg_func'] == 'mean':
+                    data_chart[out_dim] = ( sum(x) / len(x) ) * 1000
                 else:
-                    data_chart[out_dim] = np.mean(self.allmetrics_list[chart][dim])*1000
+                    data_chart[out_dim] = ( sum(x) / len(x) ) * 1000
 
             self.validate_charts(
                 name=out_chart, 
