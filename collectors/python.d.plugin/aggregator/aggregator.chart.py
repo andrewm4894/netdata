@@ -139,8 +139,6 @@ class Service(SimpleService):
 
     def get_data(self):
 
-        self.info(self.parent_charts)
-
         self.get_children_to_agg()      
 
         if len(self.children) > 0:
