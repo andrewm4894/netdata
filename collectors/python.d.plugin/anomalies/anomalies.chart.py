@@ -115,7 +115,9 @@ class Service(SimpleService):
             self.models_in_scope = [f'{self.host}::{c}' for c in self.charts_in_scope]
             self.host_charts_dict = {self.host: self.charts_in_scope}
         self.model_display_names = {model: model.split('::')[1] if '::' in model else model for model in self.models_in_scope}
-        self.data_latest = {**{f'{m}_prob': 0 for m in self.charts_in_scope},**{f'{m}_anomaly': 0 for m in self.charts_in_scope}}
+        self.data_probability_latest = {f'{m}_prob': 0 for m in self.charts_in_scope}
+        self.data_anomaly_latest = {f'{m}_anomaly': 0 for m in self.charts_in_scope}
+        self.data_latest = {**self.data_probability_latest, **self.data_anomaly_latest}
 
     def model_params_init(self):
         """Model parameters initialisation.
@@ -342,16 +344,21 @@ class Service(SimpleService):
         # roll forward previous predictions around a training step to avoid the possibility of having the training itself trigger an anomaly
         if (self.runs_counter - self.last_train_at) <= self.train_no_prediction_n:
             data = self.data_latest
+            data_probability = self.data_probability_latest
+            data_anomaly = self.data_anomaly_latest
         else:
             data_probability, data_anomaly = self.predict()
             if self.include_average_prob:
                 data_probability['average_prob'] = np.mean(list(data_probability.values()))
-            data = {**data_probability, **data_anomaly}
-            self.validate_charts('probability', data_probability, divisor=100)
-            self.validate_charts('anomaly', data_anomaly)
+        
+        data = {**data_probability, **data_anomaly}
+        self.validate_charts('probability', data_probability, divisor=100)
+        self.validate_charts('anomaly', data_anomaly)
 
         self.info(data)
 
         self.data_latest = data
+        self.data_probability_latest = data_probability
+        self.data_anomaly_latest = data_anomaly
 
         return data
