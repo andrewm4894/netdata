@@ -285,6 +285,7 @@ class Service(SimpleService):
         :return: (<dict>,<dict>) tuple of dictionaries, one for probability scores and the other for anomaly predictions.
         """
         # get recent data to predict on
+        self.info(self.host_charts_dict)
         df_allmetrics = get_allmetrics_async(
             host_charts_dict=self.host_charts_dict, host_prefix=True, host_sep='::', wide=True, sort_cols=True,
             protocol=self.protocol, numeric_only=True, float_size='float32', user=self.username, pwd=self.password
