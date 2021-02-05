@@ -115,7 +115,7 @@ class Service(SimpleService):
             self.models_in_scope = [f'{self.host}::{c}' for c in self.charts_in_scope]
             self.host_charts_dict = {self.host: self.charts_in_scope}
         self.model_display_names = {model: model.split('::')[1] if '::' in model else model for model in self.models_in_scope}
-        self.data_latest = {**{f'{m}_prob': 0 for m in self.model_display_names},**{f'{m}_anomaly': 0 for m in self.model_display_names}}
+        self.data_latest = {**{f'{m}_prob': 0 for m in self.charts_in_scope},**{f'{m}_anomaly': 0 for m in self.charts_in_scope}}
 
     def model_params_init(self):
         """Model parameters initialisation.
