@@ -72,7 +72,7 @@ class Service(SimpleService):
         self.password = self.configuration.get('password', None)
         self.fitted_at = {}
         self.df_allmetrics = pd.DataFrame()
-        self.data_latest = {}
+        #self.data_latest = {}
         self.last_train_at = 0
         self.include_average_prob = bool(self.configuration.get('include_average_prob', True))
 
@@ -326,6 +326,8 @@ class Service(SimpleService):
         return data_probability, data_anomaly
 
     def get_data(self):
+
+        self.info(self.data_latest)
 
         # if not all models have been trained then train those we need to
         if len(self.fitted_at) < len(self.models):
