@@ -115,6 +115,7 @@ class Service(SimpleService):
             self.models_in_scope = [f'{self.host}::{c}' for c in self.charts_in_scope]
             self.host_charts_dict = {self.host: self.charts_in_scope}
         self.model_display_names = {model: model.split('::')[1] if '::' in model else model for model in self.models_in_scope}
+        self.data_latest = {**{f'{m}_prob': 0 for m in self.model_display_names},**{f'{m}_anomaly': 0 for m in self.model_display_names}}
 
     def model_params_init(self):
         """Model parameters initialisation.
@@ -303,10 +304,13 @@ class Service(SimpleService):
         data_probability, data_anomaly = {}, {}
         for model in self.fitted_at.keys():
             model_display_name = self.model_display_names[model]
-            X_model = np.nan_to_num(self.make_features(
-                self.df_allmetrics[self.df_allmetrics.columns[self.df_allmetrics.columns.str.startswith(f'{model}|')]].values,
-                model=model)[-1,:].reshape(1, -1))
             try:
+                X_model = np.nan_to_num(
+                    self.make_features(
+                        self.df_allmetrics[self.df_allmetrics.columns[self.df_allmetrics.columns.str.startswith(f'{model}|')]].values,
+                        model=model
+                    )[-1,:].reshape(1, -1)
+                )
                 data_probability[model_display_name + '_prob'] = np.nan_to_num(self.models[model].predict_proba(X_model)[-1][1]) * 10000
                 data_anomaly[model_display_name + '_anomaly'] = self.models[model].predict(X_model)[-1]
             except Exception:
