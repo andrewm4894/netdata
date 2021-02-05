@@ -56,6 +56,7 @@ class Service(SimpleService):
 
     def check(self):
         #self.info(self.host_charts_dict)
+        #2021-02-05 18:42:20: python.d INFO: anomalies[prod_main] : {'127.0.0.1:19999': []}
         #_ = get_allmetrics_async(
         #    host_charts_dict=self.host_charts_dict, 
         #    host_prefix=True, host_sep='::', wide=True, sort_cols=True,
@@ -287,10 +288,13 @@ class Service(SimpleService):
         :return: (<dict>,<dict>) tuple of dictionaries, one for probability scores and the other for anomaly predictions.
         """
         # get recent data to predict on
-        df_allmetrics = get_allmetrics_async(
-            host_charts_dict=self.host_charts_dict, host_prefix=True, host_sep='::', wide=True, sort_cols=True,
-            protocol=self.protocol, numeric_only=True, float_size='float32', user=self.username, pwd=self.password
-            )
+        try:
+            df_allmetrics = get_allmetrics_async(
+                host_charts_dict=self.host_charts_dict, host_prefix=True, host_sep='::', wide=True, sort_cols=True,
+                protocol=self.protocol, numeric_only=True, float_size='float32', user=self.username, pwd=self.password
+                )
+        except:
+            self.info(self.host_charts_dict)
         if self.custom_models:
             df_allmetrics = self.add_custom_models_dims(df_allmetrics)
         self.df_allmetrics = self.df_allmetrics.append(df_allmetrics).ffill().tail((max(self.lags_n.values()) + max(self.smooth_n.values()) + max(self.diffs_n.values())) * 2)
