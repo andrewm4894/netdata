@@ -350,6 +350,8 @@ class Service(SimpleService):
             self.validate_charts('probability', data_probability, divisor=100)
             self.validate_charts('anomaly', data_anomaly)
 
+        self.info(data)
+
         self.data_latest = data
 
         return data
