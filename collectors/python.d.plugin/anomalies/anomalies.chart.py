@@ -55,6 +55,7 @@ class Service(SimpleService):
         self.models_init()
 
     def check(self):
+        self.info(self.host_charts_dict)
         _ = get_allmetrics_async(
             host_charts_dict=self.host_charts_dict, 
             host_prefix=True, host_sep='::', wide=True, sort_cols=True,
