@@ -56,8 +56,9 @@ class Service(SimpleService):
 
     def check(self):
         _ = get_allmetrics_async(
-            host_charts_dict=self.host_charts_dict, host_prefix=True, host_sep='::', wide=True, sort_cols=True,
-            protocol=self.protocol, numeric_only=True, float_size='float32', user=self.username, pwd=self.password
+            host_charts_dict=self.host_charts_dict, 
+            #host_prefix=True, host_sep='::', wide=True, sort_cols=True,
+            #protocol=self.protocol, numeric_only=True, float_size='float32', user=self.username, pwd=self.password
             )
         return True
 
@@ -285,11 +286,15 @@ class Service(SimpleService):
         :return: (<dict>,<dict>) tuple of dictionaries, one for probability scores and the other for anomaly predictions.
         """
         # get recent data to predict on
-        self.info(self.host_charts_dict)
-        df_allmetrics = get_allmetrics_async(
-            host_charts_dict=self.host_charts_dict, host_prefix=True, host_sep='::', wide=True, sort_cols=True,
-            protocol=self.protocol, numeric_only=True, float_size='float32', user=self.username, pwd=self.password
-            )
+        #self.info(self.host_charts_dict)
+        try:
+            df_allmetrics = get_allmetrics_async(
+                host_charts_dict=self.host_charts_dict, host_prefix=True, host_sep='::', wide=True, sort_cols=True,
+                protocol=self.protocol, numeric_only=True, float_size='float32', user=self.username, pwd=self.password
+                )
+            self.df_allmetrics_latest = df_allmetrics
+        except:
+            df_allmetrics = self.df_allmetrics_latest
         if self.custom_models:
             df_allmetrics = self.add_custom_models_dims(df_allmetrics)
         self.df_allmetrics = self.df_allmetrics.append(df_allmetrics).ffill().tail((max(self.lags_n.values()) + max(self.smooth_n.values()) + max(self.diffs_n.values())) * 2)
