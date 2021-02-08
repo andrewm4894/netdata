@@ -122,6 +122,7 @@ class Service(SimpleService):
             self.models_in_scope = [f'{self.host}::{c}' for c in self.charts_in_scope]
             self.host_charts_dict = {self.host: self.charts_in_scope}
         self.model_display_names = {model: model.split('::')[1] if '::' in model else model for model in self.models_in_scope}
+        self.info(f'self.host_charts_dict={self.host_charts_dict}')
 
     def data_init(self):
         """Initialize some empty data objects.
