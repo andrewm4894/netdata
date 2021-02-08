@@ -122,6 +122,8 @@ class Service(SimpleService):
         self.model_display_names = {model: model.split('::')[1] if '::' in model else model for model in self.models_in_scope}
 
     def data_init(self):
+        """Initialize some empty data objects.
+        """
         self.data_probability_latest = {f'{m}_prob': 0 for m in self.charts_in_scope}
         self.data_anomaly_latest = {f'{m}_anomaly': 0 for m in self.charts_in_scope}
         self.data_latest = {**self.data_probability_latest, **self.data_anomaly_latest}
