@@ -122,7 +122,7 @@ class Service(SimpleService):
             self.models_in_scope = [f'{self.host}::{c}' for c in self.charts_in_scope]
             self.host_charts_dict = {self.host: self.charts_in_scope}
         self.model_display_names = {model: model.split('::')[1] if '::' in model else model for model in self.models_in_scope}
-        self.info(f'self.host_charts_dict={self.host_charts_dict}')
+        self.info(f'self.host_charts_dict (len={len(self.host_charts_dict[self.host])}): {self.host_charts_dict}')
 
     def data_init(self):
         """Initialize some empty data objects.
@@ -176,6 +176,7 @@ class Service(SimpleService):
         self.data_init()
         self.model_params_init()
         self.models_init()
+        self.info(f'self.host_charts_dict (len={len(self.host_charts_dict[self.host])}): {self.host_charts_dict}')
 
     def save_data_latest(self, data, data_probability, data_anomaly):
         """Save the most recent data objects to be used if needed in the future.
@@ -360,7 +361,6 @@ class Service(SimpleService):
         # check if we might need to reinitialize models and data
         if len(self.host_charts_dict[self.host]) == 0 or self.reinitialize_at_n == self.runs_counter:
             self.reinitialize()
-            self.info(f'self.host_charts_dict={self.host_charts_dict}')
 
         # if not all models have been trained then train those we need to
         if len(self.fitted_at) < len(self.models):
