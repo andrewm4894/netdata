@@ -48,7 +48,6 @@ CHARTS = {
 class Service(SimpleService):
     def __init__(self, configuration=None, name=None):
         SimpleService.__init__(self, configuration=configuration, name=name)
-        #time.sleep(5)
         self.basic_init()
         self.charts_init()
         self.custom_models_init()
@@ -57,13 +56,11 @@ class Service(SimpleService):
         self.models_init()
 
     def check(self):
-        #self.info(self.host_charts_dict)
-        #2021-02-05 18:42:20: python.d INFO: anomalies[prod_main] : {'127.0.0.1:19999': []}
-        #_ = get_allmetrics_async(
-        #    host_charts_dict=self.host_charts_dict, 
-        #    host_prefix=True, host_sep='::', wide=True, sort_cols=True,
-        #    protocol=self.protocol, numeric_only=True, float_size='float32', user=self.username, pwd=self.password
-        #)
+        _ = get_allmetrics_async(
+            host_charts_dict=self.host_charts_dict, 
+            host_prefix=True, host_sep='::', wide=True, sort_cols=True,
+            protocol=self.protocol, numeric_only=True, float_size='float32', user=self.username, pwd=self.password
+        )
         return True
 
     def basic_init(self):
@@ -77,7 +74,6 @@ class Service(SimpleService):
         self.password = self.configuration.get('password', None)
         self.fitted_at = {}
         self.df_allmetrics = pd.DataFrame()
-        #self.data_latest = {}
         self.last_train_at = 0
         self.include_average_prob = bool(self.configuration.get('include_average_prob', True))
 
@@ -162,6 +158,22 @@ class Service(SimpleService):
         else:
             self.models = {model: HBOS(contamination=self.contamination) for model in self.models_in_scope}
         self.custom_model_scalers = {model: MinMaxScaler() for model in self.models_in_scope}
+
+    def reinitialize(self):
+        """Reinitialize charts, models and data to a begining state.
+        """
+        self.charts_init()
+        self.custom_models_init()
+        self.data_init()
+        self.model_params_init()
+        self.models_init()
+
+    def save_data_latest(self, data, data_probability, data_anomaly):
+        """Save the most recent data objects to be used if needed in the future.
+        """
+        self.data_latest = data
+        self.data_probability_latest = data_probability
+        self.data_anomaly_latest = data_anomaly
 
     def validate_charts(self, name, data, algorithm='absolute', multiplier=1, divisor=1):
         """If dimension not in chart then add it.
@@ -336,15 +348,9 @@ class Service(SimpleService):
 
     def get_data(self):
 
-        # check if might need to reinitialize
+        # check if we might need to reinitialize models and data
         if len(self.host_charts_dict[self.host]) == 0:
-            #self.info(self.data_latest)
-            self.charts_init()
-            self.custom_models_init()
-            self.data_init()
-            self.model_params_init()
-            self.models_init()
-        self.info(self.host_charts_dict)
+            self.reinitialize()
 
         # if not all models have been trained then train those we need to
         if len(self.fitted_at) < len(self.models):
@@ -368,13 +374,10 @@ class Service(SimpleService):
                 data_probability['average_prob'] = 0 if np.isnan(average_prob) else average_prob
         
         data = {**data_probability, **data_anomaly}
+
         self.validate_charts('probability', data_probability, divisor=100)
         self.validate_charts('anomaly', data_anomaly)
 
-        self.info(data)
-
-        self.data_latest = data
-        self.data_probability_latest = data_probability
-        self.data_anomaly_latest = data_anomaly
+        self.save_data_latest(data, data_probability, data_anomaly)
 
         return data
