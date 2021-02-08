@@ -56,7 +56,7 @@ class Service(SimpleService):
         self.models_init()
 
     def check(self):
-        #self.info(self.host_charts_dict)
+        self.info(self.host_charts_dict)
         #2021-02-05 18:42:20: python.d INFO: anomalies[prod_main] : {'127.0.0.1:19999': []}
         #_ = get_allmetrics_async(
         #    host_charts_dict=self.host_charts_dict, 
@@ -334,6 +334,7 @@ class Service(SimpleService):
     def get_data(self):
 
         #self.info(self.data_latest)
+        self.info(self.host_charts_dict)
 
         # if not all models have been trained then train those we need to
         if len(self.fitted_at) < len(self.models):
