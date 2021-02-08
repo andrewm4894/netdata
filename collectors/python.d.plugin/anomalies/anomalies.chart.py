@@ -340,6 +340,9 @@ class Service(SimpleService):
         self.charts_init()
         self.custom_models_init()
         self.data_init()
+        self.lags_n = {model: self.configuration.get('lags_n', 5) for model in self.models_in_scope}
+        self.smooth_n = {model: self.configuration.get('smooth_n', 5) for model in self.models_in_scope}
+        self.diffs_n = {model: self.configuration.get('diffs_n', 5) for model in self.models_in_scope}
         self.info(self.host_charts_dict)
 
         # if not all models have been trained then train those we need to
