@@ -52,6 +52,7 @@ class Service(SimpleService):
         self.basic_init()
         self.charts_init()
         self.custom_models_init()
+        self.data_init()
         self.model_params_init()
         self.models_init()
 
@@ -119,6 +120,8 @@ class Service(SimpleService):
             self.models_in_scope = [f'{self.host}::{c}' for c in self.charts_in_scope]
             self.host_charts_dict = {self.host: self.charts_in_scope}
         self.model_display_names = {model: model.split('::')[1] if '::' in model else model for model in self.models_in_scope}
+
+    def data_init(self):
         self.data_probability_latest = {f'{m}_prob': 0 for m in self.charts_in_scope}
         self.data_anomaly_latest = {f'{m}_anomaly': 0 for m in self.charts_in_scope}
         self.data_latest = {**self.data_probability_latest, **self.data_anomaly_latest}
@@ -334,6 +337,8 @@ class Service(SimpleService):
     def get_data(self):
 
         #self.info(self.data_latest)
+        self.charts_init()
+        self.custom_models_init()
         self.info(self.host_charts_dict)
 
         # if not all models have been trained then train those we need to
