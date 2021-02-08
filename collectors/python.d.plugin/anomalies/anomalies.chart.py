@@ -336,13 +336,15 @@ class Service(SimpleService):
 
     def get_data(self):
 
-        #self.info(self.data_latest)
-        #self.charts_init()
-        #self.custom_models_init()
-        #self.data_init()
-        #self.lags_n = {model: self.configuration.get('lags_n', 5) for model in self.models_in_scope}
-        #self.smooth_n = {model: self.configuration.get('smooth_n', 5) for model in self.models_in_scope}
-        #self.diffs_n = {model: self.configuration.get('diffs_n', 5) for model in self.models_in_scope}
+        # check if might need to reinitialize
+        if len(self.host_charts_dict[self.host]) == 0:
+            #self.info(self.data_latest)
+            self.charts_init()
+            self.custom_models_init()
+            self.data_init()
+            self.lags_n = {model: self.configuration.get('lags_n', 5) for model in self.models_in_scope}
+            self.smooth_n = {model: self.configuration.get('smooth_n', 5) for model in self.models_in_scope}
+            self.diffs_n = {model: self.configuration.get('diffs_n', 5) for model in self.models_in_scope}
         self.info(self.host_charts_dict)
 
         # if not all models have been trained then train those we need to
