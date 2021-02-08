@@ -48,7 +48,7 @@ CHARTS = {
 class Service(SimpleService):
     def __init__(self, configuration=None, name=None):
         SimpleService.__init__(self, configuration=configuration, name=name)
-        time.sleep(5)
+        #time.sleep(5)
         self.basic_init()
         self.charts_init()
         self.custom_models_init()
@@ -57,7 +57,7 @@ class Service(SimpleService):
         self.models_init()
 
     def check(self):
-        self.info(self.host_charts_dict)
+        #self.info(self.host_charts_dict)
         #2021-02-05 18:42:20: python.d INFO: anomalies[prod_main] : {'127.0.0.1:19999': []}
         #_ = get_allmetrics_async(
         #    host_charts_dict=self.host_charts_dict, 
@@ -342,9 +342,8 @@ class Service(SimpleService):
             self.charts_init()
             self.custom_models_init()
             self.data_init()
-            self.lags_n = {model: self.configuration.get('lags_n', 5) for model in self.models_in_scope}
-            self.smooth_n = {model: self.configuration.get('smooth_n', 5) for model in self.models_in_scope}
-            self.diffs_n = {model: self.configuration.get('diffs_n', 5) for model in self.models_in_scope}
+            self.model_params_init()
+            self.models_init()
         self.info(self.host_charts_dict)
 
         # if not all models have been trained then train those we need to
