@@ -359,7 +359,7 @@ class Service(SimpleService):
     def get_data(self):
 
         # check if we might need to reinitialize models and data
-        if len(self.host_charts_dict[self.host]) == 0 or self.reinitialize_at_n == self.runs_counter:
+        if len(self.host_charts_dict[self.host]) == 0 or self.runs_counter == self.reinitialize_at_n:
             self.reinitialize()
 
         # if not all models have been trained then train those we need to
