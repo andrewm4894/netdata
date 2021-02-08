@@ -363,7 +363,8 @@ class Service(SimpleService):
         else:
             data_probability, data_anomaly = self.predict()
             if self.include_average_prob:
-                data_probability['average_prob'] = np.mean(list(data_probability.values()))
+                average_prob = np.mean(list(data_probability.values()))
+                data_probability['average_prob'] = 0 if np.isnan(average_prob) else average_prob
         
         data = {**data_probability, **data_anomaly}
         self.validate_charts('probability', data_probability, divisor=100)
