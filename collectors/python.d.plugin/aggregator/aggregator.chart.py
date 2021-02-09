@@ -32,7 +32,8 @@ class Service(SimpleService):
         }
         self.refresh_children_every_n = self.configuration.get('refresh_children_every_n', 60)
         self.children = []
-        self.chart_defs = self.get_charts()
+        self.parent_chart_defs = self.get_charts()
+        self.child_chart_defs = self.get_charts()
         self.allmetrics = {}
         self.allmetrics_list = {c: {} for c in self.charts_to_agg}
 
@@ -74,15 +75,14 @@ class Service(SimpleService):
 
     def get_children_to_agg(self):
         """Define the list of children to aggregate over.
-        """
-        if len(self.children) <= 1 or self.runs_counter % self.refresh_children_every_n == 0:
-            self.children = self.get_children()
-            if self.child_contains:
-                self.children = [child for child in self.children if any(c in child for c in self.child_contains.split(','))]
-            if self.child_not_contains:
-                self.children = [child for child in self.children if not any(c in child for c in self.child_not_contains.split(','))]
-            self.chart_defs = self.get_charts(child=self.children[0])
-            self.info('aggregating data from {}'.format(self.children))
+        """        
+        self.children = self.get_children()
+        if self.child_contains:
+            self.children = [child for child in self.children if any(c in child for c in self.child_contains.split(','))]
+        if self.child_not_contains:
+            self.children = [child for child in self.children if not any(c in child for c in self.child_not_contains.split(','))]
+        self.child_chart_defs = self.get_charts(child=self.children[0])
+        self.info('aggregating data from {}'.format(self.children))
 
     def get_allmetrics(self, child):
         """Get allmetrics data into a json dictionary.
@@ -136,12 +136,12 @@ class Service(SimpleService):
                     data_chart[out_dim] = ( sum(x) / len(x) ) * 1000
 
             self.validate_charts(
-                name=out_chart, 
-                title=out_chart, 
-                units=self.chart_defs.get(chart,{'units':''}).get('units'), 
-                family=chart.replace('.','_'), 
-                context=out_chart, 
-                chart_type=self.chart_defs.get(chart,{'chart_type':'line'}).get('chart_type'), 
+                name=out_chart,
+                title=out_chart,
+                units=self.child_chart_defs.get(chart,self.parent_chart_defs.get(chart, {'units': ''})).get('units', ''),
+                family=chart.replace('.','_'),
+                context=out_chart,
+                chart_type=self.child_chart_defs.get(chart,self.parent_chart_defs.get(chart, {'chart_type': 'line'})).get('chart_type', 'line'),
                 data=data_chart,
                 divisor=1000
             )
@@ -151,17 +151,18 @@ class Service(SimpleService):
         return data
 
     def reset_data(self):
-        """Reset list of metrics for each chart to be empty. 
+        """Reset list of metrics for each chart to be empty.
         """
         self.allmetrics_list = {c: {} for c in self.charts_to_agg}
 
     def get_data(self):
 
-        self.get_children_to_agg()      
+        if len(self.children) <= 1 or self.runs_counter % self.refresh_children_every_n == 0:
+            self.get_children_to_agg()
 
         if len(self.children) > 0:
             self.scrape_children()
-            self.append_metrics()            
+            self.append_metrics()
             data = self.aggregate_data()
             self.reset_data()
 
