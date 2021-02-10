@@ -385,16 +385,18 @@ class Service(SimpleService):
         # initialize to whats available right now
         self.charts_init()
         self.custom_models_init()
+        self.model_params_init()
 
         # check if we might need to reinitialize models and data
-        if len(self.host_charts_dict[self.host]) == 0 or self.runs_counter == self.reinitialize_at_n:
-            self.reinitialize()
-            self.train()
+        #if len(self.host_charts_dict[self.host]) == 0 or self.runs_counter == self.reinitialize_at_n:
+        #if len(self.host_charts_dict[self.host]) == 0 or self.runs_counter == self.reinitialize_at_n:
+        #    self.reinitialize()
+        #    self.train()
 
         # if not all models have been trained then train those we need to
-        if len(self.fitted_at) < len(self.models):
+        if len(self.fitted_at) < len(self.models_in_scope):
             self.train(
-                models_to_train=[m for m in self.models if m not in self.fitted_at],
+                models_to_train=[m for m in self.models_in_scope if m not in self.fitted_at],
                 train_data_after=self.initial_train_data_after,
                 train_data_before=self.initial_train_data_before)
         # retrain all models as per schedule from config
