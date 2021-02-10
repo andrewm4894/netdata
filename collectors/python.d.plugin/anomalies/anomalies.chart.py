@@ -81,7 +81,7 @@ class Service(SimpleService):
         self.df_allmetrics = pd.DataFrame()
         self.last_train_at = 0
         self.include_average_prob = bool(self.configuration.get('include_average_prob', True))
-        self.reinitialize_at_n = self.configuration.get('reinitialize_at_n', 0)
+        self.reinitialize_at_each_step = bool(self.configuration.get('reinitialize_at_each_step', False))
 
     def charts_init(self):
         """Do some initialisation of charts in scope related variables.
@@ -122,7 +122,7 @@ class Service(SimpleService):
             self.models_in_scope = [f'{self.host}::{c}' for c in self.charts_in_scope]
             self.host_charts_dict = {self.host: self.charts_in_scope}
         self.model_display_names = {model: model.split('::')[1] if '::' in model else model for model in self.models_in_scope}
-        self.info(f'self.host_charts_dict (len={len(self.host_charts_dict[self.host])}): {self.host_charts_dict}')
+        #self.info(f'self.host_charts_dict (len={len(self.host_charts_dict[self.host])}): {self.host_charts_dict}')
 
     def data_init(self):
         """Initialize some empty data objects.
@@ -383,15 +383,10 @@ class Service(SimpleService):
     def get_data(self):
 
         # initialize to whats available right now
-        self.charts_init()
-        self.custom_models_init()
-        self.model_params_init()
-
-        # check if we might need to reinitialize models and data
-        #if len(self.host_charts_dict[self.host]) == 0 or self.runs_counter == self.reinitialize_at_n:
-        #if len(self.host_charts_dict[self.host]) == 0 or self.runs_counter == self.reinitialize_at_n:
-        #    self.reinitialize()
-        #    self.train()
+        if self.reinitialize_at_each_step or len(self.host_charts_dict[self.host]) == 0:
+            self.charts_init()
+            self.custom_models_init()
+            self.model_params_init()
 
         # if not all models have been trained then train those we need to
         if len(self.fitted_at) < len(self.models_in_scope):
