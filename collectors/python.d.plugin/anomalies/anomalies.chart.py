@@ -61,11 +61,7 @@ class Service(SimpleService):
 
     def check(self):
         if len(self.host_charts_dict[self.host]) > 0:
-            _ = get_allmetrics_async(
-                host_charts_dict=self.host_charts_dict, 
-                host_prefix=True, host_sep='::', wide=True, sort_cols=True,
-                protocol=self.protocol, numeric_only=True, float_size='float32', user=self.username, pwd=self.password
-            )
+            _ = get_allmetrics_async(host_charts_dict=self.host_charts_dict, protocol=self.protocol, user=self.username, pwd=self.password)
         return True
 
     def basic_init(self):
