@@ -372,6 +372,7 @@ class Service(SimpleService):
                 train_data_before=self.initial_train_data_before)
         # retrain all models as per schedule from config
         elif self.train_every_n > 0 and self.runs_counter % self.train_every_n == 0:
+            self.reinitialize()
             self.train()
 
         # roll forward previous predictions around a training step to avoid the possibility of having the training itself trigger an anomaly
