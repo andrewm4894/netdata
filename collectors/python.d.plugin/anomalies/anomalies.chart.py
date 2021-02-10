@@ -359,6 +359,10 @@ class Service(SimpleService):
 
     def get_data(self):
 
+        # initialize to whats available right now
+        self.charts_init()
+        self.custom_models_init()
+
         # check if we might need to reinitialize models and data
         if len(self.host_charts_dict[self.host]) == 0 or self.runs_counter == self.reinitialize_at_n:
             self.reinitialize()
