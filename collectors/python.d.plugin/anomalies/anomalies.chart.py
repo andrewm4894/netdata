@@ -344,7 +344,8 @@ class Service(SimpleService):
                 data_probability[model_display_name + '_prob'] = np.nan_to_num(self.models[model].predict_proba(X_model)[-1][1]) * 10000
                 data_anomaly[model_display_name + '_anomaly'] = self.models[model].predict(X_model)[-1]
             except Exception as e:
-                self.info(X_model)
+                self.info('self.df_allmetrics:')
+                self.info(self.df_allmetrics[self.df_allmetrics.columns[self.df_allmetrics.columns.str.startswith(f'{model}|')]])
                 self.info(e)
                 if model_display_name + '_prob' in self.data_latest:
                     self.info(f'prediction failed for {model} at run_counter {self.runs_counter}, using last prediction instead.')
