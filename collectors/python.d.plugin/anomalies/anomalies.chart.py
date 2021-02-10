@@ -81,7 +81,7 @@ class Service(SimpleService):
         self.df_allmetrics = pd.DataFrame()
         self.last_train_at = 0
         self.include_average_prob = bool(self.configuration.get('include_average_prob', True))
-        self.reinitialize_at_each_step = bool(self.configuration.get('reinitialize_at_each_step', False))
+        self.reinitialize_at_every_step = bool(self.configuration.get('reinitialize_at_every_step', False))
 
     def charts_init(self):
         """Do some initialisation of charts in scope related variables.
@@ -383,7 +383,7 @@ class Service(SimpleService):
     def get_data(self):
 
         # initialize to whats available right now
-        if self.reinitialize_at_each_step or len(self.host_charts_dict[self.host]) == 0:
+        if self.reinitialize_at_every_step or len(self.host_charts_dict[self.host]) == 0:
             self.charts_init()
             self.custom_models_init()
             self.model_params_init()
