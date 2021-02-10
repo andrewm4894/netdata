@@ -168,6 +168,27 @@ class Service(SimpleService):
             self.models = {model: HBOS(contamination=self.contamination) for model in self.models_in_scope}
         self.custom_model_scalers = {model: MinMaxScaler() for model in self.models_in_scope}
 
+    def model_init(self, model):
+        """Model initialisation of a single model.
+        """
+        if self.model == 'pca':
+            self.models[model] = PCA(contamination=self.contamination)
+        elif self.model == 'loda':
+            self.models[model] = LODA(contamination=self.contamination)
+        elif self.model == 'iforest':
+            self.models[model] = IForest(n_estimators=50, bootstrap=True, behaviour='new', contamination=self.contamination)
+        elif self.model == 'cblof':
+            self.models[model] = CBLOF(n_clusters=3, contamination=self.contamination)
+        elif self.model == 'feature_bagging':
+            self.models[model] = FeatureBagging(base_estimator=PCA(contamination=self.contamination), contamination=self.contamination)
+        elif self.model == 'copod':
+            self.models[model] = COPOD(contamination=self.contamination)
+        elif self.model == 'hbos':
+            self.models[model] = HBOS(contamination=self.contamination)
+        else:
+            self.models[model] = HBOS(contamination=self.contamination)
+        self.custom_model_scalers[model] = MinMaxScaler()
+
     def reinitialize(self):
         """Reinitialize charts, models and data to a begining state.
         """
@@ -293,6 +314,8 @@ class Service(SimpleService):
             models_to_train = list(self.models.keys())
         self.n_fit_fail, self.n_fit_success = 0, 0
         for model in models_to_train:
+            if model not in self.models:
+                self.model_init(model)
             X_train = self.make_features(
                 df_train[df_train.columns[df_train.columns.str.startswith(f'{model}|')]].values,
                 train=True, model=model)
