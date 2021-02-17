@@ -7,7 +7,7 @@ from json import loads
 
 from bases.FrameworkServices.UrlService import UrlService
 
-update_every = 10
+update_every = 5
 disabled_by_default = True
 
 
