@@ -47,7 +47,7 @@ class Service(UrlService):
 
         alarms = raw_data.get('alarms', {})
 
-        data = {a: alarms[a]['value'] for a in alarms if 'value' in alarms[a] and alarms[a]['value'] is not None}
+        data = {a: alarms[a]['value'] * 100 for a in alarms if 'value' in alarms[a] and alarms[a]['value'] is not None}
         self.update_charts(alarms, data)
         data['alarms_num'] = len(data)
 
