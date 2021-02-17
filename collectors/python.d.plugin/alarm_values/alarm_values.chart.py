@@ -49,7 +49,7 @@ class Service(UrlService):
 
         alarms = raw_data.get('alarms', {})
 
-        data = {a: alarms[a]['value'] * 1000 for a in alarms if 'value' in alarms[a]}
+        data = {a: alarms[a]['value'] * 1000 for a in alarms if 'value' in alarms[a] and alarms[a]['value'] is not None}
         self.update_charts(alarms, data)
 
         self.info(data)
