@@ -18,7 +18,7 @@ def charts_template():
 
     charts = {
         'alarm_values': {
-            'options': [None, 'Alarm Values', 'value', 'alarm_values', 'alarm.values', 'line'],
+            'options': [None, 'Alarm Values', 'value', 'values', 'alarm.values', 'line'],
             'lines': [],
             'variables': [
                 [],
@@ -45,15 +45,11 @@ class Service(UrlService):
 
         raw_data = loads(raw_data)
 
-        self.info(raw_data)
-
         alarms = raw_data.get('alarms', {})
 
         data = {a: alarms[a]['value'] * 1000 for a in alarms if 'value' in alarms[a] and alarms[a]['value'] is not None}
         self.update_charts(alarms, data)
         data['alarms_num'] = len(data)
-
-        self.info(data)
 
         return data
 
