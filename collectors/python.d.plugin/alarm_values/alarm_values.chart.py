@@ -60,7 +60,7 @@ class Service(UrlService):
         for a in data:
             if a not in self.collected_alarms:
                 self.collected_alarms.add(a)
-                self.charts['alarm_values'].add_dimension([a, a, 'absolute', '1', '1000'])
+                self.charts['alarm_values'].add_dimension([a, a, 'absolute', '1', '10000'])
 
         for a in list(self.collected_alarms):
             if a not in alarms:
