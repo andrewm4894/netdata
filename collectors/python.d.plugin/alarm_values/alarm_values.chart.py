@@ -44,6 +44,9 @@ class Service(UrlService):
             return None
 
         raw_data = loads(raw_data)
+
+        self.info(raw_data)
+
         alarms = raw_data.get('alarms', {})
 
         data = {a: alarms[a]['value'] * 1000 for a in alarms}
