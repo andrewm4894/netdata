@@ -51,6 +51,7 @@ class Service(UrlService):
 
         data = {a: alarms[a]['value'] * 1000 for a in alarms if 'value' in alarms[a] and alarms[a]['value'] is not None}
         self.update_charts(alarms, data)
+        data['alarms_num'] = len(data)
 
         self.info(data)
 
