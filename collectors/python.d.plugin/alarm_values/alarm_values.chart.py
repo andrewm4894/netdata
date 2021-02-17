@@ -47,7 +47,7 @@ class Service(UrlService):
 
         alarms = raw_data.get('alarms', {})
 
-        data = {a: alarms[a]['value'] * 10000 for a in alarms if 'value' in alarms[a] and alarms[a]['value'] is not None}
+        data = {a: alarms[a]['value'] for a in alarms if 'value' in alarms[a] and alarms[a]['value'] is not None}
         self.update_charts(alarms, data)
         data['alarms_num'] = len(data)
 
@@ -60,7 +60,7 @@ class Service(UrlService):
         for a in data:
             if a not in self.collected_alarms:
                 self.collected_alarms.add(a)
-                self.charts['alarm_values'].add_dimension([a, a, 'absolute', '1000', '1'])
+                self.charts['alarm_values'].add_dimension([a, a, 'absolute', '1', '1'])
 
         for a in list(self.collected_alarms):
             if a not in alarms:
