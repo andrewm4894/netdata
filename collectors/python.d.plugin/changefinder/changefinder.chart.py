@@ -111,8 +111,6 @@ class Service(UrlService):
                 x = [raw_data[chart]['dimensions'][x]['value'] for x in raw_data[chart]['dimensions']]
                 x = [x for x in x if x is not None]
                 x = sum(x) / len(x)
-                self.info(chart)
-                self.info(x)
                 score = self.get_score(x, chart)
                 data[chart] = score * 100
 
