@@ -74,15 +74,16 @@ class Service(UrlService):
     def get_score(self, x, model):
         if model not in self.models:
             self.models[model] = changefinder.ChangeFinder(r=self.cf_r, order=self.cf_order, smooth=self.cf_smooth)
-            #self.models[model] = changefinder.ChangeFinder()
         score = self.models[model].update(x)
         score = 0 if np.isnan(score) else score
         if self.max.get(model, 1) == 0:
+            self.update_min(model, score)
+            self.update_max(model, score)
             score = 0
         else:
             score = ( score - self.min.get(model, 0) ) / ( self.max.get(model, 1) - self.min.get(model, 0) )
-        self.update_min(model, score)
-        self.update_max(model, score)
+            self.update_min(model, score)
+            self.update_max(model, score)
 
         return score
 
