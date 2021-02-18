@@ -80,6 +80,10 @@ class Service(UrlService):
             self.update_min(model, score)
             self.update_max(model, score)
             score = 0
+        elif self.max.get(model, 1) == self.min.get(model, 0):
+            self.update_min(model, score)
+            self.update_max(model, score)
+            score = 0
         else:
             score = ( score - self.min.get(model, 0) ) / ( self.max.get(model, 1) - self.min.get(model, 0) )
             self.update_min(model, score)
