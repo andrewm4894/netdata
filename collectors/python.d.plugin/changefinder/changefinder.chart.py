@@ -71,7 +71,10 @@ class Service(UrlService):
             self.models[model] = changefinder.ChangeFinder()
         score = self.models[model].update(x)
         score = 0 if np.isnan(score) else score
-        score = ( score - self.min.get(model, 0) ) / ( self.max.get(model, 1) - self.min.get(model, 0) )
+        if self.max.get(model, 1) == 0:
+            score = 0
+        else:
+            score = ( score - self.min.get(model, 0) ) / ( self.max.get(model, 1) - self.min.get(model, 0) )
         self.update_min(model, score)
         self.update_max(model, score)
 
@@ -93,7 +96,7 @@ class Service(UrlService):
         raw_data = loads(raw_data)
         charts = list(filter(self.charts_regex.match, raw_data.keys()))
         data = {}
-        
+
         for chart in charts:
 
             if self.mode == 'per_chart':
