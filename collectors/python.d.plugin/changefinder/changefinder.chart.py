@@ -33,7 +33,7 @@ def charts_template():
 
 DEFAULT_PROTOCOL = 'https'
 DEFAULT_HOST = '127.0.0.1:19999'
-DEFAULT_CHARTS_REGEX = 'system\..*'
+DEFAULT_CHARTS_REGEX = 'system.*'
 
 
 class Service(UrlService):
@@ -44,6 +44,7 @@ class Service(UrlService):
         self.protocol = self.configuration.get('protocol', DEFAULT_PROTOCOL)
         self.charts_regex = re.compile(self.configuration.get('charts_regex', DEFAULT_CHARTS_REGEX))
         self.models = {}
+        self.url = '{}://{}/api/v1/allmetrics?format=json'.format(self.protocol, self.host)
 
     def _get_data(self):
         raw_data = self._get_raw_data()
