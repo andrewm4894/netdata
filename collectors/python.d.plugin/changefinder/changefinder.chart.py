@@ -31,7 +31,7 @@ def charts_template():
     return order, charts
 
 
-DEFAULT_PROTOCOL = 'https'
+DEFAULT_PROTOCOL = 'http'
 DEFAULT_HOST = '127.0.0.1:19999'
 DEFAULT_CHARTS_REGEX = 'system.*'
 
