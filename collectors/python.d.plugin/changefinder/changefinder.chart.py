@@ -33,7 +33,7 @@ def charts_template():
 
 DEFAULT_PROTOCOL = 'https'
 DEFAULT_HOST = '127.0.0.1:19999'
-DEFAULT_CHARTS_REGEX = 'system.*'
+DEFAULT_CHARTS_REGEX = 'system\..*'
 
 
 class Service(UrlService):
@@ -51,7 +51,9 @@ class Service(UrlService):
             return None
 
         raw_data = loads(raw_data)
+        self.info(raw_data)
         charts = list(filter(self.charts_regex.match, raw_data.keys()))
+        self.info(charts)
         data = {}
         for chart in charts:
             x = [raw_data[chart]['dimensions'][x]['value'] for x in raw_data[chart]['dimensions']]
