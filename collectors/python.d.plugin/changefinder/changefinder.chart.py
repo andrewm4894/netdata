@@ -36,9 +36,9 @@ DEFAULT_PROTOCOL = 'http'
 DEFAULT_HOST = '127.0.0.1:19999'
 DEFAULT_CHARTS_REGEX = 'system.*'
 DEFAULT_MODE = 'per_chart'
-DEFAULT_R = '0.5'
-DEFAULT_ORDER = '1'
-DEFAULT_SMOOTH = '15'
+DEFAULT_CF_R = '0.5'
+DEFAULT_CF_ORDER = '1'
+DEFAULT_CFSMOOTH = '15'
 
 
 class Service(UrlService):
@@ -49,9 +49,9 @@ class Service(UrlService):
         self.protocol = self.configuration.get('protocol', DEFAULT_PROTOCOL)
         self.charts_regex = re.compile(self.configuration.get('charts_regex', DEFAULT_CHARTS_REGEX))
         self.mode = self.configuration.get('mode', DEFAULT_MODE)
-        self.r = float(self.configuration.get('r', DEFAULT_R))
-        self.order = int(self.configuration.get('order', DEFAULT_ORDER))
-        self.smooth = int(self.configuration.get('smooth', DEFAULT_SMOOTH))
+        self.cf_r = float(self.configuration.get('cf_r', DEFAULT_CF_R))
+        self.cf_order = int(self.configuration.get('cf_order', DEFAULT_CF_ORDER))
+        self.cf_smooth = int(self.configuration.get('cf_smooth', DEFAULT_CF_SMOOTH))
         self.url = '{}://{}/api/v1/allmetrics?format=json'.format(self.protocol, self.host)
         self.models = {}
         self.min = {}
@@ -73,8 +73,8 @@ class Service(UrlService):
 
     def get_score(self, x, model):
         if model not in self.models:
-            #self.models[model] = changefinder.ChangeFinder(r=self.r, order=self.order, smooth=self.smooth)
-            self.models[model] = changefinder.ChangeFinder()
+            self.models[model] = changefinder.ChangeFinder(r=self.cf_r, order=self.cf_order, smooth=self.cf_smooth)
+            #self.models[model] = changefinder.ChangeFinder()
         score = self.models[model].update(x)
         score = 0 if np.isnan(score) else score
         if self.max.get(model, 1) == 0:
