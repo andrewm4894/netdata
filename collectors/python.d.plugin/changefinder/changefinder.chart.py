@@ -45,10 +45,45 @@ class Service(UrlService):
         self.host = self.configuration.get('host', DEFAULT_HOST)
         self.protocol = self.configuration.get('protocol', DEFAULT_PROTOCOL)
         self.charts_regex = re.compile(self.configuration.get('charts_regex', DEFAULT_CHARTS_REGEX))
+        self.mode = self.configuration.get('mode', DEFAULT_MODE)
         self.url = '{}://{}/api/v1/allmetrics?format=json'.format(self.protocol, self.host)
         self.models = {}
-        self.mode = self.configuration.get('mode', DEFAULT_MODE)
-        
+        self.min = {}
+        self.max = {}
+        self.models = {}
+
+    def update_min(self, model, score):
+        if model not in self.min:
+            self.min[model] = score
+        else:
+            if score < self.min[model]:
+                self.min[model] = score
+
+    def update_max(self, model, score):
+        if model not in self.max:
+            self.max[model] = score
+        else:
+            if score > self.max[model]:
+                self.max[model] = score
+
+    def get_score(self, x, model):
+        if model not in self.models:
+            self.models[model] = changefinder.ChangeFinder()
+        score = self.models[model].update(x)
+        score = 0 if np.isnan(score) else score
+        score = ( score - self.min.get(model, 0) ) / ( self.max.get(model, 1) - self.min.get(model, 0) )
+        self.update_min(model, score)
+        self.update_max(model, score)
+
+        return score
+
+    def update_chart(self, chart, data):
+        if not self.charts:
+            return
+
+        for dim in data:
+            if dim not in self.charts[chart]:
+                self.charts[chart].add_dimension([dim, dim, 'absolute', '1', 100])
 
     def _get_data(self):
         raw_data = self._get_raw_data()
@@ -58,6 +93,7 @@ class Service(UrlService):
         raw_data = loads(raw_data)
         charts = list(filter(self.charts_regex.match, raw_data.keys()))
         data = {}
+        
         for chart in charts:
 
             if self.mode == 'per_chart':
@@ -65,45 +101,20 @@ class Service(UrlService):
                 x = [raw_data[chart]['dimensions'][x]['value'] for x in raw_data[chart]['dimensions']]
                 x = [x for x in x if x is not None]
                 x = sum(x) / len(x)
-
-                if chart not in self.models:
-                    self.models[chart] = changefinder.ChangeFinder()
-
-                #score, _ = self.models[chart].update(x)
-                score = self.models[chart].update(x)
-                if np.isnan(score):
-                    score = 0
-
+                score = self.get_score(x, chart)
                 data[chart] = score * 100
 
             else:
 
                 for dim in raw_data[chart]['dimensions']:
 
-                    model = '{}|{}'.format(chart,dim)
-
                     x = raw_data[chart]['dimensions'][dim]['value']
-
-                    self.info(model)
-                    self.info(x)
-
-                    if model not in self.models:
-                        self.models[model] = changefinder.ChangeFinder()                        
-
-                    if x is not None:
-
-                        #score, _ = self.models[model].update(x)
-                        score = self.models[model].update(x)
-                        data[model] = score * 100
+                    x = x if x else 0
+                    dim = '{}|{}'.format(chart, dim)
+                    score = self.get_score(x, dim)
+                    data[dim] = score * 100
         
         self.update_chart('changefinder', data)
 
         return data
-
-    def update_chart(self, chart, data):
-        if not self.charts:
-            return
-
-        for dim in data:
-            if dim not in self.charts[chart]:
-                self.charts[chart].add_dimension([dim, dim, 'absolute', '1', 100])
+    
