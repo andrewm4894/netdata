@@ -69,6 +69,9 @@ class Service(UrlService):
                     self.models[chart] = changefinder.ChangeFinder()
 
                 score, _ = self.models[chart].update(x)
+                if np.isnan(score):
+                    score = 0
+
                 data[chart] = score * 100
 
             else:
