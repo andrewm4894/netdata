@@ -49,9 +49,9 @@ class Service(UrlService):
         self.protocol = self.configuration.get('protocol', DEFAULT_PROTOCOL)
         self.charts_regex = re.compile(self.configuration.get('charts_regex', DEFAULT_CHARTS_REGEX))
         self.mode = self.configuration.get('mode', DEFAULT_MODE)
-        self.r = self.configuration.get('r', DEFAULT_R)
-        self.order = self.configuration.get('order', DEFAULT_ORDER)
-        self.smooth = self.configuration.get('smooth', DEFAULT_SMOOTH)
+        #self.r = self.configuration.get('r', DEFAULT_R)
+        #self.order = self.configuration.get('order', DEFAULT_ORDER)
+        #self.smooth = self.configuration.get('smooth', DEFAULT_SMOOTH)
         self.url = '{}://{}/api/v1/allmetrics?format=json'.format(self.protocol, self.host)
         self.models = {}
         self.min = {}
