@@ -10,7 +10,7 @@ from bases.FrameworkServices.UrlService import UrlService
 
 import changefinder
 
-update_every = 5
+update_every = 2
 disabled_by_default = True
 
 
@@ -75,4 +75,4 @@ class Service(UrlService):
 
         for dim in data:
             if dim not in self.charts[chart]:
-                self.charts[chart].add_dimension([dim, dim, 'absolute', '1', '1'])
+                self.charts[chart].add_dimension([dim, dim, 'absolute', '1', 100])
