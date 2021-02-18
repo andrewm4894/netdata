@@ -38,7 +38,7 @@ DEFAULT_CHARTS_REGEX = 'system.*'
 DEFAULT_MODE = 'per_chart'
 DEFAULT_CF_R = '0.5'
 DEFAULT_CF_ORDER = '1'
-DEFAULT_CFSMOOTH = '15'
+DEFAULT_CF_SMOOTH = '15'
 
 
 class Service(UrlService):
