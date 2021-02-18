@@ -34,8 +34,8 @@ def charts_template():
 
 DEFAULT_PROTOCOL = 'http'
 DEFAULT_HOST = '127.0.0.1:19999'
-DEFAULT_CHARTS_REGEX = 'system.cpu'
-DEFAULT_MODE = 'per_dim'
+DEFAULT_CHARTS_REGEX = 'system.*'
+DEFAULT_MODE = 'per_chart'
 
 
 class Service(UrlService):
