@@ -77,15 +77,18 @@ class Service(UrlService):
 
                     model = '{}|{}'.format(chart,dim)
 
+                    x = raw_data[chart]['dimensions'][dim]['value']
+
+                    self.info(model)
+                    self.info(x)
+
                     if model not in self.models:
-                        self.models[model] = changefinder.ChangeFinder()
+                        self.models[model] = changefinder.ChangeFinder()                        
 
-                        x = raw_data[chart]['dimensions'][dim]['value']
+                    if x is not None:
 
-                        if x is not None:
-
-                            score, _ = self.models[model].update(x)
-                            data[model] = score * 100
+                        score, _ = self.models[model].update(x)
+                        data[model] = score * 100
         
         self.update_chart('changefinder', data)
 
