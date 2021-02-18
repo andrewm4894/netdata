@@ -56,7 +56,6 @@ class Service(UrlService):
         self.models = {}
         self.min = {}
         self.max = {}
-        self.models = {}
 
     def update_min(self, model, score):
         if model not in self.min:
