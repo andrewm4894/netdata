@@ -8,6 +8,7 @@ import re
 
 from bases.FrameworkServices.UrlService import UrlService
 
+import numpy as np
 import changefinder
 
 update_every = 2
@@ -68,7 +69,8 @@ class Service(UrlService):
                 if chart not in self.models:
                     self.models[chart] = changefinder.ChangeFinder()
 
-                score, _ = self.models[chart].update(x)
+                #score, _ = self.models[chart].update(x)
+                score = self.models[chart].update(x)
                 if np.isnan(score):
                     score = 0
 
@@ -90,7 +92,8 @@ class Service(UrlService):
 
                     if x is not None:
 
-                        score, _ = self.models[model].update(x)
+                        #score, _ = self.models[model].update(x)
+                        score = self.models[model].update(x)
                         data[model] = score * 100
         
         self.update_chart('changefinder', data)
