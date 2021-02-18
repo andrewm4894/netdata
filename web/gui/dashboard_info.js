@@ -583,6 +583,12 @@ netdataDashboard.menu = {
         info: 'Charts showing alarm status over time. More details <a href="https://github.com/netdata/netdata/blob/master/collectors/python.d.plugin/alarms/README.md" target="_blank">here</a>.'
     },
 
+    'changefinder': {
+        title: 'ChangeFinder',
+        icon: '<i class="fas fa-flask"></i>',
+        info: 'Use ML to detect changes on charts. More details <a href="https://github.com/netdata/netdata/blob/master/collectors/python.d.plugin/changefinder/README.md" target="_blank">here</a>.'
+    },
+
 };
 
 
