@@ -52,26 +52,18 @@ class Service(UrlService):
             return None
 
         raw_data = loads(raw_data)
-        self.info(raw_data)
         charts = list(filter(self.charts_regex.match, raw_data.keys()))
-        self.info(charts)
         data = {}
         for chart in charts:
             x = [raw_data[chart]['dimensions'][x]['value'] for x in raw_data[chart]['dimensions']]
-            self.info(x)
             x = [x for x in x if x is not None]
-            self.info(x)
             x = sum(x) / len(x)
-            self.info(x)
 
             if chart not in self.models:
                 self.models[chart] = changefinder.ChangeFinder()
 
             score, _ = self.models[chart].update(x)
-            self.info(score)
-            data[chart] = score
-
-        self.info(data)
+            data[chart] = score * 100
         
         self.update_chart('changefinder', data)
 
