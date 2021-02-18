@@ -58,8 +58,11 @@ class Service(UrlService):
         data = {}
         for chart in charts:
             x = [raw_data[chart]['dimensions'][x]['value'] for x in raw_data[chart]['dimensions']]
+            self.info(x)
             x = [x for x in x if x is not None]
+            self.info(x)
             x = sum(x) / len(x)
+            self.info(x)
 
             if chart not in self.models:
                 self.models[chart] = changefinder.ChangeFinder()
