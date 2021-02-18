@@ -66,9 +66,10 @@ class Service(UrlService):
 
             if chart not in self.models:
                 self.models[chart] = changefinder.ChangeFinder()
-            else:
-                score, _ = self.models[chart].update(x)
-                data[chart] = score
+
+            score, _ = self.models[chart].update(x)
+            self.info(score)
+            data[chart] = score
 
         self.info(data)
         
