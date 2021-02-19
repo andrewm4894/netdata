@@ -23,7 +23,7 @@ def charts_template():
 
     charts = {
         'changefinder': {
-            'options': [None, 'ChangeFinder', 'score', 'changefinder', 'score', 'area'],
+            'options': [None, 'ChangeFinder', 'score', 'score', 'score', 'stacked'],
             'lines': [],
             'variables': [
                 [],
