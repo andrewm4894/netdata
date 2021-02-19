@@ -37,7 +37,7 @@ DEFAULT_HOST = '127.0.0.1:19999'
 DEFAULT_CHARTS_REGEX = 'system.*'
 DEFAULT_MODE = 'per_dim'
 DEFAULT_CF_R = '0.5'
-DEFAULT_CF_ORDER = '1'
+DEFAULT_CF_ORDER = '2'
 DEFAULT_CF_SMOOTH = '30'
 
 
@@ -54,6 +54,7 @@ class Service(UrlService):
         self.cf_smooth = int(self.configuration.get('cf_smooth', DEFAULT_CF_SMOOTH))
         self.url = '{}://{}/api/v1/allmetrics?format=json'.format(self.protocol, self.host)
         self.models = {}
+        self.scores = {}
         self.min = {}
         self.max = {}
 
@@ -74,7 +75,11 @@ class Service(UrlService):
     def get_score(self, x, model, norm=False):
         if model not in self.models:
             self.models[model] = changefinder.ChangeFinder(r=self.cf_r, order=self.cf_order, smooth=self.cf_smooth)
-        score = self.models[model].update(x)
+        try:
+            score = self.models[model].update(x)
+            self.scores[model] = score
+        except:
+            score = self.scores.get(model, 0)        
         score = 0 if np.isnan(score) else score
         if norm:
             if self.max.get(model, 1) == 0:
