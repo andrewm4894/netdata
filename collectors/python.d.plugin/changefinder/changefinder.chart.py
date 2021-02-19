@@ -23,7 +23,7 @@ def charts_template():
 
     charts = {
         'score': {
-            'options': [None, 'ChangeFinder', 'score', 'ChangeFinder', 'score', 'stacked'],
+            'options': [None, 'ChangeFinder', 'score', 'ChangeFinder', 'score', 'line'],
             'lines': [],
             'variables': [
                 [],
@@ -39,9 +39,9 @@ DEFAULT_CHARTS_REGEX = 'system.*'
 DEFAULT_MODE = 'per_chart'
 DEFAULT_CF_R = 0.5
 DEFAULT_CF_ORDER = 1
-DEFAULT_CF_SMOOTH = 30
+DEFAULT_CF_SMOOTH = 15
 DEFAULT_CF_DIFF = False
-DEFAULT_N_SAMPLES = 1000
+DEFAULT_N_SAMPLES = 3600
 
 
 class Service(UrlService):
