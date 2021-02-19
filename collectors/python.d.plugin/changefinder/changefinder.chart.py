@@ -86,7 +86,7 @@ class Service(UrlService):
         except:
             score = self.scores_latest.get(model, 0)        
         score = 0 if np.isnan(score) else score
-        if self.norm:
+        if self.cf_norm:
             if self.max.get(model, 1) == 0:
                 self.update_min(model, score)
                 self.update_max(model, score)
