@@ -38,8 +38,9 @@ DEFAULT_CHARTS_REGEX = 'system.*'
 DEFAULT_MODE = 'per_dim'
 DEFAULT_CF_R = 0.5
 DEFAULT_CF_ORDER = 1
-DEFAULT_CF_SMOOTH = 7
+DEFAULT_CF_SMOOTH = 3
 DEFAULT_CF_DIFF = False
+DEFAULT_CF_NORM = False
 
 
 class Service(UrlService):
@@ -53,7 +54,8 @@ class Service(UrlService):
         self.cf_r = float(self.configuration.get('cf_r', DEFAULT_CF_R))
         self.cf_order = int(self.configuration.get('cf_order', DEFAULT_CF_ORDER))
         self.cf_smooth = int(self.configuration.get('cf_smooth', DEFAULT_CF_SMOOTH))
-        self.cf_diff = int(self.configuration.get('cf_diff', DEFAULT_CF_DIFF))
+        self.cf_diff = bool(self.configuration.get('cf_diff', DEFAULT_CF_DIFF))
+        self.cf_norm = bool(self.configuration.get('cf_norm', DEFAULT_CF_NORM))
         self.url = '{}://{}/api/v1/allmetrics?format=json'.format(self.protocol, self.host)
         self.models = {}
         self.x_latest = {}
@@ -75,7 +77,7 @@ class Service(UrlService):
             if score > self.max[model]:
                 self.max[model] = score
 
-    def get_score(self, x, model, norm=False):
+    def get_score(self, x, model):
         if model not in self.models:
             self.models[model] = changefinder.ChangeFinder(r=self.cf_r, order=self.cf_order, smooth=self.cf_smooth)
         try:
@@ -84,7 +86,7 @@ class Service(UrlService):
         except:
             score = self.scores_latest.get(model, 0)        
         score = 0 if np.isnan(score) else score
-        if norm:
+        if self.norm:
             if self.max.get(model, 1) == 0:
                 self.update_min(model, score)
                 self.update_max(model, score)
@@ -124,9 +126,11 @@ class Service(UrlService):
                 x = [raw_data[chart]['dimensions'][x]['value'] for x in raw_data[chart]['dimensions']]
                 x = [x for x in x if x is not None]
                 x = sum(x) / len(x)
-                x_diff = x - self.x_latest.get(chart, 0)
-                self.x_latest[chart] = x
-                score = self.get_score(x_diff, chart)
+                if self.cf_diff:
+                    x_diff = x - self.x_latest.get(chart, 0)
+                    self.x_latest[chart] = x
+                    x = x_diff
+                score = self.get_score(x, chart)
                 data[chart] = score * 100
 
             else:
@@ -136,9 +140,11 @@ class Service(UrlService):
                     x = raw_data[chart]['dimensions'][dim]['value']
                     x = x if x else 0
                     dim = '{}|{}'.format(chart, dim)
-                    x_diff = x - self.x_latest.get(dim, 0)
-                    self.x_latest[dim] = x
-                    score = self.get_score(x_diff, dim)
+                    if self.cf_diff:
+                        x_diff = x - self.x_latest.get(dim, 0)
+                        self.x_latest[dim] = x
+                        x = x_diff
+                    score = self.get_score(x, dim)
                     data[dim] = score * 100
         
         self.update_chart('changefinder', data)
