@@ -41,7 +41,7 @@ DEFAULT_CF_R = 0.5
 DEFAULT_CF_ORDER = 1
 DEFAULT_CF_SMOOTH = 30
 DEFAULT_CF_DIFF = False
-DEFAULT_CF_NORM = False
+DEFAULT_N_SAMPLES = 1000
 
 
 class Service(UrlService):
@@ -52,18 +52,16 @@ class Service(UrlService):
         self.protocol = self.configuration.get('protocol', DEFAULT_PROTOCOL)
         self.charts_regex = re.compile(self.configuration.get('charts_regex', DEFAULT_CHARTS_REGEX))
         self.mode = self.configuration.get('mode', DEFAULT_MODE)
+        self.n_samples = int(self.configuration.get('n_samples', DEFAULT_N_SAMPLES))
         self.cf_r = float(self.configuration.get('cf_r', DEFAULT_CF_R))
         self.cf_order = int(self.configuration.get('cf_order', DEFAULT_CF_ORDER))
         self.cf_smooth = int(self.configuration.get('cf_smooth', DEFAULT_CF_SMOOTH))
         self.cf_diff = bool(self.configuration.get('cf_diff', DEFAULT_CF_DIFF))
-        self.cf_norm = bool(self.configuration.get('cf_norm', DEFAULT_CF_NORM))
         self.url = '{}://{}/api/v1/allmetrics?format=json'.format(self.protocol, self.host)
         self.models = {}
         self.x_latest = {}
         self.scores_latest = {}
         self.scores_samples = {}
-        self.min = {}
-        self.max = {}
 
     def update_min(self, model, score):
         if model not in self.min:
@@ -80,6 +78,8 @@ class Service(UrlService):
                 self.max[model] = score
 
     def get_score(self, x, model):
+
+        # get score
         if model not in self.models:
             self.models[model] = changefinder.ChangeFinder(r=self.cf_r, order=self.cf_order, smooth=self.cf_smooth)
         try:
@@ -89,27 +89,15 @@ class Service(UrlService):
             score = self.scores_latest.get(model, 0)        
         score = 0 if np.isnan(score) else score
 
+        # update sample scores
         if model in self.scores_samples:
             self.scores_samples[model].append(score)
         else:
             self.scores_samples[model] = [score]
-        self.scores_samples[model] = self.scores_samples[model][-1000:]
+        self.scores_samples[model] = self.scores_samples[model][-self.n_samples:]
 
+        # convert score to percentile
         score = percentileofscore(self.scores_samples[model], score)
-
-        if self.cf_norm:
-            if self.max.get(model, 1) == 0:
-                self.update_min(model, score)
-                self.update_max(model, score)
-                score = 0
-            elif self.max.get(model, 1) == self.min.get(model, 0):
-                self.update_min(model, score)
-                self.update_max(model, score)
-                score = 0
-            else:
-                score = ( score - self.min.get(model, 0) ) / ( self.max.get(model, 1) - self.min.get(model, 0) )
-                self.update_min(model, score)
-                self.update_max(model, score)
 
         return score
 
