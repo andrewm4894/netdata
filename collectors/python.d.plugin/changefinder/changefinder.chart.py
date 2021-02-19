@@ -19,11 +19,19 @@ disabled_by_default = True
 def charts_template():
     order = [
         'score',
+        'score_p99',
     ]
 
     charts = {
         'score': {
             'options': [None, 'ChangeFinder', 'score', 'ChangeFinder', 'score', 'line'],
+            'lines': [],
+            'variables': [
+                [],
+            ]
+        },
+        'p99': {
+            'options': [None, 'ChangeFinder p99', 'flag', 'ChangeFinder p99', 'flag', 'stacked'],
             'lines': [],
             'variables': [
                 [],
@@ -63,20 +71,6 @@ class Service(UrlService):
         self.scores_latest = {}
         self.scores_samples = {}
 
-    def update_min(self, model, score):
-        if model not in self.min:
-            self.min[model] = score
-        else:
-            if score < self.min[model]:
-                self.min[model] = score
-
-    def update_max(self, model, score):
-        if model not in self.max:
-            self.max[model] = score
-        else:
-            if score > self.max[model]:
-                self.max[model] = score
-
     def get_score(self, x, model):
 
         # get score
@@ -98,8 +92,9 @@ class Service(UrlService):
 
         # convert score to percentile
         score = percentileofscore(self.scores_samples[model], score)
+        p99 = 1 if score >= 0.99 else 0
 
-        return score
+        return score, p99
 
     def update_chart(self, chart, data):
         if not self.charts:
@@ -116,7 +111,8 @@ class Service(UrlService):
 
         raw_data = loads(raw_data)
         charts = list(filter(self.charts_regex.match, raw_data.keys()))
-        data = {}
+        data_score = {}
+        data_p99 = {}
 
         for chart in charts:
 
@@ -129,8 +125,9 @@ class Service(UrlService):
                     x_diff = x - self.x_latest.get(chart, 0)
                     self.x_latest[chart] = x
                     x = x_diff
-                score = self.get_score(x, chart)
-                data[chart] = score * 100
+                score, p99 = self.get_score(x, chart)
+                data_score[chart] = score * 100
+                data_p99[chart] = p99
 
             else:
 
@@ -143,10 +140,14 @@ class Service(UrlService):
                         x_diff = x - self.x_latest.get(dim, 0)
                         self.x_latest[dim] = x
                         x = x_diff
-                    score = self.get_score(x, dim)
-                    data[dim] = score * 100
+                    score, p99 = self.get_score(x, chart)
+                    data_score[dim] = score * 100
+                    data_p99[dim] = p99
         
-        self.update_chart('score', data)
+        self.update_chart('score', data_score)
+        self.update_chart('p99', data_p99)
+
+        data = {**data_score, **data_p99}
 
         return data
     
