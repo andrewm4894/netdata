@@ -127,7 +127,7 @@ class Service(UrlService):
                     x = x_diff
                 score, p99 = self.get_score(x, chart)
                 data_score[chart] = score * 100
-                data_p99[chart] = p99
+                data_p99['{}_p99'.format(chart)] = p99
 
             else:
 
@@ -142,7 +142,7 @@ class Service(UrlService):
                         x = x_diff
                     score, p99 = self.get_score(x, chart)
                     data_score[dim] = score * 100
-                    data_p99[dim] = p99
+                    data_p99['{}_p99'.format(dim)] = p99
         
         self.update_chart('score', data_score)
         self.update_chart('p99', data_p99)
