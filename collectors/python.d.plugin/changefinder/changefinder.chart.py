@@ -18,12 +18,12 @@ disabled_by_default = True
 
 def charts_template():
     order = [
-        'changefinder',
+        'score',
     ]
 
     charts = {
-        'changefinder': {
-            'options': [None, 'ChangeFinder', 'score', 'score', 'score', 'stacked'],
+        'score': {
+            'options': [None, 'ChangeFinder', 'score', 'ChangeFinder', 'score', 'stacked'],
             'lines': [],
             'variables': [
                 [],
@@ -158,7 +158,7 @@ class Service(UrlService):
                     score = self.get_score(x, dim)
                     data[dim] = score * 100
         
-        self.update_chart('changefinder', data)
+        self.update_chart('score', data)
 
         return data
     
