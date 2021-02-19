@@ -38,7 +38,7 @@ DEFAULT_CHARTS_REGEX = 'system.*'
 DEFAULT_MODE = 'per_dim'
 DEFAULT_CF_R = '0.5'
 DEFAULT_CF_ORDER = '2'
-DEFAULT_CF_SMOOTH = '15'
+DEFAULT_CF_SMOOTH = '30'
 
 
 class Service(UrlService):
