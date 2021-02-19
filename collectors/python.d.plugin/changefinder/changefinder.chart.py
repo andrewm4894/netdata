@@ -34,7 +34,7 @@ def charts_template():
 
 DEFAULT_PROTOCOL = 'http'
 DEFAULT_HOST = '127.0.0.1:19999'
-DEFAULT_CHARTS_REGEX = 'system\..*'
+DEFAULT_CHARTS_REGEX = 'system.*'
 DEFAULT_MODE = 'per_dim'
 DEFAULT_CF_R = '0.5'
 DEFAULT_CF_ORDER = '1'
