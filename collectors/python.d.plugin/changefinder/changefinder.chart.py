@@ -54,7 +54,8 @@ class Service(UrlService):
         self.cf_smooth = int(self.configuration.get('cf_smooth', DEFAULT_CF_SMOOTH))
         self.url = '{}://{}/api/v1/allmetrics?format=json'.format(self.protocol, self.host)
         self.models = {}
-        self.scores = {}
+        self.x_latest = {}
+        self.scores_latest = {}
         self.min = {}
         self.max = {}
 
@@ -77,9 +78,9 @@ class Service(UrlService):
             self.models[model] = changefinder.ChangeFinder(r=self.cf_r, order=self.cf_order, smooth=self.cf_smooth)
         try:
             score = self.models[model].update(x)
-            self.scores[model] = score
+            self.scores_latest[model] = score
         except:
-            score = self.scores.get(model, 0)        
+            score = self.scores_latest.get(model, 0)        
         score = 0 if np.isnan(score) else score
         if norm:
             if self.max.get(model, 1) == 0:
@@ -121,7 +122,9 @@ class Service(UrlService):
                 x = [raw_data[chart]['dimensions'][x]['value'] for x in raw_data[chart]['dimensions']]
                 x = [x for x in x if x is not None]
                 x = sum(x) / len(x)
-                score = self.get_score(x, chart)
+                x_diff = x - self.x_latest.get(chart, 0)
+                self.x_latest[chart] = x
+                score = self.get_score(x_diff, chart)
                 data[chart] = score * 100
 
             else:
@@ -131,7 +134,9 @@ class Service(UrlService):
                     x = raw_data[chart]['dimensions'][dim]['value']
                     x = x if x else 0
                     dim = '{}|{}'.format(chart, dim)
-                    score = self.get_score(x, dim)
+                    x_diff = x - self.x_latest.get(dim, 0)
+                    self.x_latest[dim] = x
+                    score = self.get_score(x_diff, dim)
                     data[dim] = score * 100
         
         self.update_chart('changefinder', data)
