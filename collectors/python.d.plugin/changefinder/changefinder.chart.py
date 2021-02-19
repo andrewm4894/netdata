@@ -11,7 +11,7 @@ from bases.FrameworkServices.UrlService import UrlService
 import numpy as np
 import changefinder
 
-update_every = 2
+update_every = 1
 disabled_by_default = True
 
 
@@ -36,9 +36,10 @@ DEFAULT_PROTOCOL = 'http'
 DEFAULT_HOST = '127.0.0.1:19999'
 DEFAULT_CHARTS_REGEX = 'system.*'
 DEFAULT_MODE = 'per_dim'
-DEFAULT_CF_R = '0.5'
-DEFAULT_CF_ORDER = '1'
-DEFAULT_CF_SMOOTH = '7'
+DEFAULT_CF_R = 0.5
+DEFAULT_CF_ORDER = 1
+DEFAULT_CF_SMOOTH = 7
+DEFAULT_CF_DIFF = False
 
 
 class Service(UrlService):
@@ -52,6 +53,7 @@ class Service(UrlService):
         self.cf_r = float(self.configuration.get('cf_r', DEFAULT_CF_R))
         self.cf_order = int(self.configuration.get('cf_order', DEFAULT_CF_ORDER))
         self.cf_smooth = int(self.configuration.get('cf_smooth', DEFAULT_CF_SMOOTH))
+        self.cf_diff = int(self.configuration.get('cf_diff', DEFAULT_CF_DIFF))
         self.url = '{}://{}/api/v1/allmetrics?format=json'.format(self.protocol, self.host)
         self.models = {}
         self.x_latest = {}
