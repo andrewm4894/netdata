@@ -10,6 +10,7 @@ from bases.FrameworkServices.UrlService import UrlService
 
 import numpy as np
 import changefinder
+from scipy.stats import percentileofscore
 
 update_every = 1
 disabled_by_default = True
@@ -60,6 +61,7 @@ class Service(UrlService):
         self.models = {}
         self.x_latest = {}
         self.scores_latest = {}
+        self.scores_samples = {}
         self.min = {}
         self.max = {}
 
@@ -86,6 +88,15 @@ class Service(UrlService):
         except:
             score = self.scores_latest.get(model, 0)        
         score = 0 if np.isnan(score) else score
+
+        if model in self.scores_samples:
+            self.scores_samples[model].append(score)
+        else:
+            self.scores_samples[model] = [score]
+        self.scores_samples[model] = self.scores_samples[model][-1000:]
+
+        score = percentileofscore(self.scores_samples[model], score)
+
         if self.cf_norm:
             if self.max.get(model, 1) == 0:
                 self.update_min(model, score)

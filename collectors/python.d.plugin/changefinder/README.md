@@ -8,5 +8,5 @@ custom_edit_url: https://github.com/netdata/netdata/edit/master/collectors/pytho
 ```
 pip3 install git+git://github.com/shunsukeaihara/changefinder.git@e57a49ede25cab2312604fc54dcbdcf02184e9e4
 
-pip3 install numpy changefinder==0.03
+pip3 install numpy changefinder==0.03 scipy==1.6.1
 ```
