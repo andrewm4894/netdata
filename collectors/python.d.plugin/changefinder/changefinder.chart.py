@@ -92,7 +92,7 @@ class Service(UrlService):
 
         # convert score to percentile
         score = percentileofscore(self.scores_samples[model], score)
-        p99 = 1 if score >= 0.99 else 0
+        p99 = 1 if score >= 99 else 0
 
         return score, p99
 
