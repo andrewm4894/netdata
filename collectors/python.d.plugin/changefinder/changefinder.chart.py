@@ -34,8 +34,8 @@ def charts_template():
 
 DEFAULT_PROTOCOL = 'http'
 DEFAULT_HOST = '127.0.0.1:19999'
-DEFAULT_CHARTS_REGEX = 'system.*|apps.*'
-DEFAULT_MODE = 'per_chart'
+DEFAULT_CHARTS_REGEX = 'system.*'
+DEFAULT_MODE = 'per_dim'
 DEFAULT_CF_R = '0.5'
 DEFAULT_CF_ORDER = '1'
 DEFAULT_CF_SMOOTH = '15'
@@ -71,23 +71,24 @@ class Service(UrlService):
             if score > self.max[model]:
                 self.max[model] = score
 
-    def get_score(self, x, model):
+    def get_score(self, x, model, norm=False):
         if model not in self.models:
             self.models[model] = changefinder.ChangeFinder(r=self.cf_r, order=self.cf_order, smooth=self.cf_smooth)
         score = self.models[model].update(x)
         score = 0 if np.isnan(score) else score
-        if self.max.get(model, 1) == 0:
-            self.update_min(model, score)
-            self.update_max(model, score)
-            score = 0
-        elif self.max.get(model, 1) == self.min.get(model, 0):
-            self.update_min(model, score)
-            self.update_max(model, score)
-            score = 0
-        else:
-            score = ( score - self.min.get(model, 0) ) / ( self.max.get(model, 1) - self.min.get(model, 0) )
-            self.update_min(model, score)
-            self.update_max(model, score)
+        if norm:
+            if self.max.get(model, 1) == 0:
+                self.update_min(model, score)
+                self.update_max(model, score)
+                score = 0
+            elif self.max.get(model, 1) == self.min.get(model, 0):
+                self.update_min(model, score)
+                self.update_max(model, score)
+                score = 0
+            else:
+                score = ( score - self.min.get(model, 0) ) / ( self.max.get(model, 1) - self.min.get(model, 0) )
+                self.update_min(model, score)
+                self.update_max(model, score)
 
         return score
 
