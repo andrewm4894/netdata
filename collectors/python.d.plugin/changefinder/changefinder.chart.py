@@ -19,7 +19,7 @@ disabled_by_default = True
 def charts_template():
     order = [
         'score',
-        'score_p99',
+        'p99',
     ]
 
     charts = {
