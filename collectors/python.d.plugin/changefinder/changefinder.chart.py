@@ -47,7 +47,7 @@ DEFAULT_CF_SMOOTH = 15
 DEFAULT_CF_DIFF = False
 DEFAULT_CF_THRESHOLD = 99
 DEFAULT_N_SCORE_SAMPLES = 3600
-DEFAULT_SHOW_SCORES = False
+DEFAULT_SHOW_SCORES = True
 
 
 class Service(UrlService):
@@ -162,7 +162,8 @@ class Service(UrlService):
                     data_score['{}_score'.format(chart_dim)] = score * 100
                     data_flag[chart_dim] = flag
 
-        self.update_chart('scores', data_score, divisor=100)
+        if self.show_scores:
+            self.update_chart('scores', data_score, divisor=100)
         self.update_chart('flags', data_flag)
 
         data = {**data_score, **data_flag}
