@@ -23,17 +23,11 @@ ORDER = [
 CHARTS = {
     'scores': {	
         'options': [None, 'ChangeFinder', 'score', 'Scores', 'scores', 'line'],	
-        'lines': [],	
-        'variables': [	
-            [],	
-        ]	
+        'lines': []	
     },
     'flags': {
         'options': [None, 'ChangeFinder', 'flag', 'Flags', 'flags', 'stacked'],
-        'lines': [],
-        'variables': [
-            [],
-        ]
+        'lines': []
     }
 }
 
@@ -115,6 +109,8 @@ class Service(UrlService):
                 self.charts[chart].add_dimension([dim, dim, algo, multiplier, divisor])
 
     def diff(self, x, model):
+        """Take difference of data.
+        """
         x_diff = x - self.x_latest.get(model, 0)
         self.x_latest[model] = x
         x = x_diff
@@ -136,6 +132,7 @@ class Service(UrlService):
         data_score = {}
         data_flag = {}
 
+        # process each chart
         for chart in charts_in_scope:
 
             if self.mode == 'per_chart':
