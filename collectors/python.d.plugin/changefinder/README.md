@@ -111,7 +111,7 @@ local:
 To see any relevant log messages you can use a command like below.
 
 ```bash
-`grep 'changefinder' /var/log/netdata/error.log`
+grep 'changefinder' /var/log/netdata/error.log
 ```
 
 If you would like to log in as `netdata` user and run the collector in debug mode to see more detail.
