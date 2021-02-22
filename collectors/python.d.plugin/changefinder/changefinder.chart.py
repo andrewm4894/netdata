@@ -16,20 +16,20 @@ update_every = 1
 disabled_by_default = True
 
 ORDER = [
-    'score',
-    'flag'
+    'scores',
+    'flags'
 ]
 
 CHARTS = {
-    'score': {	
-        'options': [None, 'ChangeFinder', 'score', 'ChangeFinder', 'score', 'line'],	
+    'scores': {	
+        'options': [None, 'ChangeFinder', 'score', 'Scores', 'scores', 'line'],	
         'lines': [],	
         'variables': [	
             [],	
         ]	
     },
-    'flag': {
-        'options': [None, 'ChangeFinder', 'flag', 'ChangeFinder Flags', 'flag', 'stacked'],
+    'flags': {
+        'options': [None, 'ChangeFinder', 'flag', 'Flags', 'flags', 'stacked'],
         'lines': [],
         'variables': [
             [],
@@ -160,8 +160,8 @@ class Service(UrlService):
                     data_score['{}_score'.format(chart_dim)] = score * 100
                     data_flag[chart_dim] = flag
 
-        self.update_chart('score', data_score, divisor=100)
-        self.update_chart('flag', data_flag)
+        self.update_chart('scores', data_score, divisor=100)
+        self.update_chart('flags', data_flag)
 
         data = {**data_score, **data_flag}
 
