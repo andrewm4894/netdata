@@ -104,19 +104,32 @@ class Service(UrlService):
         return score, flag
 
     def update_chart(self, chart, data, algo='absolute', multiplier=1, divisor=1):
+        """Add dimensions found in data to chart if needed.
+        """
         if not self.charts:
             return
+
         for dim in data:
             if dim not in self.charts[chart]:
                 self.charts[chart].add_dimension([dim, dim, algo, multiplier, divisor])
 
+    def diff(self, x, model):
+        x_diff = x - self.x_latest.get(model, 0)
+        self.x_latest[model] = x
+        x = x_diff
+        return x
+    
     def _get_data(self):
+
+        # pull data from self.url
         raw_data = self._get_raw_data()
         if raw_data is None:
             return None
 
+        # filter to just the data for self.charts_regex
         raw_data = loads(raw_data)
         charts_in_scope = list(filter(self.charts_regex.match, raw_data.keys()))
+
         data_score = {}
         data_flag = {}
 
@@ -124,31 +137,30 @@ class Service(UrlService):
 
             if self.mode == 'per_chart':
 
-                x = [raw_data[chart]['dimensions'][x]['value'] for x in raw_data[chart]['dimensions']]
+                # average dims on chart and run changefinder on that average
+                x = [raw_data[chart]['dimensions'][dim]['value'] for dim in raw_data[chart]['dimensions']]
                 x = [x for x in x if x is not None]
                 x = sum(x) / len(x)
-                if self.cf_diff:
-                    x_diff = x - self.x_latest.get(chart, 0)
-                    self.x_latest[chart] = x
-                    x = x_diff
+                x = self.diff(x, chart) if self.cf_diff else x
+
                 score, flag = self.get_score(x, chart)
                 data_score['{}_score'.format(chart)] = score * 100
                 data_flag[chart] = flag
 
             else:
 
+                # run changefinder on each individual dim
                 for dim in raw_data[chart]['dimensions']:
+
+                    chart_dim = '{}|{}'.format(chart, dim)
 
                     x = raw_data[chart]['dimensions'][dim]['value']
                     x = x if x else 0
-                    dim = '{}|{}'.format(chart, dim)
-                    if self.cf_diff:
-                        x_diff = x - self.x_latest.get(dim, 0)
-                        self.x_latest[dim] = x
-                        x = x_diff
-                    score, flag = self.get_score(x, dim)
-                    data_score['{}_score'.format(dim)] = score * 100
-                    data_flag[dim] = flag
+                    x = self.diff(x, chart_dim) if self.cf_diff else x
+
+                    score, flag = self.get_score(x, chart_dim)
+                    data_score['{}_score'.format(chart_dim)] = score * 100
+                    data_flag[chart_dim] = flag
 
         self.update_chart('score', data_score, divisor=100)
         self.update_chart('flag', data_flag)
