@@ -144,7 +144,8 @@ class Service(UrlService):
                 x = self.diff(x, chart) if self.cf_diff else x
 
                 score, flag = self.get_score(x, chart)
-                data_score['{}_score'.format(chart)] = score * 100
+                if self.show_scores:
+                    data_score['{}_score'.format(chart)] = score * 100
                 data_flag[chart] = flag
 
             else:
@@ -159,7 +160,8 @@ class Service(UrlService):
                     x = self.diff(x, chart_dim) if self.cf_diff else x
 
                     score, flag = self.get_score(x, chart_dim)
-                    data_score['{}_score'.format(chart_dim)] = score * 100
+                    if self.show_scores:
+                        data_score['{}_score'.format(chart_dim)] = score * 100
                     data_flag[chart_dim] = flag
 
         if self.show_scores:
