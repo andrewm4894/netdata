@@ -114,11 +114,11 @@ class Service(UrlService):
             return None
 
         raw_data = loads(raw_data)
-        charts = list(filter(self.charts_regex.match, raw_data.keys()))
+        charts_in_scope = list(filter(self.charts_regex.match, raw_data.keys()))
         data_score = {}
         data_flag = {}
 
-        for chart in charts:
+        for chart in charts_in_scope:
 
             if self.mode == 'per_chart':
 
