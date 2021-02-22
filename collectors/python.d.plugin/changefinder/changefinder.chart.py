@@ -55,6 +55,9 @@ class Service(UrlService):
         UrlService.__init__(self, configuration=configuration, name=name)
         self.order = ORDER
         self.definitions = CHARTS
+        self.protocol = self.configuration.get('protocol', DEFAULT_PROTOCOL)
+        self.host = self.configuration.get('host', DEFAULT_HOST)
+        self.url = '{}://{}/api/v1/allmetrics?format=json'.format(self.protocol, self.host)
         self.charts_regex = re.compile(self.configuration.get('charts_regex', DEFAULT_CHARTS_REGEX))
         self.mode = self.configuration.get('mode', DEFAULT_MODE)
         self.n_score_samples = int(self.configuration.get('n_score_samples', DEFAULT_N_SCORE_SAMPLES))
@@ -63,8 +66,7 @@ class Service(UrlService):
         self.cf_order = int(self.configuration.get('cf_order', DEFAULT_CF_ORDER))
         self.cf_smooth = int(self.configuration.get('cf_smooth', DEFAULT_CF_SMOOTH))
         self.cf_diff = bool(self.configuration.get('cf_diff', DEFAULT_CF_DIFF))
-        self.cf_threshold = float(self.configuration.get('cf_threshold', DEFAULT_CF_THRESHOLD))
-        self.url = '{}://{}/api/v1/allmetrics?format=json'.format(self.protocol, self.host)
+        self.cf_threshold = float(self.configuration.get('cf_threshold', DEFAULT_CF_THRESHOLD))        
         self.models = {}
         self.x_latest = {}
         self.scores_latest = {}
