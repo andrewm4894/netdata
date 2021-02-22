@@ -104,6 +104,8 @@ class Service(UrlService):
         return score, flag
 
     def update_chart(self, chart, data, algo='absolute', multiplier=1, divisor=1):
+        if not self.charts:
+            return
         for dim in data:
             if dim not in self.charts[chart]:
                 self.charts[chart].add_dimension([dim, dim, algo, multiplier, divisor])
