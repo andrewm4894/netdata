@@ -42,7 +42,6 @@ DEFAULT_CF_DIFF = False
 DEFAULT_CF_THRESHOLD = 99
 DEFAULT_N_SCORE_SAMPLES = 14400
 DEFAULT_SHOW_SCORES = False
-DEFAULT_INCLUDE_CHANGE_COUNT = True
 
 
 class Service(UrlService):
@@ -58,7 +57,6 @@ class Service(UrlService):
         self.mode = self.configuration.get('mode', DEFAULT_MODE)
         self.n_score_samples = int(self.configuration.get('n_score_samples', DEFAULT_N_SCORE_SAMPLES))
         self.show_scores = int(self.configuration.get('show_scores', DEFAULT_SHOW_SCORES))
-        self.include_change_count = bool(self.configuration.get('include_change_count', DEFAULT_INCLUDE_CHANGE_COUNT))
         self.cf_r = float(self.configuration.get('cf_r', DEFAULT_CF_R))
         self.cf_order = int(self.configuration.get('cf_order', DEFAULT_CF_ORDER))
         self.cf_smooth = int(self.configuration.get('cf_smooth', DEFAULT_CF_SMOOTH))
@@ -165,9 +163,6 @@ class Service(UrlService):
                     if self.show_scores:
                         data_score['{}_score'.format(chart_dim)] = score * 100
                     data_flag[chart_dim] = flag
-
-        if self.include_change_count:
-            data_flag['change_count'] = sum(data_flag.values())
 
         if self.show_scores:
             data_score['average_score'] = sum(data_score.values()) / len(data_score)
