@@ -38,8 +38,8 @@ pip3 install --user numpy changefinder==0.03 scipy==1.5.4
 
 ```yaml
 [plugin:python.d]
-	# update every = 1
-	command options = -ppython3
+  # update every = 1  
+  command options = -ppython3
 ```
 
 ## Configuration
