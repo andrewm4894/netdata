@@ -136,9 +136,6 @@ sudo su -s /bin/bash netdata
   - Yamanishi K, Takeuchi J. A unifying framework for detecting outliers and change points from nonstationary time series data. 8th ACM SIGKDD international conference on Knowledge discovery and data mining - KDD ’02. 2002:676. ([pdf](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.12.3469&rep=rep1&type=pdf))
   - Kawahara Y, Sugiyama M. Sequential Change-Point Detection Based on Direct Density-Ratio Estimation. SIAM International Conference on Data Mining. 2009:389–400. ([pdf](https://onlinelibrary.wiley.com/doi/epdf/10.1002/sam.10124))
   - Liu S, Yamada M, Collier N, Sugiyama M. Change-point detection in time-series data by relative densityratio estimation. Neural Netw. Jul.2013 43:72–83. [PubMed: 23500502] ([pdf](https://arxiv.org/pdf/1203.0453.pdf))
-  - 
-  - ["Sequential change‐point detection based on direct density‐ratio estimation"](https://onlinelibrary.wiley.com/doi/epdf/10.1002/sam.10124)
-- A detailed [academic paper](https://www.arc.ics.keio.ac.jp/~matutani/papers/iwata_heteropar2018.pdf) that discusses the ChangeFinder algorithim.
 - The [ruptures](https://github.com/deepcharles/ruptures) python package is also a good place to learn more about changepoint detection (mostly offline as opposed to online but deals with similar concepts). 
 - A nice [blog post](https://techrando.com/2019/08/14/a-brief-introduction-to-change-point-detection-using-python/) showing some of the other options and libraries for changepoint detection in Python.
 - [Bayesian changepoint detection](https://github.com/hildensia/bayesian_changepoint_detection) library - we may explore implementing a collector for this or integrating this approach into this collector at a future date if there is interest and it proves computationaly feasible.
