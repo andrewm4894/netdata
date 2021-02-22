@@ -6,9 +6,9 @@ custom_edit_url: https://github.com/netdata/netdata/edit/master/collectors/pytho
 
 # Online changepoint detection with Netdata
 
-The collector uses the Python [changefinder](https://github.com/shunsukeaihara/changefinder) library to perform online change point detection on your Netdata charts and/or dimensions.
+The collector uses the Python [changefinder](https://github.com/shunsukeaihara/changefinder) library to perform online changepoint detection on your Netdata charts and/or dimensions.
 
-Instead of this collector just _collecting_ data, it also does some computation on the data it collects to return an changepoint score for each chart or dimension you configure it to work on. As this is an [online](https://en.wikipedia.org/wiki/Online_machine_learning) machine learning algorithim there is no batch step to train a model, instead the model evolves over time as it see's more data. This makes this particualr algorithim quite cheap to compute at each step of data collection.  
+Instead of this collector just _collecting_ data, it also does some computation on the data it collects to return a changepoint score and flag for each chart or dimension you configure it to work on. This is an [online](https://en.wikipedia.org/wiki/Online_machine_learning) machine learning algorithim so there is no batch step to train the model, instead it evolves over time as more data arrives. This makes this particualr algorithim quite cheap to compute at each step of data collection (see the notes section below for more details) and it should scale fairly easily to work on lots of charts or hosts (if running on a parent node for example).
 
 > As this is a somewhat unique collector and involves often subjective concepts like changepoints and anomalies, we would love to hear any feedback on it from the community. Please let us know on the [community forum](https://community.netdata.cloud/) or drop us a note at [analytics-ml-team@netdata.cloud](mailto:analytics-ml-team@netdata.cloud) for any and all feedback, both positive and negative. This sort of feedback is priceless to help us make complex features more useful.
 
@@ -132,6 +132,12 @@ sudo su -s /bin/bash netdata
 
 - [PyPi changefinder](https://pypi.org/project/changefinder/) reference page. 
 - [GitHub repo](https://github.com/shunsukeaihara/changefinder) for the changefinder library.
+- Relevant academic papers:
+  - Yamanishi K, Takeuchi J. A unifying framework for detecting outliers and change points from nonstationary time series data. 8th ACM SIGKDD international conference on Knowledge discovery and data mining - KDD ’02. 2002:676. ([pdf](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.12.3469&rep=rep1&type=pdf))
+  - Kawahara Y, Sugiyama M. Sequential Change-Point Detection Based on Direct Density-Ratio Estimation. SIAM International Conference on Data Mining. 2009:389–400. ([pdf](https://onlinelibrary.wiley.com/doi/epdf/10.1002/sam.10124))
+  - Liu S, Yamada M, Collier N, Sugiyama M. Change-point detection in time-series data by relative densityratio estimation. Neural Netw. Jul.2013 43:72–83. [PubMed: 23500502] ([pdf](https://arxiv.org/pdf/1203.0453.pdf))
+  - 
+  - ["Sequential change‐point detection based on direct density‐ratio estimation"](https://onlinelibrary.wiley.com/doi/epdf/10.1002/sam.10124)
 - A detailed [academic paper](https://www.arc.ics.keio.ac.jp/~matutani/papers/iwata_heteropar2018.pdf) that discusses the ChangeFinder algorithim.
 - The [ruptures](https://github.com/deepcharles/ruptures) python package is also a good place to learn more about changepoint detection (mostly offline as opposed to online but deals with similar concepts). 
 - A nice [blog post](https://techrando.com/2019/08/14/a-brief-introduction-to-change-point-detection-using-python/) showing some of the other options and libraries for changepoint detection in Python.
