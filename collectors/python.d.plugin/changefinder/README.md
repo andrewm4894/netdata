@@ -125,11 +125,11 @@ sudo su -s /bin/bash netdata
 
 ## Notes
 
-- It may take a few hours or so (depending on your choice of `n_score_samples`) for the collector to 'settle' into it's typical behaviour in terms of the trained models and scores you will see in the normal running of your node. Mainly this is because it can take a while to build up a proper distribution of previous scores in over to convert the raw score returned by the ChangeFinder algorithim into a percentile based on the most recent `n_score_samples` that have already been produced. So when you first turn the collector on, it will have a lot of flags in the begining and then 'settle' down once it has built up enough histroy. This is a typical characteristic of online machine learning approaches which need some initial window of time before they can be useful. 
+- It may take an hour or two (depending on your choice of `n_score_samples`) for the collector to 'settle' into it's typical behaviour in terms of the trained models and scores you will see in the normal running of your node. Mainly this is because it can take a while to build up a proper distribution of previous scores in over to convert the raw score returned by the ChangeFinder algorithim into a percentile based on the most recent `n_score_samples` that have already been produced. So when you first turn the collector on, it will have a lot of flags in the begining and then should 'settle down' once it has built up enough history. This is a typical characteristic of online machine learning approaches which need some initial window of time before they can be useful. 
 - As this collector does most of the work in Python itself, you may want to try it out first on a test or development system to get a sense of its performance characteristics on a node similar to where you would like to use it.
 - On a development n1-standard-2 (2 vCPUs, 7.5 GB memory) vm running Ubuntu 18.04 LTS and not doing any work some of the typical performance characteristics we saw from running this collector (with defaults) were:
   - A runtime (`netdata.runtime_changefinder`) of ~30ms.
-  - Typically ~1%-1.5% additional cpu usage.
+  - Typically ~1% additional cpu usage.
   - About ~85mb of ram (`apps.mem`) being continually used by the `python.d.plugin` under default configuration.
 
 ## Useful links and further reading
