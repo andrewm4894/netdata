@@ -4,11 +4,11 @@ description: "Use ML-driven change point detection to narrow your focus and shor
 custom_edit_url: https://github.com/netdata/netdata/edit/master/collectors/python.d.plugin/changefinder/README.md
 -->
 
-# Online change point detection with Netdata
+# Online changepoint detection with Netdata
 
 The collector uses the Python [changefinder](https://github.com/shunsukeaihara/changefinder) library to perform online change point detection on your Netdata charts and/or dimensions.
 
-Instead of this collector just _collecting_ data, it also does some computation on the data it collects to return an changepoint detection score for each chart or dimension you configure it to work on. As this is an [online](https://en.wikipedia.org/wiki/Online_machine_learning) machine learning algorithim there is no batch step to train a model. Instead the model evolves over time as it see's more and more data. This makes this particualr algorithim quite cheap to compute at each step of data collection.  
+Instead of this collector just _collecting_ data, it also does some computation on the data it collects to return an changepoint score for each chart or dimension you configure it to work on. As this is an [online](https://en.wikipedia.org/wiki/Online_machine_learning) machine learning algorithim there is no batch step to train a model, instead the model evolves over time as it see's more data. This makes this particualr algorithim quite cheap to compute at each step of data collection.  
 
 > As this is a somewhat unique collector and involves often subjective concepts like changepoints and anomalies, we would love to hear any feedback on it from the community. Please let us know on the [community forum](https://community.netdata.cloud/) or drop us a note at [analytics-ml-team@netdata.cloud](mailto:analytics-ml-team@netdata.cloud) for any and all feedback, both positive and negative. This sort of feedback is priceless to help us make complex features more useful.
 
@@ -19,13 +19,13 @@ Two charts are available:
 - **ChangeFinder Scores** (`changefinder.scores`): This chart (turned off by default but available with `show_scores: true`) score the percentile of the score that is output from the ChangeFinder library. So a high observed score is more likley to be a valid changepoint worth exploring, even more so when multiple charts of dimensions have high changepoint scores at the same time.
 - **ChangeFinder Flags** (`changefinder.flags`): This chart shows `1` or `0` if the latest score has a percentile value that exceeds the `cf_threshold` threshold. By default any scores that are in the 99th or above threshold will raise a flag on this chart. The changefinder score itself can be a little noisey and so limiting ourselves to just periods where it surpasses the 99th percentile of recent observed scores can help manage the signal to noise ratio better. The `cf_threshold` paramater might be one you want to play around with to tune things a little more specific for the workloads on your node and the specific charts you want to monitor. For example maybe the 95th percentile might work better for you then the 99th percentile (likley at the cost of a little more noise on the chart over time).
 
-Below is an example of the charts produced by this collector and how they might look when things are 'normal' on the node. There will likley be some normal amount of 'change' picked up by the collector as it runs. 
+Below is an example of the chart produced by this collector. The first 3/4 of the period looks normal in that we see a few changes being picked up fairly randomly over time. But then at around 14:59 towards the end of the chart
 
-![changepoint-collector-normal](https://user-images.githubusercontent.com/2178292/100663699-99755000-334e-11eb-922f-0c41a0176484.jpg)
+ and how they might look when things are 'normal' on the node. There will likley be some normal amount of 'change' picked up by the collector as it runs. 
 
 What is more interesting might be periods where we seem to have more changes detected than usual. In this case we can use the changefinder flags to dive deeper on the individual charts or dimensions that have been flagged to see if they are changes that we need to concern ourselves with or not.  
 
-![changepoint-collector-abnormal](https://user-images.githubusercontent.com/2178292/100663699-99755000-334e-11eb-922f-0c41a0176484.jpg)
+![changepoint-collector](https://raw.githubusercontent.com/andrewm4894/random/master/images/netdata/netdata-changefinder-collector.jpg)
 
 ## Requirements
 
