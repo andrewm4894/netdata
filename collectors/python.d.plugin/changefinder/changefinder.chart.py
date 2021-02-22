@@ -130,7 +130,7 @@ class Service(UrlService):
                     self.x_latest[chart] = x
                     x = x_diff
                 score, flag = self.get_score(x, chart)
-                data_score[chart] = score * 100
+                data_score['{}_score'.format(chart)] = score * 100
                 data_flag[chart] = flag
 
             else:
@@ -145,12 +145,12 @@ class Service(UrlService):
                         self.x_latest[dim] = x
                         x = x_diff
                     score, flag = self.get_score(x, dim)
-                    data_score[dim] = score * 100
+                    data_score['{}_score'.format(dim)] = score * 100
                     data_flag[dim] = flag
 
         self.update_chart('score', data_score, divisor=100)
         self.update_chart('flag', data_flag)
-        
+
         data = {**data_score, **data_flag}
 
         return data
