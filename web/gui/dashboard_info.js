@@ -586,7 +586,7 @@ netdataDashboard.menu = {
     'changefinder': {
         title: 'ChangeFinder',
         icon: '<i class="fas fa-flask"></i>',
-        info: 'Use ML to detect changes on charts. More details <a href="https://github.com/netdata/netdata/blob/master/collectors/python.d.plugin/changefinder/README.md" target="_blank">here</a>.'
+        info: 'Online changepoint detection using machine learning. More details <a href="https://github.com/netdata/netdata/blob/master/collectors/python.d.plugin/changefinder/README.md" target="_blank">here</a>.'
     },
 
 };
