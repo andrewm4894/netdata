@@ -59,6 +59,7 @@ class Service(UrlService):
         self.host = self.configuration.get('host', DEFAULT_HOST)
         self.url = '{}://{}/api/v1/allmetrics?format=json'.format(self.protocol, self.host)
         self.charts_regex = re.compile(self.configuration.get('charts_regex', DEFAULT_CHARTS_REGEX))
+        self.charts_to_exclude = self.configuration.get('charts_to_exclude', '').split(',')
         self.mode = self.configuration.get('mode', DEFAULT_MODE)
         self.n_score_samples = int(self.configuration.get('n_score_samples', DEFAULT_N_SCORE_SAMPLES))
         self.show_scores = int(self.configuration.get('show_scores', DEFAULT_SHOW_SCORES))
@@ -126,9 +127,11 @@ class Service(UrlService):
         if raw_data is None:
             return None
 
-        # filter to just the data for self.charts_regex
         raw_data = loads(raw_data)
+
+        # filter to just the data for the charts specified
         charts_in_scope = list(filter(self.charts_regex.match, raw_data.keys()))
+        charts_in_scope = [c for c in charts_in_scope if c not in self.charts_to_exclude]
 
         data_score = {}
         data_flag = {}
