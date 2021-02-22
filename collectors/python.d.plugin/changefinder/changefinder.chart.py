@@ -18,7 +18,7 @@ disabled_by_default = True
 ORDER = [
     'score',
     'flag'
-    ]
+]
 
 CHARTS = {
     'score': {	
@@ -35,7 +35,7 @@ CHARTS = {
             [],
         ]
     }
-    }
+}
 
 DEFAULT_PROTOCOL = 'http'
 DEFAULT_HOST = '127.0.0.1:19999'
