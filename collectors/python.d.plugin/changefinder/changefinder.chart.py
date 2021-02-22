@@ -15,31 +15,17 @@ from scipy.stats import percentileofscore
 update_every = 1
 disabled_by_default = True
 
+ORDER = ['flag']
 
-def charts_template():
-    order = [
-        'score',
-        'p99',
-    ]
-
-    charts = {
-        'score': {
-            'options': [None, 'ChangeFinder', 'score', 'ChangeFinder', 'score', 'line'],
-            'lines': [],
-            'variables': [
-                [],
-            ]
-        },
-        'p99': {
-            'options': [None, 'ChangeFinder p99', 'flag', 'ChangeFinder p99', 'flag', 'stacked'],
+CHARTS = {
+        'flag': {
+            'options': [None, 'ChangeFinder', 'flag', 'ChangeFinder Flags', 'flag', 'stacked'],
             'lines': [],
             'variables': [
                 [],
             ]
         }
     }
-    return order, charts
-
 
 DEFAULT_PROTOCOL = 'http'
 DEFAULT_HOST = '127.0.0.1:19999'
@@ -49,13 +35,15 @@ DEFAULT_CF_R = 0.5
 DEFAULT_CF_ORDER = 1
 DEFAULT_CF_SMOOTH = 15
 DEFAULT_CF_DIFF = False
+DEFAULT_CF_THRESHOLD = 99
 DEFAULT_N_SAMPLES = 3600
 
 
 class Service(UrlService):
     def __init__(self, configuration=None, name=None):
         UrlService.__init__(self, configuration=configuration, name=name)
-        self.order, self.definitions = charts_template()
+        self.order = ORDER
+        self.definitions = CHARTS
         self.host = self.configuration.get('host', DEFAULT_HOST)
         self.protocol = self.configuration.get('protocol', DEFAULT_PROTOCOL)
         self.charts_regex = re.compile(self.configuration.get('charts_regex', DEFAULT_CHARTS_REGEX))
@@ -65,6 +53,7 @@ class Service(UrlService):
         self.cf_order = int(self.configuration.get('cf_order', DEFAULT_CF_ORDER))
         self.cf_smooth = int(self.configuration.get('cf_smooth', DEFAULT_CF_SMOOTH))
         self.cf_diff = bool(self.configuration.get('cf_diff', DEFAULT_CF_DIFF))
+        self.cf_threshold = float(self.configuration.get('cf_threshold', DEFAULT_CF_THRESHOLD))
         self.url = '{}://{}/api/v1/allmetrics?format=json'.format(self.protocol, self.host)
         self.models = {}
         self.x_latest = {}
@@ -92,9 +81,11 @@ class Service(UrlService):
 
         # convert score to percentile
         score = percentileofscore(self.scores_samples[model], score)
-        p99 = 1 if score >= 99 else 0
+        
+        # flag based on score percentile
+        flag = 1 if score >= self.cf_threshold else 0
 
-        return score, p99
+        return flag
 
     def update_chart(self, chart, data):
         if not self.charts:
@@ -102,7 +93,7 @@ class Service(UrlService):
 
         for dim in data:
             if dim not in self.charts[chart]:
-                self.charts[chart].add_dimension([dim, dim, 'absolute', '1', 100])
+                self.charts[chart].add_dimension([dim, dim, 'absolute', '1', '1'])
 
     def _get_data(self):
         raw_data = self._get_raw_data()
@@ -111,8 +102,7 @@ class Service(UrlService):
 
         raw_data = loads(raw_data)
         charts = list(filter(self.charts_regex.match, raw_data.keys()))
-        data_score = {}
-        data_p99 = {}
+        data = {}
 
         for chart in charts:
 
@@ -125,9 +115,8 @@ class Service(UrlService):
                     x_diff = x - self.x_latest.get(chart, 0)
                     self.x_latest[chart] = x
                     x = x_diff
-                score, p99 = self.get_score(x, chart)
-                data_score[chart] = score * 100
-                data_p99['{}_p99'.format(chart)] = p99
+                flag = self.get_score(x, chart)
+                data[chart] = flag
 
             else:
 
@@ -140,14 +129,9 @@ class Service(UrlService):
                         x_diff = x - self.x_latest.get(dim, 0)
                         self.x_latest[dim] = x
                         x = x_diff
-                    score, p99 = self.get_score(x, chart)
-                    data_score[dim] = score * 100
-                    data_p99['{}_p99'.format(dim)] = p99
-        
-        self.update_chart('score', data_score)
-        self.update_chart('p99', data_p99)
+                    data[dim] = self.get_score(x, chart)
 
-        data = {**data_score, **data_p99}
+        self.update_chart('flag', data)
 
         return data
     
