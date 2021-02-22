@@ -34,6 +34,14 @@ sudo su -s /bin/bash netdata
 pip3 install --user numpy changefinder==0.03 scipy==1.5.4
 ```
 
+**Note**: if you need to tell Netdata to use Python 3 then you can pass the below command in the python plugin section of your `netdata.conf` file. 
+
+```yaml
+[plugin:python.d]
+	# update every = 1
+	command options = -ppython3
+```
+
 ## Configuration
 
 Install the Python requirements above, enable the collector and restart Netdata.
