@@ -174,4 +174,3 @@ class Service(UrlService):
         data = {**data_score, **data_flag}
 
         return data
-    
