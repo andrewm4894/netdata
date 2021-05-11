@@ -149,8 +149,12 @@ class Service(UrlService):
 
             if self.runs_counter % self.train_every == 0 and len(self.train_data[chart]) >= self.train_n:
 
+                train_data = tf.cast(self.train_data[chart], tf.float32)
+                
+                self.debug(train_data)
+
                 # fit model 
-                history = self.models[chart].fit(self.train_data[chart], self.train_data[chart], 
+                history = self.models[chart].fit(train_data, train_data, 
                     epochs=5, 
                     batch_size=20,
                     shuffle=True,
