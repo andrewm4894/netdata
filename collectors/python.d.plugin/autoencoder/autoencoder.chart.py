@@ -125,7 +125,7 @@ class Service(UrlService):
         # process each chart
         for chart in self.charts_in_scope:
 
-            x = np.array([raw_data[chart]['dimensions'][dim]['value'] for dim in raw_data[chart]['dimensions']])
+            x = [raw_data[chart]['dimensions'][dim]['value'] for dim in raw_data[chart]['dimensions']]
 
             self.train_data[chart].append(x)
             self.train_data[chart] = self.train_data[chart][-(self.train_n+self.train_n_offset):]
@@ -145,7 +145,7 @@ class Service(UrlService):
             if self.runs_counter % self.train_every == 0 and len(self.train_data[chart]) >= self.train_n:
 
                 # fit model 
-                history = self.models[chart].fit(self.train_data[chart], self.train_data[chart], 
+                history = self.models[chart].fit(np.array(self.train_data[chart]), np.array(self.train_data[chart]), 
                     epochs=20, 
                     batch_size=20,
                     shuffle=True,
