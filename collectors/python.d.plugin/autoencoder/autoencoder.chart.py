@@ -168,7 +168,7 @@ class Service(UrlService):
                 train_data = make_x(np.array(self.train_data[chart]), self.lags_n, self.diffs_n, self.smooth_n)
                 self.debug(f'train_data={train_data}')
                 self.debug(f'train_data.shape={train_data.shape}')
-                train_data = tf.cast(train_data.reshape(n_features,-1), tf.float32)
+                train_data = tf.cast(train_data, tf.float32)
                 self.debug(f'train_data.shape={train_data.shape}')
 
                 # fit model 
