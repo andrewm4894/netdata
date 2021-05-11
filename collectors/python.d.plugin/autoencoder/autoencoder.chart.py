@@ -91,7 +91,7 @@ class Service(UrlService):
         self.train_data = {c:[] for c in self.charts_in_scope}
         self.pred_data = {c:[] for c in self.charts_in_scope}
         self.train_every = 10
-        self.train_n = 10
+        self.train_n = 15
         self.train_n_offset = 0
         self.model_last_fit = {c:0 for c in self.charts_in_scope}
         self.models = {c:None for c in self.charts_in_scope}
@@ -139,10 +139,8 @@ class Service(UrlService):
                 
                 self.n_features[chart] = len(x) + ( len(x) * self.lags_n )
 
-            self.debug(x)
-
             self.train_data[chart].append(np.array(x))
-            self.train_data[chart] = self.train_data[chart][-(self.train_n+self.train_n_offset):]
+            #self.train_data[chart] = self.train_data[chart][-(self.train_n+self.train_n_offset):]
             self.train_data[chart] = self.train_data[chart][:self.train_n]
 
             self.pred_data[chart].append(np.array(x))
@@ -158,20 +156,20 @@ class Service(UrlService):
             if len(self.pred_data[chart]) > 0 and self.model_last_fit[chart] > 0:
 
                 pred_data = make_x(np.array(self.train_data[chart][:self.buffer_n]), self.lags_n, self.diffs_n, self.smooth_n)[-1]
-                self.debug(f'pred_data={pred_data}')
                 pred_data = tf.cast(pred_data.reshape(1,-1), tf.float32)
                 self.debug(f'pred_data.shape={pred_data.shape}')
-                data_scores[chart] = np.mean(self.models[chart].predict(pred_data,steps=1))
+                reconstruction_errors = self.models[chart].predict(pred_data,steps=1)
+                self.debug(f'reconstruction_errors.shape={reconstruction_errors.shape}')
+                reconstruction_error = np.mean(reconstruction_errors)
+                data_scores[chart] = reconstruction_error
 
             if self.runs_counter % self.train_every == 0 and len(self.train_data[chart]) >= self.train_n:
 
                 train_data = make_x(np.array(self.train_data[chart]), self.lags_n, self.diffs_n, self.smooth_n)
-                self.debug(f'train_data={train_data}')
                 self.debug(f'train_data.shape={train_data.shape}')
                 train_data = tf.cast(train_data, tf.float32)
                 self.debug(f'train_data.shape={train_data.shape}')
 
-                # fit model 
                 history = self.models[chart].fit(train_data, train_data, 
                     epochs=5, 
                     batch_size=20,
