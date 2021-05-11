@@ -29,7 +29,27 @@ CHARTS = {
 
 DEFAULT_PROTOCOL = 'http'
 DEFAULT_HOST = '127.0.0.1:19999'
-DEFAULT_CHARTS_REGEX = 'system.cpu'
+
+
+class AnomalyDetector(Model):
+  def __init__(self, n_features):
+    super(AnomalyDetector, self).__init__()
+    self.n_features = n_features
+    self.encoder = tf.keras.Sequential([
+      layers.Dense(32, activation='tanh'),
+      layers.Dense(16, activation='tanh'),
+      layers.Dense(8, activation='tanh'),
+      ])
+    
+    self.decoder = tf.keras.Sequential([
+      layers.Dense(16, activation='tanh'),
+      layers.Dense(32, activation='tanh'),
+      layers.Dense(self.n_features, activation="sigmoid")])
+    
+  def call(self, x):
+    encoded = self.encoder(x)
+    decoded = self.decoder(encoded)
+    return decoded
 
 
 class Service(UrlService):
@@ -40,9 +60,14 @@ class Service(UrlService):
         self.protocol = self.configuration.get('protocol', DEFAULT_PROTOCOL)
         self.host = self.configuration.get('host', DEFAULT_HOST)
         self.url = '{}://{}/api/v1/allmetrics?format=json'.format(self.protocol, self.host)
-        self.charts_regex = re.compile(self.configuration.get('charts_regex', DEFAULT_CHARTS_REGEX))
-        self.charts_to_exclude = self.configuration.get('charts_to_exclude', '').split(',')
+        self.charts = ['system.cpu']
         self.collected_dims = {'scores': set()}
+        self.train_data = {c:[] for c in self.charts}
+        self.pred_data = {c:[] for c in self.charts}
+        self.train_every = 50
+        self.train_n = 100
+        self.train_n_offset = 10
+        self.model_last_fit = {c:0 for c in self.charts}
 
     def validate_charts(self, chart, data, algorithm='absolute', multiplier=1, divisor=1):
         """If dimension not in chart then add it.
@@ -60,7 +85,7 @@ class Service(UrlService):
                 self.collected_dims[chart].remove(dim)
                 self.charts[chart].del_dimension(dim, hide=False)
 
-    def make_x(arr, lags_n, diffs_n, smooth_n):
+    def make_x(arr, lags_n=3, diffs_n=1, smooth_n=3):
     
         def lag(arr, n):
             res = np.empty_like(arr)
@@ -98,20 +123,43 @@ class Service(UrlService):
         charts_in_scope = list(filter(self.charts_regex.match, raw_data.keys()))
         charts_in_scope = [c for c in charts_in_scope if c not in self.charts_to_exclude]
 
-        data_scores = {}
+        data_scores = {c: 0 for c in self.charts}
 
         # process each chart
-        for chart in charts_in_scope:
+        for chart in self.charts:
 
             x = [raw_data[chart]['dimensions'][dim]['value'] for dim in raw_data[chart]['dimensions']]
-            x = [x for x in x if x is not None]
-            self.debug(x)
 
-            data_scores[chart] = sum(x)
+            self.train_data[chart].append(x)
+            self.train_data[chart] = self.train_data[chart][-(self.train_n+self.train_n_offset):]
+            self.train_data[chart] = self.train_data[:self.train_n]
+
+            self.pred_data[chart].append(x)
+            self.pred_data[chart] = self.pred_data[chart][-1]
+
+            if chart not in self.models:
+                self.models[chart] = AnomalyDetector(n_features=len(x))
+                self.models[chart].compile(optimizer='adam', loss='mae')
+
+            if len(self.pred_data[chart]) > 0 and self.model_last_fit[chart] > 0:
+
+                data_scores[chart] = np.mean(self.models[chart].predict(tf.cast(self.pred_data[chart].reshape(1,-1), tf.float32)))
+
+            if self.runs_counter % self.train_every == 0 and len(self.train_data[chart]) >= self.train_n:
+
+                # fit model 
+                history = self.models[chart].fit(self.train_data[chart], self.train_data[chart], 
+                    epochs=20, 
+                    batch_size=20,
+                    shuffle=True,
+                    verbose=0
+                    )
+                model_last_fit = self.runs_counter
+                self.debug(f"model fit at {model_last_fit}, loss = {np.mean(history.history['loss'])}")
 
         self.validate_charts('scores', data_scores)
 
         data = {**data_scores}
-        #self.debug(data)
+        self.debug(data)
 
         return data
