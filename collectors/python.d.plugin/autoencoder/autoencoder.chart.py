@@ -69,6 +69,11 @@ class Service(UrlService):
         self.train_n_offset = 0
         self.model_last_fit = {c:0 for c in self.charts_in_scope}
         self.models = {c:None for c in self.charts_in_scope}
+        self.n_features = {c:0 for c in self.charts_in_scope}
+        self.lags_n = 3
+        self.diffs_n = 1
+        self.smooth_n = 3
+        self.buffer_n = (self.lags_n + self.diffs_n + self.smooth_n) * 2
 
     def validate_charts(self, chart, data, algorithm='absolute', multiplier=1, divisor=1):
         """If dimension not in chart then add it.
@@ -128,6 +133,10 @@ class Service(UrlService):
         for chart in self.charts_in_scope:
 
             x = [raw_data[chart]['dimensions'][dim]['value'] for dim in raw_data[chart]['dimensions']]
+            
+            if self.n_features[chart] == 0:
+                
+                self.n_features[chart] = len(x) + ( len(x) * self.lags_n )
 
             self.debug(x)
 
@@ -142,18 +151,20 @@ class Service(UrlService):
 
             if self.models[chart] == None:
 
-                self.models[chart] = AnomalyDetector(n_features=n_features)
+                self.models[chart] = AnomalyDetector(n_features=self.n_features[chart])
                 self.models[chart].compile(optimizer='adam', loss='mae')
 
             if len(self.pred_data[chart]) > 0 and self.model_last_fit[chart] > 0:
 
-                pred_data = tf.cast(self.pred_data[chart][-1].reshape(1,-1), tf.float32)
+                pred_data = self.make_x(np.array(self.train_data[chart][:self.buffer_n]), self.lags_n, self.diffs_n, self.smooth_n)[-1]
+                pred_data = tf.cast(pred_data.reshape(1,-1), tf.float32)
                 self.debug(f'pred_data.shape={pred_data.shape}')
                 data_scores[chart] = np.mean(self.models[chart].predict(pred_data,steps=1))
 
             if self.runs_counter % self.train_every == 0 and len(self.train_data[chart]) >= self.train_n:
 
-                train_data = tf.cast(np.array(self.train_data[chart]).reshape(n_features,-1), tf.float32)
+                train_data = self.make_x(np.array(self.train_data[chart]), self.lags_n, self.diffs_n, self.smooth_n)
+                train_data = tf.cast(train_data.reshape(n_features,-1), tf.float32)
                 self.debug(f'train_data.shape={train_data.shape}')
 
                 # fit model 
