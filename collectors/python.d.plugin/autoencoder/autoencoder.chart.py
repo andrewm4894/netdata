@@ -65,7 +65,7 @@ class Service(UrlService):
         self.train_data = {c:[] for c in self.charts_in_scope}
         self.pred_data = {c:[] for c in self.charts_in_scope}
         self.train_every = 10
-        self.train_n = 50
+        self.train_n = 25
         self.train_n_offset = 0
         self.model_last_fit = {c:0 for c in self.charts_in_scope}
         self.models = {c:None for c in self.charts_in_scope}
@@ -139,6 +139,7 @@ class Service(UrlService):
             self.pred_data[chart] = self.pred_data[chart][-1]
 
             if self.models[chart] == None:
+
                 self.models[chart] = AnomalyDetector(n_features=len(x))
                 self.models[chart].compile(optimizer='adam', loss='mae')
 
@@ -150,7 +151,7 @@ class Service(UrlService):
 
                 # fit model 
                 history = self.models[chart].fit(np.array(self.train_data[chart]), np.array(self.train_data[chart]), 
-                    epochs=20, 
+                    epochs=5, 
                     batch_size=20,
                     shuffle=True,
                     verbose=0
