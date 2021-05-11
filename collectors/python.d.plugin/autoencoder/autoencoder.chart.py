@@ -77,6 +77,8 @@ class Service(UrlService):
             x = [x for x in x if x is not None]
             self.debug(x)
 
+            data_scores[chart] = sum(x)
+
         self.validate_charts('scores', data_scores)
 
         data = {**data_scores}
