@@ -60,15 +60,15 @@ class Service(UrlService):
         self.protocol = self.configuration.get('protocol', DEFAULT_PROTOCOL)
         self.host = self.configuration.get('host', DEFAULT_HOST)
         self.url = '{}://{}/api/v1/allmetrics?format=json'.format(self.protocol, self.host)
-        self.charts = ['system.cpu']
+        self.charts_in_scope = ['system.cpu']
         self.collected_dims = {'scores': set()}
-        self.train_data = {c:[] for c in self.charts}
-        self.pred_data = {c:[] for c in self.charts}
+        self.train_data = {c:[] for c in self.charts_in_scope}
+        self.pred_data = {c:[] for c in self.charts_in_scope}
         self.train_every = 50
         self.train_n = 100
         self.train_n_offset = 10
-        self.model_last_fit = {c:0 for c in self.charts}
-        self.models = {c:None for c in self.charts}
+        self.model_last_fit = {c:0 for c in self.charts_in_scope}
+        self.models = {c:None for c in self.charts_in_scope}
 
     def validate_charts(self, chart, data, algorithm='absolute', multiplier=1, divisor=1):
         """If dimension not in chart then add it.
@@ -120,10 +120,10 @@ class Service(UrlService):
 
         raw_data = loads(raw_data)
 
-        data_scores = {c: 0 for c in self.charts}
+        data_scores = {c: 0 for c in self.charts_in_scope}
 
         # process each chart
-        for chart in self.charts:
+        for chart in self.charts_in_scope:
 
             x = [raw_data[chart]['dimensions'][dim]['value'] for dim in raw_data[chart]['dimensions']]
 
