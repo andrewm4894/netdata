@@ -151,7 +151,7 @@ class Service(UrlService):
                     shuffle=True,
                     verbose=0
                     )
-                model_last_fit = self.runs_counter
+                self.model_last_fit[chart] = self.runs_counter
                 self.debug(f"model fit at {self.model_last_fit[chart]}, loss = {np.mean(history.history['loss'])}")
 
         self.validate_charts('scores', data_scores)
