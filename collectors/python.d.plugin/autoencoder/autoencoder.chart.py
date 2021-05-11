@@ -150,9 +150,7 @@ class Service(UrlService):
                     self.diffs_n, 
                     self.smooth_n
                 )[-1].reshape(1,-1),tf.float32) 
-                #self.debug(f'pred_data.shape={pred_data.shape}')
                 reconstruction_errors = self.models[chart].predict(pred_data)
-                #self.debug(f'reconstruction_errors.shape={reconstruction_errors.shape}')
                 reconstruction_error = np.mean(reconstruction_errors)
                 data_scores[chart] = reconstruction_error * 10000
 
