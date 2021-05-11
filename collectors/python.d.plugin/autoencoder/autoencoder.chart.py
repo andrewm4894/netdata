@@ -52,6 +52,32 @@ class AnomalyDetector(Model):
     return decoded
 
 
+def make_x(arr, lags_n=3, diffs_n=1, smooth_n=3):
+    
+        def lag(arr, n):
+            res = np.empty_like(arr)
+            res[:n] = np.nan
+            res[n:] = arr[:-n]
+            return res
+        
+        if diffs_n > 0:
+            arr = np.diff(arr, diffs_n, axis=0)
+            arr = arr[~np.isnan(arr).any(axis=1)]
+
+        if smooth_n > 1:
+            arr = np.cumsum(arr, axis=0, dtype=float)
+            arr[smooth_n:] = arr[smooth_n:] - arr[:-smooth_n]
+            arr = arr[smooth_n - 1:] / smooth_n
+
+        if lags_n > 0:
+            arr_orig = np.copy(arr)
+            for lag_n in range(1,lags_n+1):
+                arr = np.concatenate((arr, lag(arr_orig, lag_n)), axis=1)
+            arr = arr[~np.isnan(arr).any(axis=1)]
+
+        return arr
+
+
 class Service(UrlService):
     def __init__(self, configuration=None, name=None):
         UrlService.__init__(self, configuration=configuration, name=name)
@@ -90,31 +116,6 @@ class Service(UrlService):
             if dim not in data:
                 self.collected_dims[chart].remove(dim)
                 self.charts[chart].del_dimension(dim, hide=False)
-
-    def make_x(arr, lags_n=3, diffs_n=1, smooth_n=3):
-    
-        def lag(arr, n):
-            res = np.empty_like(arr)
-            res[:n] = np.nan
-            res[n:] = arr[:-n]
-            return res
-        
-        if diffs_n > 0:
-            arr = np.diff(arr, diffs_n, axis=0)
-            arr = arr[~np.isnan(arr).any(axis=1)]
-
-        if smooth_n > 1:
-            arr = np.cumsum(arr, axis=0, dtype=float)
-            arr[smooth_n:] = arr[smooth_n:] - arr[:-smooth_n]
-            arr = arr[smooth_n - 1:] / smooth_n
-
-        if lags_n > 0:
-            arr_orig = np.copy(arr)
-            for lag_n in range(1,lags_n+1):
-                arr = np.concatenate((arr, lag(arr_orig, lag_n)), axis=1)
-            arr = arr[~np.isnan(arr).any(axis=1)]
-
-        return arr
 
     def _get_data(self):
 
@@ -156,14 +157,14 @@ class Service(UrlService):
 
             if len(self.pred_data[chart]) > 0 and self.model_last_fit[chart] > 0:
 
-                pred_data = self.make_x(np.array(self.train_data[chart][:self.buffer_n]), self.lags_n, self.diffs_n, self.smooth_n)[-1]
+                pred_data = make_x(np.array(self.train_data[chart][:self.buffer_n]), self.lags_n, self.diffs_n, self.smooth_n)[-1]
                 pred_data = tf.cast(pred_data.reshape(1,-1), tf.float32)
                 self.debug(f'pred_data.shape={pred_data.shape}')
                 data_scores[chart] = np.mean(self.models[chart].predict(pred_data,steps=1))
 
             if self.runs_counter % self.train_every == 0 and len(self.train_data[chart]) >= self.train_n:
 
-                train_data = self.make_x(np.array(self.train_data[chart]), self.lags_n, self.diffs_n, self.smooth_n)
+                train_data = make_x(np.array(self.train_data[chart]), self.lags_n, self.diffs_n, self.smooth_n)
                 train_data = tf.cast(train_data.reshape(n_features,-1), tf.float32)
                 self.debug(f'train_data.shape={train_data.shape}')
 
