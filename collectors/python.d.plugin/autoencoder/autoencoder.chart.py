@@ -64,9 +64,9 @@ class Service(UrlService):
         self.collected_dims = {'scores': set()}
         self.train_data = {c:[] for c in self.charts_in_scope}
         self.pred_data = {c:[] for c in self.charts_in_scope}
-        self.train_every = 20
+        self.train_every = 10
         self.train_n = 50
-        self.train_n_offset = 10
+        self.train_n_offset = 0
         self.model_last_fit = {c:0 for c in self.charts_in_scope}
         self.models = {c:None for c in self.charts_in_scope}
 
@@ -112,6 +112,8 @@ class Service(UrlService):
         return arr
 
     def _get_data(self):
+
+        self.debug(self.runs_counter)
 
         # pull data from self.url
         raw_data = self._get_raw_data()
