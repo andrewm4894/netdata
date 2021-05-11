@@ -89,10 +89,9 @@ class Service(UrlService):
         self.charts_in_scope = ['system.cpu']
         self.collected_dims = {'scores': set()}
         self.train_data = {c:[] for c in self.charts_in_scope}
-        self.pred_data = {c:[] for c in self.charts_in_scope}
         self.train_every = 10
         self.train_n = 15
-        self.train_n_offset = 0
+        self.train_n_offset = 5
         self.model_last_fit = {c:0 for c in self.charts_in_scope}
         self.models = {c:None for c in self.charts_in_scope}
         self.n_features = {c:0 for c in self.charts_in_scope}
@@ -121,7 +120,6 @@ class Service(UrlService):
 
         self.debug(self.runs_counter)
 
-        # pull data from self.url
         raw_data = self._get_raw_data()
         if raw_data is None:
             return None
@@ -130,33 +128,27 @@ class Service(UrlService):
 
         data_scores = {c: 0 for c in self.charts_in_scope}
 
-        # process each chart
         for chart in self.charts_in_scope:
 
             x = [raw_data[chart]['dimensions'][dim]['value'] for dim in raw_data[chart]['dimensions']]
             
             if self.n_features[chart] == 0:
-                
                 self.n_features[chart] = len(x) + ( len(x) * self.lags_n )
 
             self.train_data[chart].append(np.array(x))
-            #self.train_data[chart] = self.train_data[chart][-(self.train_n+self.train_n_offset):]
-            self.train_data[chart] = self.train_data[chart][:self.train_n]
-
-            self.pred_data[chart].append(np.array(x))
-            #self.pred_data[chart] = self.pred_data[chart][-1]
-
-            n_features = len(x)
+            self.train_data[chart] = self.train_data[chart][-(self.train_n+self.train_n_offset):]
 
             if self.models[chart] == None:
-
                 self.models[chart] = AnomalyDetector(n_features=self.n_features[chart])
                 self.models[chart].compile(optimizer='adam', loss='mae')
 
-            if len(self.pred_data[chart]) > 0 and self.model_last_fit[chart] > 0:
-
-                pred_data = make_x(np.array(self.train_data[chart][:self.buffer_n]), self.lags_n, self.diffs_n, self.smooth_n)[-1]
-                pred_data = tf.cast(pred_data.reshape(1,-1), tf.float32)
+            if self.model_last_fit[chart] > 0:
+                pred_data = tf.cast(make_x(
+                    np.array(self.train_data[chart][-self.buffer_n:]), 
+                    self.lags_n, 
+                    self.diffs_n, 
+                    self.smooth_n
+                )[-1].reshape(1,-1),tf.float32) 
                 self.debug(f'pred_data.shape={pred_data.shape}')
                 reconstruction_errors = self.models[chart].predict(pred_data,steps=1)
                 self.debug(f'reconstruction_errors.shape={reconstruction_errors.shape}')
@@ -164,8 +156,7 @@ class Service(UrlService):
                 data_scores[chart] = reconstruction_error
 
             if self.runs_counter % self.train_every == 0 and len(self.train_data[chart]) >= self.train_n:
-
-                train_data = make_x(np.array(self.train_data[chart]), self.lags_n, self.diffs_n, self.smooth_n)
+                train_data = make_x(np.array(self.train_data[chart][:self.train_n]), self.lags_n, self.diffs_n, self.smooth_n)
                 self.debug(f'train_data.shape={train_data.shape}')
                 train_data = tf.cast(train_data, tf.float32)
                 self.debug(f'train_data.shape={train_data.shape}')
