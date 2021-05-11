@@ -125,7 +125,7 @@ class Service(UrlService):
         # process each chart
         for chart in self.charts_in_scope:
 
-            x = [raw_data[chart]['dimensions'][dim]['value'] for dim in raw_data[chart]['dimensions']]
+            x = np.array([raw_data[chart]['dimensions'][dim]['value'] for dim in raw_data[chart]['dimensions']])
 
             self.train_data[chart].append(x)
             self.train_data[chart] = self.train_data[chart][-(self.train_n+self.train_n_offset):]
