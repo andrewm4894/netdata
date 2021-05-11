@@ -119,10 +119,6 @@ class Service(UrlService):
 
         raw_data = loads(raw_data)
 
-        # filter to just the data for the charts specified
-        charts_in_scope = list(filter(self.charts_regex.match, raw_data.keys()))
-        charts_in_scope = [c for c in charts_in_scope if c not in self.charts_to_exclude]
-
         data_scores = {c: 0 for c in self.charts}
 
         # process each chart
