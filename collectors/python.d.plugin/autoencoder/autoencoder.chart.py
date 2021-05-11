@@ -160,7 +160,8 @@ class Service(UrlService):
                     epochs=5, 
                     batch_size=20,
                     shuffle=True,
-                    verbose=0
+                    verbose=0,
+                    steps_per_epoch=10
                     )
                 self.model_last_fit[chart] = self.runs_counter
                 self.debug(f"model fit at {self.model_last_fit[chart]}, loss = {np.mean(history.history['loss'])}")
