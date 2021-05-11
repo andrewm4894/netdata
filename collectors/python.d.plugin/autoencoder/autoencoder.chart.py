@@ -6,6 +6,10 @@
 from json import loads
 import re
 
+import tensorflow as tf
+from tensorflow.keras import layers, losses
+from tensorflow.keras.models import Model
+
 from bases.FrameworkServices.UrlService import UrlService
 
 update_every = 5
