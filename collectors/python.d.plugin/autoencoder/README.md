@@ -9,6 +9,11 @@ custom_edit_url: https://github.com/netdata/netdata/edit/master/collectors/pytho
 autoencoder
 
 
+# install tensorflow
+sudo apt update
+sudo apt install python3-dev python3-pip
+sudo pip3 install tensorflow numpy
+
 git pull
 
 # copy
