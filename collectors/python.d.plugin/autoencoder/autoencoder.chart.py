@@ -85,16 +85,16 @@ class Service(UrlService):
         self.definitions = CHARTS
         self.protocol = self.configuration.get('protocol', DEFAULT_PROTOCOL)
         self.host = self.configuration.get('host', DEFAULT_HOST)
-        self.url = '{}://{}/api/v1/allmetrics?format=json'.format(self.protocol, self.host)
-        self.charts_in_scope = ['system.cpu']
+        self.url = f'{self.protocol}://{self.host}/api/v1/allmetrics?format=json'
+        self.charts_in_scope = ['system.cpu','system.io','system.net']
         self.collected_dims = {'scores': set()}
-        self.train_data = {c:[] for c in self.charts_in_scope}
-        self.train_every = 10
-        self.train_n = 15
+        self.train_data = {c: [] for c in self.charts_in_scope}
+        self.train_every = 60
+        self.train_n = 60
         self.train_n_offset = 5
-        self.model_last_fit = {c:0 for c in self.charts_in_scope}
-        self.models = {c:None for c in self.charts_in_scope}
-        self.n_features = {c:0 for c in self.charts_in_scope}
+        self.model_last_fit = {c: 0 for c in self.charts_in_scope}
+        self.models = {c: None for c in self.charts_in_scope}
+        self.n_features = {c: 0 for c in self.charts_in_scope}
         self.lags_n = 3
         self.diffs_n = 1
         self.smooth_n = 3
@@ -157,13 +157,10 @@ class Service(UrlService):
 
             if self.runs_counter % self.train_every == 0 and len(self.train_data[chart]) >= self.train_n:
                 train_data = make_x(np.array(self.train_data[chart][:self.train_n]), self.lags_n, self.diffs_n, self.smooth_n)
-                self.debug(f'train_data.shape={train_data.shape}')
                 train_data = tf.cast(train_data, tf.float32)
-                self.debug(f'train_data.shape={train_data.shape}')
-
                 history = self.models[chart].fit(train_data, train_data, 
-                    epochs=5, 
-                    batch_size=20,
+                    epochs=10, 
+                    batch_size=250,
                     shuffle=True,
                     verbose=0
                     )
