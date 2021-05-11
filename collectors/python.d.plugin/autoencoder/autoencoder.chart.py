@@ -153,7 +153,7 @@ class Service(UrlService):
                 reconstruction_errors = self.models[chart].predict(pred_data)
                 self.debug(f'reconstruction_errors.shape={reconstruction_errors.shape}')
                 reconstruction_error = np.mean(reconstruction_errors)
-                data_scores[chart] = reconstruction_error
+                data_scores[chart] = reconstruction_error * 10000
 
             if self.runs_counter % self.train_every == 0 and len(self.train_data[chart]) >= self.train_n:
                 train_data = make_x(np.array(self.train_data[chart][:self.train_n]), self.lags_n, self.diffs_n, self.smooth_n)
@@ -170,7 +170,7 @@ class Service(UrlService):
                 self.model_last_fit[chart] = self.runs_counter
                 self.debug(f"{chart} model fit on {train_data.shape} data at {self.model_last_fit[chart]}, loss = {np.mean(history.history['loss'])}")
 
-        self.validate_charts('scores', data_scores)
+        self.validate_charts('scores', data_scores, divisor=100)
 
         data = {**data_scores}
         self.debug(data)
