@@ -151,7 +151,7 @@ class Service(UrlService):
 
             if self.runs_counter % self.train_every == 0 and len(self.train_data[chart]) >= self.train_n:
 
-                train_data = tf.cast(self.train_data[chart].reshape(n_features,-1), tf.float32)
+                train_data = tf.cast(np.array(self.train_data[chart]).reshape(n_features,-1), tf.float32)
 
                 self.debug(train_data)
 
