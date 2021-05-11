@@ -128,7 +128,7 @@ class Service(UrlService):
 
             self.train_data[chart].append(x)
             self.train_data[chart] = self.train_data[chart][-(self.train_n+self.train_n_offset):]
-            self.train_data[chart] = self.train_data[:self.train_n]
+            self.train_data[chart] = self.train_data[chart][:self.train_n]
 
             self.pred_data[chart].append(x)
             self.pred_data[chart] = self.pred_data[chart][-1]
