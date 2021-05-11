@@ -134,7 +134,7 @@ class Service(UrlService):
             self.pred_data[chart].append(x)
             self.pred_data[chart] = self.pred_data[chart][-1]
 
-            if chart not in self.models:
+            if self.models[chart] == None:
                 self.models[chart] = AnomalyDetector(n_features=len(x))
                 self.models[chart].compile(optimizer='adam', loss='mae')
 
