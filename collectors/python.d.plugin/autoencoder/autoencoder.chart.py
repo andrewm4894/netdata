@@ -65,7 +65,7 @@ class Service(UrlService):
         self.train_data = {c:[] for c in self.charts_in_scope}
         self.pred_data = {c:[] for c in self.charts_in_scope}
         self.train_every = 10
-        self.train_n = 20
+        self.train_n = 10
         self.train_n_offset = 0
         self.model_last_fit = {c:0 for c in self.charts_in_scope}
         self.models = {c:None for c in self.charts_in_scope}
@@ -138,9 +138,11 @@ class Service(UrlService):
             self.pred_data[chart].append(np.array(x))
             #self.pred_data[chart] = self.pred_data[chart][-1]
 
+            n_features = len(x)
+
             if self.models[chart] == None:
 
-                self.models[chart] = AnomalyDetector(n_features=len(x))
+                self.models[chart] = AnomalyDetector(n_features=n_features)
                 self.models[chart].compile(optimizer='adam', loss='mae')
 
             if len(self.pred_data[chart]) > 0 and self.model_last_fit[chart] > 0:
@@ -149,8 +151,8 @@ class Service(UrlService):
 
             if self.runs_counter % self.train_every == 0 and len(self.train_data[chart]) >= self.train_n:
 
-                train_data = tf.cast(self.train_data[chart], tf.float32)
-                
+                train_data = tf.cast(self.train_data[chart].reshape(n_features,-1), tf.float32)
+
                 self.debug(train_data)
 
                 # fit model 
