@@ -158,6 +158,7 @@ class Service(UrlService):
             if len(self.pred_data[chart]) > 0 and self.model_last_fit[chart] > 0:
 
                 pred_data = make_x(np.array(self.train_data[chart][:self.buffer_n]), self.lags_n, self.diffs_n, self.smooth_n)[-1]
+                self.debug(f'pred_data={pred_data}')
                 pred_data = tf.cast(pred_data.reshape(1,-1), tf.float32)
                 self.debug(f'pred_data.shape={pred_data.shape}')
                 data_scores[chart] = np.mean(self.models[chart].predict(pred_data,steps=1))
@@ -165,6 +166,8 @@ class Service(UrlService):
             if self.runs_counter % self.train_every == 0 and len(self.train_data[chart]) >= self.train_n:
 
                 train_data = make_x(np.array(self.train_data[chart]), self.lags_n, self.diffs_n, self.smooth_n)
+                self.debug(f'train_data={train_data}')
+                self.debug(f'train_data.shape={train_data.shape}')
                 train_data = tf.cast(train_data.reshape(n_features,-1), tf.float32)
                 self.debug(f'train_data.shape={train_data.shape}')
 
