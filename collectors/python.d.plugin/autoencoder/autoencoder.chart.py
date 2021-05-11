@@ -150,7 +150,7 @@ class Service(UrlService):
                     self.smooth_n
                 )[-1].reshape(1,-1),tf.float32) 
                 self.debug(f'pred_data.shape={pred_data.shape}')
-                reconstruction_errors = self.models[chart].predict(pred_data,steps=1)
+                reconstruction_errors = self.models[chart].predict(pred_data)
                 self.debug(f'reconstruction_errors.shape={reconstruction_errors.shape}')
                 reconstruction_error = np.mean(reconstruction_errors)
                 data_scores[chart] = reconstruction_error
@@ -165,8 +165,7 @@ class Service(UrlService):
                     epochs=5, 
                     batch_size=20,
                     shuffle=True,
-                    verbose=0,
-                    steps_per_epoch=10
+                    verbose=0
                     )
                 self.model_last_fit[chart] = self.runs_counter
                 self.debug(f"{chart} model fit on {train_data.shape} data at {self.model_last_fit[chart]}, loss = {np.mean(history.history['loss'])}")

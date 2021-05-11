@@ -12,7 +12,8 @@ autoencoder
 # install tensorflow
 sudo apt update
 sudo apt install python3-dev python3-pip
-sudo pip3 install tensorflow numpy
+sudo pip3 install -U pip
+sudo pip3 install numpy tensorflow==2.4.1
 
 git pull
 
