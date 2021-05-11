@@ -620,6 +620,12 @@ netdataDashboard.menu = {
         info: 'Z scores scores relating to key system metrics.'
     },
 
+    'autoencoder': {
+        title: 'autoencoder',
+        icon: '<i class="fas fa-flask"></i>',
+        info: 'autoencoder.'
+    },
+
 };
 
 
