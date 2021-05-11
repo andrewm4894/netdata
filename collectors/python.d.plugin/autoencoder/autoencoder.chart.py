@@ -129,6 +129,8 @@ class Service(UrlService):
 
             x = [raw_data[chart]['dimensions'][dim]['value'] for dim in raw_data[chart]['dimensions']]
 
+            self.debug(x)
+
             self.train_data[chart].append(x)
             self.train_data[chart] = self.train_data[chart][-(self.train_n+self.train_n_offset):]
             self.train_data[chart] = self.train_data[chart][:self.train_n]
