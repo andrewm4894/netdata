@@ -65,7 +65,7 @@ class Service(UrlService):
         self.train_data = {c:[] for c in self.charts_in_scope}
         self.pred_data = {c:[] for c in self.charts_in_scope}
         self.train_every = 10
-        self.train_n = 25
+        self.train_n = 20
         self.train_n_offset = 0
         self.model_last_fit = {c:0 for c in self.charts_in_scope}
         self.models = {c:None for c in self.charts_in_scope}
@@ -131,11 +131,11 @@ class Service(UrlService):
 
             self.debug(x)
 
-            self.train_data[chart].append(x)
+            self.train_data[chart].append(np.array(x))
             self.train_data[chart] = self.train_data[chart][-(self.train_n+self.train_n_offset):]
             self.train_data[chart] = self.train_data[chart][:self.train_n]
 
-            self.pred_data[chart].append(x)
+            self.pred_data[chart].append(np.array(x))
             self.pred_data[chart] = self.pred_data[chart][-1]
 
             if self.models[chart] == None:
@@ -150,7 +150,7 @@ class Service(UrlService):
             if self.runs_counter % self.train_every == 0 and len(self.train_data[chart]) >= self.train_n:
 
                 # fit model 
-                history = self.models[chart].fit(np.array(self.train_data[chart]), np.array(self.train_data[chart]), 
+                history = self.models[chart].fit(self.train_data[chart], self.train_data[chart], 
                     epochs=5, 
                     batch_size=20,
                     shuffle=True,
