@@ -147,7 +147,7 @@ class Service(UrlService):
 
             if len(self.pred_data[chart]) > 0 and self.model_last_fit[chart] > 0:
 
-                data_scores[chart] = np.mean(self.models[chart].predict(tf.cast(self.pred_data[chart][-1].reshape(1,-1), tf.float32)))
+                data_scores[chart] = np.mean(self.models[chart].predict(tf.cast(self.pred_data[chart][-1].reshape(1,-1), tf.float32),steps=1))
 
             if self.runs_counter % self.train_every == 0 and len(self.train_data[chart]) >= self.train_n:
 
