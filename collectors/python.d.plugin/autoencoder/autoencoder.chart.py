@@ -147,13 +147,14 @@ class Service(UrlService):
 
             if len(self.pred_data[chart]) > 0 and self.model_last_fit[chart] > 0:
 
-                data_scores[chart] = np.mean(self.models[chart].predict(tf.cast(self.pred_data[chart][-1].reshape(1,-1), tf.float32),steps=1))
+                pred_data = tf.cast(self.pred_data[chart][-1].reshape(1,-1), tf.float32)
+                self.debug(f'pred_data.shape={pred_data.shape}')
+                data_scores[chart] = np.mean(self.models[chart].predict(pred_data,steps=1))
 
             if self.runs_counter % self.train_every == 0 and len(self.train_data[chart]) >= self.train_n:
 
                 train_data = tf.cast(np.array(self.train_data[chart]).reshape(n_features,-1), tf.float32)
-
-                self.debug(train_data)
+                self.debug(f'train_data.shape={train_data.shape}')
 
                 # fit model 
                 history = self.models[chart].fit(train_data, train_data, 
@@ -164,7 +165,7 @@ class Service(UrlService):
                     steps_per_epoch=10
                     )
                 self.model_last_fit[chart] = self.runs_counter
-                self.debug(f"model fit at {self.model_last_fit[chart]}, loss = {np.mean(history.history['loss'])}")
+                self.debug(f"{chart} model fit on {train_data.shape} data at {self.model_last_fit[chart]}, loss = {np.mean(history.history['loss'])}")
 
         self.validate_charts('scores', data_scores)
 
