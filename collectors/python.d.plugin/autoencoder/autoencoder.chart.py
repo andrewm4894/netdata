@@ -64,8 +64,8 @@ class Service(UrlService):
         self.collected_dims = {'scores': set()}
         self.train_data = {c:[] for c in self.charts_in_scope}
         self.pred_data = {c:[] for c in self.charts_in_scope}
-        self.train_every = 50
-        self.train_n = 100
+        self.train_every = 20
+        self.train_n = 50
         self.train_n_offset = 10
         self.model_last_fit = {c:0 for c in self.charts_in_scope}
         self.models = {c:None for c in self.charts_in_scope}
