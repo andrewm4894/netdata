@@ -15,6 +15,7 @@ from bases.FrameworkServices.UrlService import UrlService
 
 update_every = 5
 disabled_by_default = True
+priority = 85
 
 ORDER = [
     'scores',
@@ -86,7 +87,7 @@ class Service(UrlService):
         self.protocol = self.configuration.get('protocol', DEFAULT_PROTOCOL)
         self.host = self.configuration.get('host', DEFAULT_HOST)
         self.url = f'{self.protocol}://{self.host}/api/v1/allmetrics?format=json'
-        self.charts_in_scope = ['system.cpu','system.io','system.net']
+        self.charts_in_scope = ['system.cpu','system.io','system.net','system.ram','system.ip','system.processes','system.forks','system.active_processes','system.ctxt']
         self.collected_dims = {'scores': set()}
         self.train_data = {c: [] for c in self.charts_in_scope}
         self.train_every = 60
@@ -149,9 +150,9 @@ class Service(UrlService):
                     self.diffs_n, 
                     self.smooth_n
                 )[-1].reshape(1,-1),tf.float32) 
-                self.debug(f'pred_data.shape={pred_data.shape}')
+                #self.debug(f'pred_data.shape={pred_data.shape}')
                 reconstruction_errors = self.models[chart].predict(pred_data)
-                self.debug(f'reconstruction_errors.shape={reconstruction_errors.shape}')
+                #self.debug(f'reconstruction_errors.shape={reconstruction_errors.shape}')
                 reconstruction_error = np.mean(reconstruction_errors)
                 data_scores[chart] = reconstruction_error * 10000
 
@@ -165,7 +166,7 @@ class Service(UrlService):
                     verbose=0
                     )
                 self.model_last_fit[chart] = self.runs_counter
-                self.debug(f"{chart} model fit on {train_data.shape} data at {self.model_last_fit[chart]}, loss = {np.mean(history.history['loss'])}")
+                self.info(f"{chart} model fit on {train_data.shape} data at {self.model_last_fit[chart]}, loss = {np.mean(history.history['loss'])}")
 
         self.validate_charts('scores', data_scores, divisor=100)
 
