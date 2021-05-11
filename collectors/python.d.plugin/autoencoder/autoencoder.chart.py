@@ -68,6 +68,7 @@ class Service(UrlService):
         self.train_n = 100
         self.train_n_offset = 10
         self.model_last_fit = {c:0 for c in self.charts}
+        self.models = {c:None for c in self.charts}
 
     def validate_charts(self, chart, data, algorithm='absolute', multiplier=1, divisor=1):
         """If dimension not in chart then add it.
