@@ -75,7 +75,7 @@ void Config::readMLConfig(void) {
         error("invalid min/max train samples found (%u >= %u)", MinTrainSamples, MaxTrainSamples);
 
         MinTrainSamples = 1 * 3600;
-        MaxTrainSamples = 4 * 3600;
+        MaxTrainSamples = 6 * 3600;
     }
 
     /*
