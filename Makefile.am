@@ -473,6 +473,7 @@ RRD_PLUGIN_FILES = \
     database/rrdfamily.c \
     database/rrdhost.c \
     database/rrdlabels.c \
+    database/rrdlabels.h \
     database/rrd.c \
     database/rrd.h \
     database/rrdset.c \
@@ -504,6 +505,9 @@ RRD_PLUGIN_FILES = \
     database/sqlite/sqlite_aclk_alert.h \
     database/sqlite/sqlite3.c \
     database/sqlite/sqlite3.h \
+    database/sqlite/sqlite3recover.c \
+    database/sqlite/sqlite3recover.h \
+    database/sqlite/dbdata.c \
     database/KolmogorovSmirnovDist.c \
     database/KolmogorovSmirnovDist.h \
     $(NULL)
