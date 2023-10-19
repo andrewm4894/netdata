@@ -124,13 +124,6 @@ static int ebpf_swap_attach_kprobe(struct swap_bpf *obj)
     if (ret)
         return -1;
 
-    obj->links.netdata_release_task_probe = bpf_program__attach_kprobe(obj->progs.netdata_release_task_probe,
-                                                                         false,
-                                                                         EBPF_COMMON_FNCT_CLEAN_UP);
-    ret = libbpf_get_error(obj->links.netdata_swap_writepage_probe);
-    if (ret)
-        return -1;
-
     return 0;
 }
 
@@ -176,7 +169,6 @@ static void ebpf_swap_adjust_map(struct swap_bpf *obj, ebpf_module_t *em)
 static void ebpf_swap_disable_release_task(struct swap_bpf *obj)
 {
     bpf_program__set_autoload(obj->progs.netdata_release_task_fentry, false);
-    bpf_program__set_autoload(obj->progs.netdata_release_task_probe, false);
 }
 
 /**
@@ -804,9 +796,9 @@ static void swap_collector(ebpf_module_t *em)
     uint32_t lifetime = em->lifetime;
     netdata_idx_t *stats = em->hash_table_stats;
     memset(stats, 0, sizeof(em->hash_table_stats));
-    while (!ebpf_exit_plugin && running_time < lifetime) {
+    while (!ebpf_plugin_exit && running_time < lifetime) {
         (void)heartbeat_next(&hb, USEC_PER_SEC);
-        if (ebpf_exit_plugin || ++counter != update_every)
+        if (ebpf_plugin_exit || ++counter != update_every)
             continue;
 
         counter = 0;
@@ -959,7 +951,7 @@ static int ebpf_swap_load_bpf(ebpf_module_t *em)
 #endif
 
     if (ret)
-        netdata_log_error("%s %s", EBPF_DEFAULT_ERROR_MSG, em->thread_name);
+        netdata_log_error("%s %s", EBPF_DEFAULT_ERROR_MSG, em->info.thread_name);
 
     return ret;
 }

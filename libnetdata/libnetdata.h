@@ -842,6 +842,7 @@ extern char *netdata_configured_host_prefix;
 #include "gorilla/gorilla.h"
 #include "facets/facets.h"
 #include "dyn_conf/dyn_conf.h"
+#include "functions_evloop/functions_evloop.h"
 
 // BEWARE: this exists in alarm-notify.sh
 #define DEFAULT_CLOUD_BASE_URL "https://app.netdata.cloud"
@@ -988,7 +989,8 @@ int hash256_string(const unsigned char *string, size_t size, char *hash);
 extern bool unittest_running;
 #define API_RELATIVE_TIME_MAX (3 * 365 * 86400)
 
-bool rrdr_relative_window_to_absolute(time_t *after, time_t *before, time_t *now_ptr, bool unittest_running);
+bool rrdr_relative_window_to_absolute(time_t *after, time_t *before, time_t now);
+bool rrdr_relative_window_to_absolute_query(time_t *after, time_t *before, time_t *now_ptr, bool unittest_running);
 
 int netdata_base64_decode(const char *encoded, char *decoded, size_t decoded_size);
 

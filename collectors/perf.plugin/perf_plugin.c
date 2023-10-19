@@ -1298,6 +1298,8 @@ int main(int argc, char **argv) {
     error_log_errors_per_period = 100;
     error_log_throttle_period = 3600;
 
+    log_set_global_severity_for_external_plugins();
+
     parse_command_line(argc, argv);
 
     errno = 0;
@@ -1328,7 +1330,7 @@ int main(int argc, char **argv) {
         if(unlikely(netdata_exit)) break;
 
         if(unlikely(debug && iteration))
-            fprintf(stderr, "perf.plugin: iteration %zu, dt %llu usec\n"
+            fprintf(stderr, "perf.plugin: iteration %zu, dt %"PRIu64" usec\n"
                     , iteration
                     , dt
             );

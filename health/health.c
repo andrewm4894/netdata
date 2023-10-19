@@ -61,7 +61,6 @@ static bool prepare_command(BUFFER *wb,
                             uint32_t when,
                             const char *alert_name,
                             const char *alert_chart_name,
-                            const char *alert_family,
                             const char *new_status,
                             const char *old_status,
                             NETDATA_DOUBLE new_value,
@@ -82,7 +81,8 @@ static bool prepare_command(BUFFER *wb,
                             const char *classification,
                             const char *edit_command,
                             const char *machine_guid,
-                            uuid_t *transition_id
+                            uuid_t *transition_id,
+                            const char *summary
 ) {
     char buf[8192];
     size_t n = 8192 - 1;
@@ -114,10 +114,6 @@ static bool prepare_command(BUFFER *wb,
     buffer_sprintf(wb, " '%s'", buf);
 
     if (!sanitize_command_argument_string(buf, alert_chart_name, n))
-        return false;
-    buffer_sprintf(wb, " '%s'", buf);
-
-    if (!sanitize_command_argument_string(buf, alert_family, n))
         return false;
     buffer_sprintf(wb, " '%s'", buf);
 
@@ -192,6 +188,10 @@ static bool prepare_command(BUFFER *wb,
     char tr_id[UUID_STR_LEN];
     uuid_unparse_lower(*transition_id, tr_id);
     if (!sanitize_command_argument_string(buf, tr_id, n))
+        return false;
+    buffer_sprintf(wb, " '%s'", buf);
+
+    if (!sanitize_command_argument_string(buf, summary, n))
         return false;
     buffer_sprintf(wb, " '%s'", buf);
 
@@ -376,9 +376,6 @@ static void health_reload_host(RRDHOST *host) {
 
     // link the loaded alarms to their charts
     rrdset_foreach_write(st, host) {
-        if (rrdset_flag_check(st, RRDSET_FLAG_ARCHIVED))
-            continue;
-
         rrdcalc_link_matching_alerts_to_rrdset(st);
         rrdcalctemplate_link_matching_templates_to_rrdset(st);
     }
@@ -563,7 +560,6 @@ static inline void health_alarm_execute(RRDHOST *host, ALARM_ENTRY *ae) {
                               (unsigned long)ae->when,
                               ae_name(ae),
                               ae->chart?ae_chart_id(ae):"NOCHART",
-                              ae->family?ae_family(ae):"NOFAMILY",
                               rrdcalc_status2string(ae->new_status),
                               rrdcalc_status2string(ae->old_status),
                               ae->new_value,
@@ -584,7 +580,8 @@ static inline void health_alarm_execute(RRDHOST *host, ALARM_ENTRY *ae) {
                               ae->classification?ae_classification(ae):"Unknown",
                               edit_command,
                               host->machine_guid,
-                              &ae->transition_id);
+                              &ae->transition_id,
+                              host->health.use_summary_for_notifications && ae->summary?ae_summary(ae):ae_name(ae));
 
     const char *command_to_run = buffer_tostring(wb);
     if (ok) {
@@ -724,11 +721,6 @@ static inline int rrdcalc_isrunnable(RRDCALC *rc, time_t now, time_t *next_run) 
         return 0;
     }
 
-    if(unlikely(rrdset_flag_check(rc->rrdset, RRDSET_FLAG_ARCHIVED))) {
-        netdata_log_debug(D_HEALTH, "Health not running alarm '%s.%s'. The chart has been marked as archived", rrdcalc_chart_name(rc), rrdcalc_name(rc));
-        return 0;
-    }
-
     if(unlikely(!rc->rrdset->last_collected_time.tv_sec || rc->rrdset->counter_done < 2)) {
         netdata_log_debug(D_HEALTH, "Health not running alarm '%s.%s'. Chart is not fully collected yet.", rrdcalc_chart_name(rc), rrdcalc_name(rc));
         return 0;
@@ -843,6 +835,7 @@ static void initialize_health(RRDHOST *host)
     snprintfz(filename, FILENAME_MAX, "%s/alarm-notify.sh", netdata_configured_primary_plugins_dir);
     host->health.health_default_exec = string_strdupz(config_get(CONFIG_SECTION_HEALTH, "script to execute on alarm", filename));
     host->health.health_default_recipient = string_strdupz("root");
+    host->health.use_summary_for_notifications = config_get_boolean(CONFIG_SECTION_HEALTH, "use summary for notifications", CONFIG_BOOLEAN_YES);
 
     sql_health_alarm_log_load(host);
 
@@ -854,9 +847,6 @@ static void initialize_health(RRDHOST *host)
     // link the loaded alarms to their charts
     RRDSET *st;
     rrdset_foreach_reentrant(st, host) {
-        if (rrdset_flag_check(st, RRDSET_FLAG_ARCHIVED))
-            continue;
-
         rrdcalc_link_matching_alerts_to_rrdset(st);
         rrdcalctemplate_link_matching_templates_to_rrdset(st);
     }
@@ -883,28 +873,26 @@ static void health_sleep(time_t next_run, unsigned int loop __maybe_unused) {
 
 static SILENCE_TYPE check_silenced(RRDCALC *rc, const char *host, SILENCERS *silencers) {
     SILENCER *s;
-    netdata_log_debug(D_HEALTH, "Checking if alarm was silenced via the command API. Alarm info name:%s context:%s chart:%s host:%s family:%s",
-          rrdcalc_name(rc), (rc->rrdset)?rrdset_context(rc->rrdset):"", rrdcalc_chart_name(rc), host, (rc->rrdset)?rrdset_family(rc->rrdset):"");
+    netdata_log_debug(D_HEALTH, "Checking if alarm was silenced via the command API. Alarm info name:%s context:%s chart:%s host:%s",
+          rrdcalc_name(rc), (rc->rrdset)?rrdset_context(rc->rrdset):"", rrdcalc_chart_name(rc), host);
 
     for (s = silencers->silencers; s!=NULL; s=s->next){
         if (
                 (!s->alarms_pattern || (rc->name && s->alarms_pattern && simple_pattern_matches_string(s->alarms_pattern, rc->name))) &&
                 (!s->contexts_pattern || (rc->rrdset && rc->rrdset->context && s->contexts_pattern && simple_pattern_matches_string(s->contexts_pattern, rc->rrdset->context))) &&
                 (!s->hosts_pattern || (host && s->hosts_pattern && simple_pattern_matches(s->hosts_pattern, host))) &&
-                (!s->charts_pattern || (rc->chart && s->charts_pattern && simple_pattern_matches_string(s->charts_pattern, rc->chart))) &&
-                (!s->families_pattern || (rc->rrdset && rc->rrdset->family && s->families_pattern && simple_pattern_matches_string(s->families_pattern, rc->rrdset->family)))
+                (!s->charts_pattern || (rc->chart && s->charts_pattern && simple_pattern_matches_string(s->charts_pattern, rc->chart)))
                 ) {
-            netdata_log_debug(D_HEALTH, "Alarm matches command API silence entry %s:%s:%s:%s:%s", s->alarms,s->charts, s->contexts, s->hosts, s->families);
+            netdata_log_debug(D_HEALTH, "Alarm matches command API silence entry %s:%s:%s:%s", s->alarms,s->charts, s->contexts, s->hosts);
             if (unlikely(silencers->stype == STYPE_NONE)) {
                 netdata_log_debug(D_HEALTH, "Alarm %s matched a silence entry, but no SILENCE or DISABLE command was issued via the command API. The match has no effect.", rrdcalc_name(rc));
             } else {
-                netdata_log_debug(D_HEALTH, "Alarm %s via the command API - name:%s context:%s chart:%s host:%s family:%s"
+                netdata_log_debug(D_HEALTH, "Alarm %s via the command API - name:%s context:%s chart:%s host:%s"
                         , (silencers->stype == STYPE_DISABLE_ALARMS)?"Disabled":"Silenced"
                         , rrdcalc_name(rc)
                         , (rc->rrdset)?rrdset_context(rc->rrdset):""
                         , rrdcalc_chart_name(rc)
                         , host
-                        , (rc->rrdset)?rrdset_family(rc->rrdset):""
                         );
             }
             return silencers->stype;
@@ -1001,7 +989,7 @@ static void health_execute_delayed_initializations(RRDHOST *host) {
             }
             foreach_rrdcalctemplate_done(rt);
 
-            if (health_variable_check(health_rrdvars, st, rd))
+            if (health_variable_check(health_rrdvars, st, rd) || rrdset_flag_check(st, RRDSET_FLAG_HAS_RRDCALC_LINKED))
                 rrdvar_store_for_chart(host, st);
         }
         rrddim_foreach_done(rd);
@@ -1155,7 +1143,6 @@ void *health_main(void *ptr) {
                                                                     rc->rrdset->id,
                                                                     rc->rrdset->context,
                                                                     rc->rrdset->name,
-                                                                    rc->rrdset->family,
                                                                     rc->classification,
                                                                     rc->component,
                                                                     rc->type,
@@ -1168,6 +1155,7 @@ void *health_main(void *ptr) {
                                                                     RRDCALC_STATUS_REMOVED,
                                                                     rc->source,
                                                                     rc->units,
+                                                                    rc->summary,
                                                                     rc->info,
                                                                     0,
                                                                     rrdcalc_isrepeating(rc)?HEALTH_ENTRY_FLAG_IS_REPEATING:0);
@@ -1211,7 +1199,7 @@ void *health_main(void *ptr) {
 
                     int ret = rrdset2value_api_v1(rc->rrdset, NULL, &rc->value, rrdcalc_dimensions(rc), 1,
                                                   rc->after, rc->before, rc->group, NULL,
-                                                  0, rc->options,
+                                                  0, rc->options | RRDR_OPTION_SELECTED_TIER,
                                                   &rc->db_after,&rc->db_before,
                                                   NULL, NULL, NULL,
                                                   &value_is_null, NULL, 0, 0,
@@ -1422,7 +1410,6 @@ void *health_main(void *ptr) {
                                                                     rc->rrdset->id,
                                                                     rc->rrdset->context,
                                                                     rc->rrdset->name,
-                                                                    rc->rrdset->family,
                                                                     rc->classification,
                                                                     rc->component,
                                                                     rc->type,
@@ -1435,6 +1422,7 @@ void *health_main(void *ptr) {
                                                                     status,
                                                                     rc->source,
                                                                     rc->units,
+                                                                    rc->summary,
                                                                     rc->info,
                                                                     rc->delay_last,
                                                                     (
@@ -1509,7 +1497,6 @@ void *health_main(void *ptr) {
                                                                     rc->rrdset->id,
                                                                     rc->rrdset->context,
                                                                     rc->rrdset->name,
-                                                                    rc->rrdset->family,
                                                                     rc->classification,
                                                                     rc->component,
                                                                     rc->type,
@@ -1522,6 +1509,7 @@ void *health_main(void *ptr) {
                                                                     rc->status,
                                                                     rc->source,
                                                                     rc->units,
+                                                                    rc->summary,
                                                                     rc->info,
                                                                     rc->delay_last,
                                                                     (

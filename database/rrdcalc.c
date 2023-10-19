@@ -98,7 +98,7 @@ uint32_t rrdcalc_get_unique_id(RRDHOST *host, STRING *chart, STRING *name, uint3
 }
 
 // ----------------------------------------------------------------------------
-// RRDCALC replacing info text variables with RRDSET labels
+// RRDCALC replacing info/summary text variables with RRDSET labels
 
 static STRING *rrdcalc_replace_variables_with_rrdset_labels(const char *line, RRDCALC *rc) {
     if (!line || !*line)
@@ -135,6 +135,7 @@ static STRING *rrdcalc_replace_variables_with_rrdset_labels(const char *line, RR
             label_val[i - RRDCALC_VAR_LABEL_LEN - 1] = '\0';
 
             if(likely(rc->rrdset && rc->rrdset->rrdlabels)) {
+                lbl_value = NULL;
                 rrdlabels_get_value_strdup_or_null(rc->rrdset->rrdlabels, &lbl_value, label_val);
                 if (lbl_value) {
                     char *buf = find_and_replace(temp, var, lbl_value, m);
@@ -158,9 +159,17 @@ void rrdcalc_update_info_using_rrdset_labels(RRDCALC *rc) {
     size_t labels_version = rrdlabels_version(rc->rrdset->rrdlabels);
     if(rc->labels_version != labels_version) {
 
-        STRING *old = rc->info;
-        rc->info = rrdcalc_replace_variables_with_rrdset_labels(rrdcalc_original_info(rc), rc);
-        string_freez(old);
+        if (rc->original_info) {
+            STRING *old = rc->info;
+            rc->info = rrdcalc_replace_variables_with_rrdset_labels(rrdcalc_original_info(rc), rc);
+            string_freez(old);
+        }
+
+         if (rc->original_summary) {
+            STRING *old = rc->summary;
+            rc->summary = rrdcalc_replace_variables_with_rrdset_labels(rrdcalc_original_summary(rc), rc);
+            string_freez(old);
+        }
 
         rc->labels_version = labels_version;
     }
@@ -285,6 +294,11 @@ static void rrdcalc_link_to_rrdset(RRDSET *st, RRDCALC *rc) {
 
     rrdcalc_update_info_using_rrdset_labels(rc);
 
+    if(!rc->summary) {
+        rc->summary = string_dup(rc->name);
+        rc->original_summary = string_dup(rc->name);
+    }
+
     time_t now = now_realtime_sec();
 
     ALARM_ENTRY *ae = health_create_alarm_entry(
@@ -297,7 +311,6 @@ static void rrdcalc_link_to_rrdset(RRDSET *st, RRDCALC *rc) {
         rc->rrdset->id,
         rc->rrdset->context,
         rc->rrdset->name,
-        rc->rrdset->family,
         rc->classification,
         rc->component,
         rc->type,
@@ -310,12 +323,14 @@ static void rrdcalc_link_to_rrdset(RRDSET *st, RRDCALC *rc) {
         rc->status,
         rc->source,
         rc->units,
+        rc->summary,
         rc->info,
         0,
         rrdcalc_isrepeating(rc)?HEALTH_ENTRY_FLAG_IS_REPEATING:0);
 
     rc->ae = ae;
     health_alarm_log_add_entry(host, ae);
+    rrdset_flag_set(st, RRDSET_FLAG_HAS_RRDCALC_LINKED);
 }
 
 static void rrdcalc_unlink_from_rrdset(RRDCALC *rc, bool having_ll_wrlock) {
@@ -342,7 +357,6 @@ static void rrdcalc_unlink_from_rrdset(RRDCALC *rc, bool having_ll_wrlock) {
             rc->rrdset->id,
             rc->rrdset->context,
             rc->rrdset->name,
-            rc->rrdset->family,
             rc->classification,
             rc->component,
             rc->type,
@@ -355,6 +369,7 @@ static void rrdcalc_unlink_from_rrdset(RRDCALC *rc, bool having_ll_wrlock) {
             RRDCALC_STATUS_REMOVED,
             rc->source,
             rc->units,
+            rc->summary,
             rc->info,
             0,
             0);
@@ -510,6 +525,11 @@ static void rrdcalc_rrdhost_insert_callback(const DICTIONARY_ITEM *item __maybe_
         rc->units = string_dup(rt->units);
         rc->info = string_dup(rt->info);
         rc->original_info = string_dup(rt->info);
+
+        if (!rt->summary)
+            rt->summary = string_dup(rc->name);
+        rc->summary = string_dup(rt->summary);
+        rc->original_summary = string_dup(rt->summary);
 
         rc->classification = string_dup(rt->classification);
         rc->component = string_dup(rt->component);

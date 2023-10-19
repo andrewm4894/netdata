@@ -454,8 +454,8 @@ static inline void storage_engine_store_metric(
                                        count, anomaly_count, flags);
 }
 
-size_t rrdeng_disk_space_max(STORAGE_INSTANCE *db_instance);
-static inline size_t storage_engine_disk_space_max(STORAGE_ENGINE_BACKEND backend __maybe_unused, STORAGE_INSTANCE *db_instance __maybe_unused) {
+uint64_t rrdeng_disk_space_max(STORAGE_INSTANCE *db_instance);
+static inline uint64_t storage_engine_disk_space_max(STORAGE_ENGINE_BACKEND backend __maybe_unused, STORAGE_INSTANCE *db_instance __maybe_unused) {
 #ifdef ENABLE_DBENGINE
     if(likely(backend == STORAGE_ENGINE_BACKEND_DBENGINE))
         return rrdeng_disk_space_max(db_instance);
@@ -464,8 +464,8 @@ static inline size_t storage_engine_disk_space_max(STORAGE_ENGINE_BACKEND backen
     return 0;
 }
 
-size_t rrdeng_disk_space_used(STORAGE_INSTANCE *db_instance);
-static inline size_t storage_engine_disk_space_used(STORAGE_ENGINE_BACKEND backend __maybe_unused, STORAGE_INSTANCE *db_instance __maybe_unused) {
+uint64_t rrdeng_disk_space_used(STORAGE_INSTANCE *db_instance);
+static inline uint64_t storage_engine_disk_space_used(STORAGE_ENGINE_BACKEND backend __maybe_unused, STORAGE_INSTANCE *db_instance __maybe_unused) {
 #ifdef ENABLE_DBENGINE
     if(likely(backend == STORAGE_ENGINE_BACKEND_DBENGINE))
         return rrdeng_disk_space_used(db_instance);
@@ -693,9 +693,7 @@ typedef enum __attribute__ ((__packed__)) rrdset_flags {
     RRDSET_FLAG_HIDDEN                           = (1 << 12), // if set, do not show this chart on the dashboard, but use it for exporting
     RRDSET_FLAG_SYNC_CLOCK                       = (1 << 13), // if set, microseconds on next data collection will be ignored (the chart will be synced to now)
     RRDSET_FLAG_OBSOLETE_DIMENSIONS              = (1 << 14), // this is marked by the collector/module when a chart has obsolete dimensions
-                                                              // No new values have been collected for this chart since agent start, or it was marked RRDSET_FLAG_OBSOLETE at
-                                                              // least rrdset_free_obsolete_time seconds ago.
-    RRDSET_FLAG_ARCHIVED                         = (1 << 15),
+
     RRDSET_FLAG_METADATA_UPDATE                  = (1 << 16), // Mark that metadata needs to be stored
     RRDSET_FLAG_ANOMALY_DETECTION                = (1 << 18), // flag to identify anomaly detection charts.
     RRDSET_FLAG_INDEXED_ID                       = (1 << 19), // the rrdset is indexed by its id
@@ -711,6 +709,8 @@ typedef enum __attribute__ ((__packed__)) rrdset_flags {
     RRDSET_FLAG_UPSTREAM_SEND_VARIABLES          = (1 << 26), // a custom variable has been updated and needs to be exposed to parent
 
     RRDSET_FLAG_COLLECTION_FINISHED              = (1 << 27), // when set, data collection is not available for this chart
+
+    RRDSET_FLAG_HAS_RRDCALC_LINKED               = (1 << 28), // this chart has at least one rrdcal linked
 } RRDSET_FLAGS;
 
 #define rrdset_flag_check(st, flag) (__atomic_load_n(&((st)->flags), __ATOMIC_SEQ_CST) & (flag))
@@ -933,6 +933,8 @@ typedef enum __attribute__ ((__packed__)) rrdhost_flags {
 
     RRDHOST_FLAG_METADATA_CLAIMID               = (1 << 28), // metadata needs to be stored in the database
     RRDHOST_FLAG_RRDPUSH_RECEIVER_DISCONNECTED  = (1 << 29), // set when the receiver part is disconnected
+
+    RRDHOST_FLAG_GLOBAL_FUNCTIONS_UPDATED       = (1 << 30), // set when the host has updated global functions
 } RRDHOST_FLAGS;
 
 #define rrdhost_flag_check(host, flag) (__atomic_load_n(&((host)->flags), __ATOMIC_SEQ_CST) & (flag))
@@ -990,7 +992,6 @@ struct alarm_entry {
     STRING *chart;
     STRING *chart_context;
     STRING *chart_name;
-    STRING *family;
 
     STRING *classification;
     STRING *component;
@@ -1004,6 +1005,7 @@ struct alarm_entry {
 
     STRING *source;
     STRING *units;
+    STRING *summary;
     STRING *info;
 
     NETDATA_DOUBLE old_value;
@@ -1034,12 +1036,12 @@ struct alarm_entry {
 #define ae_chart_id(ae) string2str((ae)->chart)
 #define ae_chart_name(ae) string2str((ae)->chart_name)
 #define ae_chart_context(ae) string2str((ae)->chart_context)
-#define ae_family(ae) string2str((ae)->family)
 #define ae_classification(ae) string2str((ae)->classification)
 #define ae_exec(ae) string2str((ae)->exec)
 #define ae_recipient(ae) string2str((ae)->recipient)
 #define ae_source(ae) string2str((ae)->source)
 #define ae_units(ae) string2str((ae)->units)
+#define ae_summary(ae) string2str((ae)->summary)
 #define ae_info(ae) string2str((ae)->info)
 #define ae_old_value_string(ae) string2str((ae)->old_value_string)
 #define ae_new_value_string(ae) string2str((ae)->new_value_string)
@@ -1062,6 +1064,7 @@ typedef struct health {
     uint32_t health_default_warn_repeat_every;     // the default value for the interval between repeating warning notifications
     uint32_t health_default_crit_repeat_every;     // the default value for the interval between repeating critical notifications
     unsigned int health_enabled;                   // 1 when this host has health enabled
+    bool use_summary_for_notifications;            // whether or not to use the summary field as a subject for notifications
 } HEALTH;
 
 // ----------------------------------------------------------------------------
@@ -1173,6 +1176,7 @@ struct rrdhost {
     // ------------------------------------------------------------------------
     // streaming of data from remote hosts - rrdpush receiver
 
+    time_t last_connected;                          // last time child connected (stored in db)
     time_t child_connect_time;                      // the time the last sender was connected
     time_t child_last_chart_command;                // the time of the last CHART streaming command
     time_t child_disconnected_time;                 // the time the last sender was disconnected
@@ -1247,6 +1251,8 @@ struct rrdhost {
 
     netdata_mutex_t aclk_state_lock;
     aclk_rrdhost_state aclk_state;
+
+    DICTIONARY *configurable_plugins;               // configurable plugins for this host
 
     struct rrdhost *next;
     struct rrdhost *prev;
@@ -1403,8 +1409,6 @@ void rrdset_acquired_release(RRDSET_ACQUIRED *rsa);
 static inline RRDSET *rrdset_find_active_localhost(const char *id)
 {
     RRDSET *st = rrdset_find_localhost(id);
-    if (unlikely(st && rrdset_flag_check(st, RRDSET_FLAG_ARCHIVED)))
-        return NULL;
     return st;
 }
 
@@ -1414,8 +1418,6 @@ RRDSET *rrdset_find_bytype(RRDHOST *host, const char *type, const char *id);
 static inline RRDSET *rrdset_find_active_bytype_localhost(const char *type, const char *id)
 {
     RRDSET *st = rrdset_find_bytype_localhost(type, id);
-    if (unlikely(st && rrdset_flag_check(st, RRDSET_FLAG_ARCHIVED)))
-        return NULL;
     return st;
 }
 
@@ -1425,8 +1427,6 @@ RRDSET *rrdset_find_byname(RRDHOST *host, const char *name);
 static inline RRDSET *rrdset_find_active_byname_localhost(const char *name)
 {
     RRDSET *st = rrdset_find_byname_localhost(name);
-    if (unlikely(st && rrdset_flag_check(st, RRDSET_FLAG_ARCHIVED)))
-        return NULL;
     return st;
 }
 
@@ -1442,9 +1442,8 @@ void rrdset_is_obsolete(RRDSET *st);
 void rrdset_isnot_obsolete(RRDSET *st);
 
 // checks if the RRDSET should be offered to viewers
-#define rrdset_is_available_for_viewers(st) (!rrdset_flag_check(st, RRDSET_FLAG_HIDDEN) && !rrdset_flag_check(st, RRDSET_FLAG_OBSOLETE) && !rrdset_flag_check(st, RRDSET_FLAG_ARCHIVED) && rrdset_number_of_dimensions(st) && (st)->rrd_memory_mode != RRD_MEMORY_MODE_NONE)
-#define rrdset_is_available_for_exporting_and_alarms(st) (!rrdset_flag_check(st, RRDSET_FLAG_OBSOLETE) && !rrdset_flag_check(st, RRDSET_FLAG_ARCHIVED) && rrdset_number_of_dimensions(st))
-#define rrdset_is_archived(st) (rrdset_flag_check(st, RRDSET_FLAG_ARCHIVED) && rrdset_number_of_dimensions(st))
+#define rrdset_is_available_for_viewers(st) (!rrdset_flag_check(st, RRDSET_FLAG_HIDDEN) && !rrdset_flag_check(st, RRDSET_FLAG_OBSOLETE) && rrdset_number_of_dimensions(st) && (st)->rrd_memory_mode != RRD_MEMORY_MODE_NONE)
+#define rrdset_is_available_for_exporting_and_alarms(st) (!rrdset_flag_check(st, RRDSET_FLAG_OBSOLETE) && rrdset_number_of_dimensions(st))
 
 time_t rrddim_first_entry_s(RRDDIM *rd);
 time_t rrddim_first_entry_s_of_tier(RRDDIM *rd, size_t tier);

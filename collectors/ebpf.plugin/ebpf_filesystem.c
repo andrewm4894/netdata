@@ -470,12 +470,12 @@ int ebpf_filesystem_initialize_ebpf_data(ebpf_module_t *em)
 {
     pthread_mutex_lock(&lock);
     int i;
-    const char *saved_name = em->thread_name;
+    const char *saved_name = em->info.thread_name;
     uint64_t kernels = em->kernels;
     for (i = 0; localfs[i].filesystem; i++) {
         ebpf_filesystem_partitions_t *efp = &localfs[i];
         if (!efp->probe_links && efp->flags & NETDATA_FILESYSTEM_LOAD_EBPF_PROGRAM) {
-            em->thread_name = efp->filesystem;
+            em->info.thread_name = efp->filesystem;
             em->kernels = efp->kernels;
             em->maps = efp->fs_maps;
 #ifdef LIBBPF_MAJOR_VERSION
@@ -484,7 +484,7 @@ int ebpf_filesystem_initialize_ebpf_data(ebpf_module_t *em)
             if (em->load & EBPF_LOAD_LEGACY) {
                 efp->probe_links = ebpf_load_program(ebpf_plugin_dir, em, running_on_kernel, isrh, &efp->objects);
                 if (!efp->probe_links) {
-                    em->thread_name = saved_name;
+                    em->info.thread_name = saved_name;
                     em->kernels = kernels;
                     em->maps = NULL;
                     pthread_mutex_unlock(&lock);
@@ -495,7 +495,7 @@ int ebpf_filesystem_initialize_ebpf_data(ebpf_module_t *em)
             else {
                 efp->fs_obj = filesystem_bpf__open();
                 if (!efp->fs_obj) {
-                    em->thread_name = saved_name;
+                    em->info.thread_name = saved_name;
                     em->kernels = kernels;
                     return -1;
                 } else {
@@ -515,7 +515,7 @@ int ebpf_filesystem_initialize_ebpf_data(ebpf_module_t *em)
         }
         efp->flags &= ~NETDATA_FILESYSTEM_LOAD_EBPF_PROGRAM;
     }
-    em->thread_name = saved_name;
+    em->info.thread_name = saved_name;
     pthread_mutex_unlock(&lock);
     em->kernels = kernels;
     em->maps = NULL;
@@ -909,10 +909,10 @@ static void filesystem_collector(ebpf_module_t *em)
     int counter = update_every - 1;
     uint32_t running_time = 0;
     uint32_t lifetime = em->lifetime;
-    while (!ebpf_exit_plugin && running_time < lifetime) {
+    while (!ebpf_plugin_exit && running_time < lifetime) {
         (void)heartbeat_next(&hb, USEC_PER_SEC);
 
-        if (ebpf_exit_plugin || ++counter != update_every)
+        if (ebpf_plugin_exit || ++counter != update_every)
             continue;
 
         counter = 0;

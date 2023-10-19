@@ -9,8 +9,8 @@ static pthread_attr_t *netdata_threads_attr = NULL;
 
 typedef struct {
     void *arg;
-    pthread_t *thread;
     char tag[NETDATA_THREAD_NAME_MAX + 1];
+    SPINLOCK detach_lock;
     void *(*start_routine) (void *);
     NETDATA_THREAD_OPTIONS options;
 } NETDATA_THREAD;
@@ -178,16 +178,19 @@ void rrdset_thread_rda_free(void);
 void sender_thread_buffer_free(void);
 void query_target_free(void);
 void service_exits(void);
+void rrd_collector_finished(void);
 
 static void thread_cleanup(void *ptr) {
     if(netdata_thread != ptr) {
         NETDATA_THREAD *info = (NETDATA_THREAD *)ptr;
         netdata_log_error("THREADS: internal error - thread local variable does not match the one passed to this function. Expected thread '%s', passed thread '%s'", netdata_thread->tag, info->tag);
     }
+    spinlock_lock(&netdata_thread->detach_lock);
 
     if(!(netdata_thread->options & NETDATA_THREAD_OPTION_DONT_LOG_CLEANUP))
         netdata_log_info("thread with task id %d finished", gettid());
 
+    rrd_collector_finished();
     sender_thread_buffer_free();
     rrdset_thread_rda_free();
     query_target_free();
@@ -197,6 +200,7 @@ static void thread_cleanup(void *ptr) {
 
     netdata_thread->tag[0] = '\0';
 
+    spinlock_unlock(&netdata_thread->detach_lock);
     freez(netdata_thread);
     netdata_thread = NULL;
 }
@@ -232,12 +236,12 @@ void uv_thread_set_name_np(uv_thread_t ut, const char* name) {
     strncpyz(threadname, name, NETDATA_THREAD_NAME_MAX);
 
 #if defined(__FreeBSD__)
-    pthread_set_name_np(ut, threadname);
+    pthread_set_name_np(ut ? ut : pthread_self(), threadname);
 #elif defined(__APPLE__)
     // Apple can only set its own name
     UNUSED(ut);
 #else
-    ret = pthread_setname_np(ut, threadname);
+    ret = pthread_setname_np(ut ? ut : pthread_self(), threadname);
 #endif
 
     thread_name_get(true);
@@ -279,12 +283,14 @@ static void *netdata_thread_init(void *ptr) {
 }
 
 int netdata_thread_create(netdata_thread_t *thread, const char *tag, NETDATA_THREAD_OPTIONS options, void *(*start_routine) (void *), void *arg) {
-    NETDATA_THREAD *info = mallocz(sizeof(NETDATA_THREAD));
+    NETDATA_THREAD *info = callocz(1, sizeof(NETDATA_THREAD));
     info->arg = arg;
-    info->thread = thread;
     info->start_routine = start_routine;
     info->options = options;
     strncpyz(info->tag, tag, NETDATA_THREAD_NAME_MAX);
+
+    spinlock_init(&info->detach_lock);
+    spinlock_lock(&info->detach_lock);
 
     int ret = pthread_create(thread, netdata_threads_attr, netdata_thread_init, info);
     if(ret != 0)
@@ -298,6 +304,7 @@ int netdata_thread_create(netdata_thread_t *thread, const char *tag, NETDATA_THR
         }
     }
 
+    spinlock_unlock(&info->detach_lock);
     return ret;
 }
 

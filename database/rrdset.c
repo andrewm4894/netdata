@@ -292,11 +292,6 @@ static bool rrdset_conflict_callback(const DICTIONARY_ITEM *item __maybe_unused,
 
     ctr->react_action = RRDSET_REACT_NONE;
 
-    if (rrdset_flag_check(st, RRDSET_FLAG_ARCHIVED)) {
-        rrdset_flag_clear(st, RRDSET_FLAG_ARCHIVED);
-        ctr->react_action |= RRDSET_REACT_CHART_ACTIVATED;
-    }
-
     if (rrdset_reset_name(st, (ctr->name && *ctr->name) ? ctr->name : ctr->id) == 2)
         ctr->react_action |= RRDSET_REACT_UPDATED;
 
@@ -657,11 +652,6 @@ void rrdset_get_retention_of_tier_for_collected_chart(RRDSET *st, time_t *first_
 }
 
 inline void rrdset_is_obsolete(RRDSET *st) {
-    if(unlikely(rrdset_flag_check(st, RRDSET_FLAG_ARCHIVED))) {
-        netdata_log_info("Cannot obsolete already archived chart %s", rrdset_name(st));
-        return;
-    }
-
     if(unlikely(!(rrdset_flag_check(st, RRDSET_FLAG_OBSOLETE)))) {
         rrdset_flag_set(st, RRDSET_FLAG_OBSOLETE);
         rrdhost_flag_set(st->rrdhost, RRDHOST_FLAG_PENDING_OBSOLETE_CHARTS);
@@ -1046,7 +1036,7 @@ void rrdset_timed_next(RRDSET *st, struct timeval now, usec_t duration_since_las
                 last_time_s = now.tv_sec;
 
                 if(min_delta > permanent_min_delta) {
-                    netdata_log_info("MINIMUM MICROSECONDS DELTA of thread %d increased from %lld to %lld (+%lld)", gettid(), permanent_min_delta, min_delta, min_delta - permanent_min_delta);
+                    netdata_log_info("MINIMUM MICROSECONDS DELTA of thread %d increased from %"PRIi64" to %"PRIi64" (+%"PRIi64")", gettid(), permanent_min_delta, min_delta, min_delta - permanent_min_delta);
                     permanent_min_delta = min_delta;
                 }
 
@@ -1056,12 +1046,12 @@ void rrdset_timed_next(RRDSET *st, struct timeval now, usec_t duration_since_las
 #endif
     }
 
-    netdata_log_debug(D_RRD_CALLS, "rrdset_timed_next() for chart %s with duration since last update %llu usec", rrdset_name(st), duration_since_last_update);
-    rrdset_debug(st, "NEXT: %llu microseconds", duration_since_last_update);
+    netdata_log_debug(D_RRD_CALLS, "rrdset_timed_next() for chart %s with duration since last update %"PRIu64" usec", rrdset_name(st), duration_since_last_update);
+    rrdset_debug(st, "NEXT: %"PRIu64" microseconds", duration_since_last_update);
 
     internal_error(discarded && discarded != duration_since_last_update,
-                   "host '%s', chart '%s': discarded data collection time of %llu usec, "
-                   "replaced with %llu usec, reason: '%s'"
+                   "host '%s', chart '%s': discarded data collection time of %"PRIu64" usec, "
+                   "replaced with %"PRIu64" usec, reason: '%s'"
                    , rrdhost_hostname(st->rrdhost)
                    , rrdset_id(st)
                    , discarded
@@ -1333,7 +1323,7 @@ static inline size_t rrdset_done_interpolate(
 
         internal_error(iterations < 0,
                        "RRDSET: '%s': iterations calculation wrapped! "
-                       "first_ut = %llu, last_stored_ut = %llu, next_store_ut = %llu, now_collect_ut = %llu"
+                       "first_ut = %"PRIu64", last_stored_ut = %"PRIu64", next_store_ut = %"PRIu64", now_collect_ut = %"PRIu64""
                        , rrdset_id(st)
                        , first_ut
                        , last_stored_ut
@@ -1366,8 +1356,8 @@ static inline size_t rrdset_done_interpolate(
 
                     rrdset_debug(st, "%s: CALC2 INC " NETDATA_DOUBLE_FORMAT " = "
                                  NETDATA_DOUBLE_FORMAT
-                                " * (%llu - %llu)"
-                                " / (%llu - %llu)"
+                                " * (%"PRIu64" - %"PRIu64")"
+                                " / (%"PRIu64" - %"PRIu64""
                               , rrddim_name(rd)
                               , new_value
                               , rd->collector.calculated_value
@@ -1416,8 +1406,8 @@ static inline size_t rrdset_done_interpolate(
 
                         rrdset_debug(st, "%s: CALC2 DEF " NETDATA_DOUBLE_FORMAT " = ((("
                                             "(" NETDATA_DOUBLE_FORMAT " - " NETDATA_DOUBLE_FORMAT ")"
-                                            " * %llu"
-                                            " / %llu) + " NETDATA_DOUBLE_FORMAT, rrddim_name(rd)
+                                            " * %"PRIu64""
+                                            " / %"PRIu64") + " NETDATA_DOUBLE_FORMAT, rrddim_name(rd)
                                   , new_value
                                   , rd->collector.calculated_value, rd->collector.last_calculated_value
                                   , (next_store_ut - first_ut)
@@ -1551,7 +1541,7 @@ void rrdset_timed_done(RRDSET *st, struct timeval now, bool pending_rrdset_next)
         first_entry = 1;
     }
 
-    rrdset_debug(st, "microseconds since last update: %llu", st->usec_since_last_update);
+    rrdset_debug(st, "microseconds since last update: %"PRIu64"", st->usec_since_last_update);
 
     // set last_collected_time
     if(unlikely(!st->last_collected_time.tv_sec)) {

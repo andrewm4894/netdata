@@ -815,7 +815,7 @@ uninstall() {
     FLAGS="--yes"
   fi
 
-  if [ -x "${uninstaller}" ]; then
+  if run_as_root test -x "${uninstaller}"; then
     if [ "${DRY_RUN}" -eq 1 ]; then
       progress "Would attempt to uninstall existing install with uninstaller script found at: ${uninstaller}"
       return 0
@@ -881,9 +881,8 @@ detect_existing_install() {
   if [ -n "${ndprefix}" ]; then
     typefile="${ndprefix}/etc/netdata/.install-type"
     if [ -r "${typefile}" ]; then
-      run_as_root sh -c "cat \"${typefile}\" > \"${tmpdir}/install-type\""
       # shellcheck disable=SC1090,SC1091
-      . "${tmpdir}/install-type"
+      . "${typefile}"
     else
       INSTALL_TYPE="unknown"
     fi
@@ -891,9 +890,8 @@ detect_existing_install() {
     envfile="${ndprefix}/etc/netdata/.environment"
     if [ "${INSTALL_TYPE}" = "unknown" ] || [ "${INSTALL_TYPE}" = "custom" ]; then
       if [ -r "${envfile}" ]; then
-        run_as_root sh -c "cat \"${envfile}\" > \"${tmpdir}/environment\""
-        # shellcheck disable=SC1091
-        . "${tmpdir}/environment"
+        # shellcheck disable=SC1090,SC1091
+        . "${envfile}"
         if [ -n "${NETDATA_IS_STATIC_INSTALL}" ]; then
           if [ "${NETDATA_IS_STATIC_INSTALL}" = "yes" ]; then
             INSTALL_TYPE="legacy-static"
@@ -2136,7 +2134,7 @@ parse_args() {
       "--claim-only") set_action 'claim' ;;
       "--no-updates") NETDATA_AUTO_UPDATES=0 ;;
       "--auto-update") NETDATA_AUTO_UPDATES="1" ;;
-      "--auto-update-method")
+      "--auto-update-type"|"--auto-update-method")
         NETDATA_AUTO_UPDATE_TYPE="$(echo "${2}" | tr '[:upper:]' '[:lower:]')"
         case "${NETDATA_AUTO_UPDATE_TYPE}" in
           systemd|interval|crontab) shift 1 ;;

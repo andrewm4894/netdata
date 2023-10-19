@@ -24,14 +24,15 @@
         apiUrl: "https://app.netdata.cloud",
         cloudUrl: "https://app.netdata.cloud",
         demoSlug: "netdata-demo",
-        demoFavourites: {"postgresql":["postgres"],"redis":["redis"],"dns-query":["dns_query"],"http-endpoints":["httpcheck"],"nginx":["web_log","nginx"],"apache":["apache"],"host-reachability":["ping"],"cassandra":["cassandra"],"coredns":["coredns"],"logind":["logind"],"iis":["iis"],"active-directory":["ad"],"windows":["windows","ad","iis","mssql","exchange","netframework"],"docker":["cgroup","docker"]},
+        demoFavourites: {"postgresql":["postgres"],"redis":["redis"],"dns-query":["dns_query"],"http-endpoints":["httpcheck"],"nginx":["web_log","nginx"],"apache":["apache"],"host-reachability":["ping"],"cassandra":["cassandra"],"coredns":["coredns"],"logind":["logind"],"iis":["iis"],"active-directory":["ad"],"windows":["windows","ad","iis","mssql","exchange","netframework"],"docker":["cgroup","docker"],"ups":["upsd"]},
         webpackPublicPath: "https://app.netdata.cloud",
         agentApiUrl: searchParams.get("agent") || getBasename(),
         posthogToken: "phc_hnhlqe6D2Q4IcQNrFItaqdXJAxQ8RcHkPAFAp74pubv",
-        version: "6.32.0",
+        version: "6.53.0",
         tracking: false,
         cookieDomain: ".netdata.cloud",
-        onprem: false
+        onprem: false,
+        nodeEnv: "production"
       }
 
       function loadStyle(url, { media, insertAfter: aref, insertBefore: bref, rel, type } = {}) {
@@ -205,5 +206,19 @@
             if (event.source !== iframe.contentWindow) return;
 
             if (event.data.status === "disabled") console.error("Your netdata registry is disabled! Check your configuration.")
+
+            if (event.data) {
+              if (!window.localNetdataRegistry) {
+                window.localNetdataRegistry = {}
+              }
+
+              window.localNetdataRegistry.pg = event.data.person_guid
+
+              if (!window.envSettings) {
+                window.envSettings = {}
+              }
+
+              window.envSettings.visitor = event.data.person_guid
+            }
           });
-        })</script></body></html>
+        }).catch(() => {})</script></body></html>

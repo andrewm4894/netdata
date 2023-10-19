@@ -21,7 +21,6 @@ inline ALARM_ENTRY* health_create_alarm_entry(
     STRING *chart,
     STRING *chart_context,
     STRING *chart_name,
-    STRING *family,
     STRING *class,
     STRING *component,
     STRING *type,
@@ -34,6 +33,7 @@ inline ALARM_ENTRY* health_create_alarm_entry(
     RRDCALC_STATUS new_status,
     STRING *source,
     STRING *units,
+    STRING *summary,
     STRING *info,
     int delay,
     HEALTH_ENTRY_FLAGS flags
@@ -51,7 +51,6 @@ inline ALARM_ENTRY* health_create_alarm_entry(
     uuid_generate_random(ae->transition_id);
     ae->global_id = now_realtime_usec();
 
-    ae->family = string_dup(family);
     ae->classification = string_dup(class);
     ae->component = string_dup(component);
     ae->type = string_dup(type);
@@ -71,6 +70,7 @@ inline ALARM_ENTRY* health_create_alarm_entry(
     ae->old_value_string = string_strdupz(format_value_and_unit(value_string, 100, ae->old_value, ae_units(ae), -1));
     ae->new_value_string = string_strdupz(format_value_and_unit(value_string, 100, ae->new_value, ae_units(ae), -1));
 
+    ae->summary = string_dup(summary);
     ae->info = string_dup(info);
     ae->old_status = old_status;
     ae->new_status = new_status;
@@ -132,7 +132,6 @@ inline void health_alarm_log_free_one_nochecks_nounlink(ALARM_ENTRY *ae) {
     string_freez(ae->name);
     string_freez(ae->chart);
     string_freez(ae->chart_context);
-    string_freez(ae->family);
     string_freez(ae->classification);
     string_freez(ae->component);
     string_freez(ae->type);
